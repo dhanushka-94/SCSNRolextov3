@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --color-forest: #1b4d32;
+    --color-forest-dark: #123826;
+    --color-leaf: #2f8f4e;
+    --color-leaf-soft: #4caf67;
+    --color-bark: #6b4423;
+    --color-bark-dark: #4a2e18;
+    --color-tan: #c4a574;
+    --color-sand: #e8dcc8;
+    --color-cream: #f6f1e8;
+    --color-paper: #fffcf7;
+    --color-ink: #2a2118;
+    --color-muted: #6f6256;
+    --color-line: #d9cdb8;
+}
+
+@layer base {
+    html {
+        color-scheme: light;
+    }
+
+    body {
+        @apply bg-cream text-ink antialiased;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-leaf px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-150 hover:bg-forest focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-paper px-4 py-2.5 text-sm font-semibold text-bark transition duration-150 hover:bg-sand focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-700 px-4 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-red-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .input-field {
+        @apply w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-muted/70 focus:border-leaf focus:outline-none focus:ring-2 focus:ring-leaf/20;
+    }
+
+    .label-field {
+        @apply mb-1.5 block text-sm font-medium text-bark-dark;
+    }
+
+    .card {
+        @apply rounded-2xl border border-sand bg-paper shadow-[0_10px_30px_rgba(75,46,24,0.06)];
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sand/90 transition hover:bg-white/10 hover:text-white;
+    }
+
+    .nav-link-active {
+        @apply bg-leaf text-white shadow-sm hover:bg-leaf hover:text-white;
+    }
+
+    .app-footer-sticky {
+        @apply sticky bottom-0 z-10 mt-auto shrink-0 border-t border-sand bg-paper/95 backdrop-blur;
+    }
+}

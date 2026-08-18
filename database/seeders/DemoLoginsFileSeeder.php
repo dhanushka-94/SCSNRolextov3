@@ -1,0 +1,75 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+
+class DemoLoginsFileSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $generated = sl_datetime(now());
+
+        $content = <<<TEXT
+SCSNR Demo Login Reference
+Generated: {$generated}
+========================================
+
+SYSTEM USERS (Admin portal: /admin)
+------------------------------------
+Administrator
+  Email   : admin@rrisl.gov.lk
+  Password: Admin@12345
+
+Primary staff officer
+  Email   : staff@rrisl.gov.lk
+  Password: Staff@12345
+
+Staff accounts (100 samples)
+  Email   : staff001@rrisl.gov.lk  to  staff100@rrisl.gov.lk
+  Password: Staff@12345  (same for all staff accounts)
+
+Total system users seeded: 102
+
+
+PLANTER USERS (Planter portal: /login)
+---------------------------------------
+Approved planters with password (55 samples)
+  Email   : planter046@sample.lk  to  planter100@sample.lk
+  Password: Planter@12345  (same for all approved planters with password)
+  Alt login: SCSNR identification number (see profile after login)
+  Examples:
+    planter046@sample.lk / Planter@12345
+    planter050@sample.lk / Planter@12345
+    planter100@sample.lk / Planter@12345
+
+Approved planters without password yet (10 samples)
+  Email   : planter101@sample.lk  to  planter110@sample.lk
+  Action  : Use /set-password first (temporary ID + NIC)
+
+Pending planters — approval lobby only (45 samples)
+  planter001@sample.lk  to  planter045@sample.lk
+  Status  : Cannot sign in until approved
+
+Rejected planters (10 samples)
+  planter111@sample.lk  to  planter120@sample.lk
+  Status  : Cannot sign in
+
+Total planter records seeded: 120
+
+
+QUICK TEST ACCOUNTS
+-------------------
+Admin     : admin@rrisl.gov.lk / Admin@12345
+Staff     : staff001@rrisl.gov.lk / Staff@12345
+Planter   : planter050@sample.lk / Planter@12345
+
+Refresh all demo data:
+  php artisan db:seed
+
+TEXT;
+
+        File::put(base_path('DEMO-LOGINS.txt'), $content);
+    }
+}
