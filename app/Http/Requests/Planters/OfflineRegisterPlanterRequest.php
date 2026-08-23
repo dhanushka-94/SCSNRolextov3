@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests\Planters;
 
+use App\Http\Requests\Concerns\ProtectsRegistrationFromSpam;
 use App\Models\Planter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class OfflineRegisterPlanterRequest extends FormRequest
 {
+    use ProtectsRegistrationFromSpam;
+
     public function authorize(): bool
     {
         return true;
@@ -15,6 +18,8 @@ class OfflineRegisterPlanterRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $this->prepareSpamProtection();
+
         $this->merge([
             'email' => $this->filled('email') ? $this->email : null,
             'district' => $this->filled('district') ? $this->district : null,

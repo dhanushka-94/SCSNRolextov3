@@ -8,7 +8,7 @@
             <div class="border-b border-sand bg-forest-dark px-6 py-8 text-white">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-tan">Planter Portal</p>
                 <h1 class="mt-2 text-2xl font-semibold">Create password</h1>
-                <p class="mt-2 text-sm text-sand/80">Use this only after your registration has been approved.</p>
+                <p class="mt-2 text-sm text-sand/80">Use your SCSNR registration number and NIC after approval.</p>
             </div>
 
             <form method="POST" action="{{ route('planter.password.store') }}" class="space-y-5 p-6 sm:p-8">
@@ -21,12 +21,14 @@
                 @endif
 
                 <div>
-                    <label for="temporary_id" class="label-field">Temporary unique ID</label>
-                    <input id="temporary_id" name="temporary_id" type="text" value="{{ old('temporary_id') }}" required class="input-field" placeholder="TMP-2026-000001">
+                    <x-bilingual-label si="SCSNR ලියාපදිංචි අංකය" en="SCSNR registration number" for="identification_number" />
+                    <input id="identification_number" name="identification_number" type="text" value="{{ old('identification_number') }}" required class="input-field font-mono" placeholder="SCSNR/Ad/Kr/2026/0001">
+                    @error('identification_number')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="nic" class="label-field">NIC number</label>
+                    <x-bilingual-label si="ජා. හැ. අංකය" en="NIC number" for="nic" />
                     <input id="nic" name="nic" type="text" value="{{ old('nic') }}" required class="input-field">
+                    @error('nic')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="password" class="label-field">New password</label>

@@ -20,7 +20,7 @@ class SetPlanterPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'temporary_id' => ['required', 'string'],
+            'identification_number' => ['required', 'string'],
             'nic' => ['required', 'string'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
@@ -29,31 +29,31 @@ class SetPlanterPasswordRequest extends FormRequest
     public function planter(): Planter
     {
         $planter = Planter::query()
-            ->where('temporary_id', trim($this->string('temporary_id')->toString()))
+            ->where('identification_number', trim($this->string('identification_number')->toString()))
             ->where('nic', trim($this->string('nic')->toString()))
             ->first();
 
         if (! $planter) {
             throw ValidationException::withMessages([
-                'temporary_id' => 'No approved registration matches this temporary ID and NIC.',
+                'identification_number' => 'No approved registration matches this SCSNR ID and NIC.',
             ]);
         }
 
         if ($planter->isPending()) {
             throw ValidationException::withMessages([
-                'temporary_id' => 'Your registration is still waiting for approval.',
+                'identification_number' => 'Your registration is still waiting for approval.',
             ]);
         }
 
         if ($planter->isRejected()) {
             throw ValidationException::withMessages([
-                'temporary_id' => 'This registration was rejected. Please contact SCSNR administration.',
+                'identification_number' => 'This registration was rejected. Please contact SCSNR administration.',
             ]);
         }
 
         if ($planter->hasPassword()) {
             throw ValidationException::withMessages([
-                'temporary_id' => 'A password is already set for this account. Please sign in.',
+                'identification_number' => 'A password is already set for this account. Please sign in.',
             ]);
         }
 

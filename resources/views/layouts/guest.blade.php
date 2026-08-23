@@ -7,8 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Sign in') · {{ config('app.short_name') }}</title>
     <link rel="icon" href="{{ asset('SCSNR-logo.png') }}">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700" rel="stylesheet" />
+    <x-app-fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-cream">
@@ -17,5 +16,6 @@
         <div class="absolute -bottom-20 -right-16 h-80 w-80 rounded-full bg-tan/30 blur-3xl"></div>
     </div>
     @yield('content')
+    @stack('scripts')
 </body>
 </html>

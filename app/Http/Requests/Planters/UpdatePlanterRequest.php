@@ -9,9 +9,16 @@ use Illuminate\Validation\Rules\Password;
 
 class UpdatePlanterRequest extends FormRequest
 {
+    use ValidatesPlanterApplicationFields;
+
     public function authorize(): bool
     {
         return $this->user('web') !== null;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->prepareApplicationFields();
     }
 
     /**
@@ -22,7 +29,7 @@ class UpdatePlanterRequest extends FormRequest
         /** @var Planter $planter */
         $planter = $this->route('planter');
 
-        return [
+        return array_merge([
             'name' => ['required', 'string', 'max:120'],
             'nic' => ['required', 'string', 'max:20', Rule::unique('planters', 'nic')->ignore($planter->id)],
             'email' => ['required', 'string', 'email', 'max:190', Rule::unique('planters', 'email')->ignore($planter->id)],
@@ -32,6 +39,14 @@ class UpdatePlanterRequest extends FormRequest
             'status' => ['required', Rule::in(array_keys(Planter::statuses()))],
             'rejection_reason' => ['nullable', 'required_if:status,rejected', 'string', 'max:500'],
             'password' => ['nullable', 'confirmed', Password::min(8)],
-        ];
+        ], $this->applicationFieldRules(requireCoreApplication: false));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return $this->applicationFieldAttributes();
     }
 }

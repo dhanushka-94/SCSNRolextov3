@@ -47,7 +47,7 @@
                     @forelse ($planters as $planter)
                         <tr class="border-t border-sand">
                             <td class="px-5 py-4 font-mono text-xs font-semibold text-forest">
-                                {{ $planter->identification_number ?: $planter->temporary_id }}
+                                {{ $planter->identification_number }}
                             </td>
                             <td class="px-5 py-4">
                                 <p class="font-semibold text-ink">{{ $planter->name }}</p>
@@ -84,7 +84,7 @@
         <div class="space-y-3 p-4 md:hidden">
             @forelse ($planters as $planter)
                 <article class="rounded-2xl border border-sand bg-cream p-4">
-                    <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number ?: $planter->temporary_id }}</p>
+                    <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number }}</p>
                     <p class="mt-1 font-semibold">{{ $planter->name }}</p>
                     <p class="text-sm text-muted">{{ $planter->district }} · {{ \App\Models\Planter::statuses()[$planter->status] }}</p>
                     <div class="mt-4 flex flex-wrap gap-2">

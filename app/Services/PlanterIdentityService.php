@@ -73,6 +73,20 @@ class PlanterIdentityService
         return $prefix.str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public function assignRegistrationNumbers(array $data): array
+    {
+        $number = $this->generateIdentificationNumber(new Planter($data));
+        $data['identification_number'] = $number;
+        // Keep legacy column in sync for existing schema constraints.
+        $data['temporary_id'] = $number;
+
+        return $data;
+    }
+
     public function qrPayload(Planter $planter): string
     {
         return $planter->identification_number ?: $planter->temporary_id;

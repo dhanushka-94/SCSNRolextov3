@@ -13,13 +13,19 @@ class DemoResetSeeder extends Seeder
     public function run(): void
     {
         Planter::query()->each(function (Planter $planter) {
-            if ($planter->application_document && Storage::disk('local')->exists($planter->application_document)) {
-                Storage::disk('local')->delete($planter->application_document);
+            foreach (['application_document', 'prior_certificate_document'] as $field) {
+                $path = $planter->{$field};
+
+                if ($path && Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->delete($path);
+                }
             }
         });
 
-        if (Storage::disk('local')->exists('planter-applications')) {
-            Storage::disk('local')->deleteDirectory('planter-applications');
+        foreach (['planter-applications', 'planter-certificates'] as $directory) {
+            if (Storage::disk('local')->exists($directory)) {
+                Storage::disk('local')->deleteDirectory($directory);
+            }
         }
 
         Schema::disableForeignKeyConstraints();

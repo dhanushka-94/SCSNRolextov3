@@ -21,7 +21,27 @@ return [
 
     'version' => env('APP_VERSION', '0.0.1'),
 
-    'copyright' => env('APP_COPYRIGHT', 'Rubber Research Institute of Sri Lanka'),
+    'copyright' => env('APP_COPYRIGHT', 'Sustainability Certification System for Natural Rubber'),
+
+    'powered_by' => 'Powered by the Ministry of Plantation & Community Infrastructure, Rubber Development Department & Rubber Research Institute of Sri Lanka',
+
+    'governing_bodies' => [
+        [
+            'name' => 'Ministry of Plantation & Community Infrastructure',
+            'short' => 'Ministry of Plantation',
+            'logo' => 'logo-ministry.png',
+        ],
+        [
+            'name' => 'Rubber Development Department',
+            'short' => 'Rubber Development Department',
+            'logo' => 'logo-rdd.png',
+        ],
+        [
+            'name' => 'Rubber Research Institute of Sri Lanka',
+            'short' => 'Rubber Research Institute',
+            'logo' => 'logo-rrisl.png',
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

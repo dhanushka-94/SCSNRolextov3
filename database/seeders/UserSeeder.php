@@ -37,6 +37,16 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
+        User::query()->create([
+            'name' => 'Inactive Staff Account',
+            'email' => 'inactive.staff@rrisl.gov.lk',
+            'phone' => '0112600002',
+            'role' => User::ROLE_STAFF,
+            'status' => User::STATUS_INACTIVE,
+            'password' => self::STAFF_PASSWORD,
+            'email_verified_at' => now(),
+        ]);
+
         for ($i = 1; $i <= self::STAFF_COUNT; $i++) {
             $number = str_pad((string) $i, 3, '0', STR_PAD_LEFT);
 

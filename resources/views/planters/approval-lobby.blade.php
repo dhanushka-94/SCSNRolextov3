@@ -25,7 +25,7 @@
     </div>
 
     <form method="GET" action="{{ route('admin.planters.approval-lobby') }}" class="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-        <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search name, NIC, phone, or temporary ID" class="input-field sm:col-span-2">
+        <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search name, NIC, phone, or SCSNR ID" class="input-field sm:col-span-2">
         <select name="district" class="input-field">
             <option value="">All districts</option>
             @foreach (\App\Models\Planter::districts() as $district)
@@ -52,46 +52,58 @@
         <div class="space-y-4">
             @foreach ($planters as $planter)
                 <article class="card overflow-hidden">
-                    <div class="flex flex-col gap-4 border-b border-sand bg-cream px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+                    <div class="flex flex-col gap-3 border-b border-sand bg-cream px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div>
-                            <p class="font-mono text-xs font-semibold text-forest">{{ $planter->temporary_id }}</p>
+                            <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number }}</p>
                             <h2 class="mt-1 text-lg font-semibold text-forest-dark">{{ $planter->name }}</h2>
-                            <p class="mt-1 text-sm text-muted">
-                                {{ $planter->nic }} · {{ $planter->phone }}
-                                @if ($planter->email)
-                                    · {{ $planter->email }}
-                                @endif
-                            </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-bark">
                                 {{ \App\Models\Planter::registrationTypes()[$planter->registration_type] ?? 'Online' }}
                             </span>
-                            <span class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-muted">{{ $planter->district }}</span>
+                            <span class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-muted">{{ $planter->district ?: '—' }}</span>
                             <span class="text-xs text-muted">Submitted {{ sl_datetime($planter->created_at) }}</span>
                         </div>
                     </div>
 
-                    <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-muted">Address</p>
-                            <p class="mt-1 text-sm">{{ $planter->address ?: '—' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-muted">Application document</p>
-                            <p class="mt-1 text-sm">
-                                @if ($planter->hasApplicationDocument())
-                                    <a href="{{ route('admin.planters.document', $planter) }}" class="font-semibold text-leaf hover:text-forest">Download submitted form</a>
-                                @else
-                                    Online registration — no upload
-                                @endif
-                            </p>
-                        </div>
+                    <div class="px-5 py-5 sm:px-6">
+                        <h3 class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Applicant details</h3>
+                        <dl class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">NIC number</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->nic }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">Phone</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->phone }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">Email</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->email ?: '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">District</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->district ?: '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">RDD officer division</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->rdd_division ?: '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">Farm name</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->farm_name ?: '—' }}</dd>
+                            </div>
+                            <div class="sm:col-span-2 lg:col-span-3">
+                                <dt class="text-[11px] font-medium uppercase tracking-wide text-muted">Address</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $planter->address ?: '—' }}</dd>
+                            </div>
+                        </dl>
+                        <p class="mt-4 text-xs text-muted">Farm, products, certification history, and documents are on the full application view.</p>
                     </div>
 
                     <div class="flex flex-col gap-4 border-t border-sand bg-paper px-5 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-6">
                         <div class="flex flex-wrap gap-2">
-                            <a href="{{ route('admin.planters.show', $planter) }}" class="btn-secondary">Review details</a>
+                            <a href="{{ route('admin.planters.show', $planter) }}" class="btn-secondary">View full application</a>
                             <form method="POST" action="{{ route('admin.planters.approve', $planter) }}">
                                 @csrf
                                 <button type="submit" class="btn-primary">Approve</button>

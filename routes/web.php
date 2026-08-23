@@ -9,9 +9,10 @@ use App\Http\Controllers\Planter\Auth\RegisterController;
 use App\Http\Controllers\Planter\Auth\SetPasswordController;
 use App\Http\Controllers\Planter\DashboardController as PlanterDashboardController;
 use App\Http\Controllers\Planter\ProfileController;
+use App\Http\Controllers\PartnerHomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('planter.login'));
+Route::get('/', PartnerHomeController::class)->name('partner.home');
 
 Route::get('register/form.pdf', [RegisterController::class, 'formPdf'])->name('planter.register.form');
 
@@ -51,6 +52,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('planters/{planter}/approve', [PlanterController::class, 'approve'])->name('planters.approve');
         Route::post('planters/{planter}/reject', [PlanterController::class, 'reject'])->name('planters.reject');
         Route::get('planters/{planter}/document', [PlanterController::class, 'document'])->name('planters.document');
+        Route::get('planters/{planter}/certificate-document', [PlanterController::class, 'certificateDocument'])->name('planters.certificate-document');
         Route::get('planters/{planter}/qr.png', [PlanterController::class, 'qr'])->name('planters.qr');
 
         Route::middleware('admin')->group(function () {

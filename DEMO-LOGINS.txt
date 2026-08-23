@@ -1,5 +1,5 @@
 SCSNR Demo Login Reference
-Generated: 19 Aug 2026, 00:40
+Generated: 23/08/2026, 18:33 SLST
 ========================================
 
 SYSTEM USERS (Admin portal: /admin)
@@ -12,44 +12,61 @@ Primary staff officer
   Email   : staff@rrisl.gov.lk
   Password: Staff@12345
 
+Inactive staff sample
+  Email   : inactive.staff@rrisl.gov.lk
+  Password: Staff@12345
+  Status  : Inactive — cannot sign in
+
 Staff accounts (100 samples)
   Email   : staff001@rrisl.gov.lk  to  staff100@rrisl.gov.lk
   Password: Staff@12345  (same for all staff accounts)
 
-Total system users seeded: 102
+Total system users seeded: 103
 
 
 PLANTER USERS (Planter portal: /login)
 ---------------------------------------
-Approved planters with password (55 samples)
-  Email   : planter046@sample.lk  to  planter100@sample.lk
-  Password: Planter@12345  (same for all approved planters with password)
-  Alt login: SCSNR identification number (see profile after login)
-  Examples:
-    planter046@sample.lk / Planter@12345
-    planter050@sample.lk / Planter@12345
-    planter100@sample.lk / Planter@12345
-
-Approved planters without password yet (10 samples)
-  Email   : planter101@sample.lk  to  planter110@sample.lk
-  Action  : Use /set-password first (temporary ID + NIC)
-
-Pending planters — approval lobby only (45 samples)
-  planter001@sample.lk  to  planter045@sample.lk
-  Status  : Cannot sign in until approved
-
-Rejected planters (10 samples)
-  planter111@sample.lk  to  planter120@sample.lk
-  Status  : Cannot sign in
-
 Total planter records seeded: 120
+
+Pending online (30)
+  Email   : sunil.001@sample.lk  to  (planter records 001–030)
+  Status  : Pending approval — SCSNR ID issued, cannot sign in
+
+Pending offline (15)
+  Email   : records 031–045
+  Status  : Pending approval — offline registration
+
+Approved with password (55)
+  Email   : records 046–100
+  Password: Planter@12345
+  Notes   : Covers all audit stages and certification outcomes
+  Examples:
+    malith.046@sample.lk / Planter@12345
+    sanjeewa.050@sample.lk / Planter@12345
+    sachini.100@sample.lk / Planter@12345
+  Alt login: SCSNR ID (see admin planter list)
+
+Approved without password (10)
+  Email   : records 101–110
+  Action  : Use /set-password (SCSNR ID + NIC)
+
+Rejected (10)
+  Email   : records 111–120
+  Status  : Cannot sign in — SCSNR ID retained for reference
+
+Coverage
+  • All 25 districts represented
+  • All business types (individual, partnership, company, limited, society, other)
+  • All audit stages: not started, open, in progress, in review, result
+  • All audit outcomes: certified, conditional, not certified
+  • Online and offline registration types
 
 
 QUICK TEST ACCOUNTS
 -------------------
 Admin     : admin@rrisl.gov.lk / Admin@12345
 Staff     : staff001@rrisl.gov.lk / Staff@12345
-Planter   : planter050@sample.lk / Planter@12345
+Planter   : sanjeewa.050@sample.lk / Planter@12345
 
 Refresh all demo data:
   php artisan db:seed

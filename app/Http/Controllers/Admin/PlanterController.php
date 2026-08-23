@@ -11,6 +11,7 @@ use App\Services\PlanterIdentityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -56,7 +57,7 @@ class PlanterController extends Controller
                         ->orWhere('email', 'like', $search)
                         ->orWhere('nic', 'like', $search)
                         ->orWhere('phone', 'like', $search)
-                        ->orWhere('temporary_id', 'like', $search);
+                        ->orWhere('identification_number', 'like', $search);
                 });
             })
             ->when($request->filled('district'), fn ($query) => $query->where('district', $request->string('district')))
@@ -83,29 +84,34 @@ class PlanterController extends Controller
         ]);
     }
 
-    public function store(StorePlanterRequest $request): RedirectResponse
+    public function store(StorePlanterRequest $request, PlanterIdentityService $identity): RedirectResponse
     {
-        $data = $request->validated();
-        $data['temporary_id'] = Planter::generateTemporaryId();
-        $data['registration_type'] = Planter::TYPE_ONLINE;
+        $planter = DB::transaction(function () use ($request, $identity) {
+            $data = $request->validated();
+            $data['registration_type'] = Planter::TYPE_ONLINE;
 
-        if (blank($data['password'] ?? null)) {
-            unset($data['password']);
-        }
+            if (blank($data['password'] ?? null)) {
+                unset($data['password']);
+            }
 
-        if ($data['status'] !== Planter::STATUS_REJECTED) {
-            $data['rejection_reason'] = null;
-        }
+            if ($data['status'] !== Planter::STATUS_REJECTED) {
+                $data['rejection_reason'] = null;
+            }
 
-        $planter = Planter::query()->create($data);
+            $data = $identity->assignRegistrationNumbers($data);
 
-        if ($planter->status === Planter::STATUS_APPROVED) {
-            app(PlanterIdentityService::class)->approve($planter, $request->user('web')->id);
-        }
+            $planter = Planter::query()->create($data);
+
+            if ($planter->status === Planter::STATUS_APPROVED) {
+                $planter = $identity->approve($planter, $request->user('web')->id);
+            }
+
+            return $planter;
+        });
 
         return redirect()
             ->route('admin.planters.index')
-            ->with('success', 'Planter registration saved successfully.');
+            ->with('success', 'Planter registration saved successfully. SCSNR ID: '.$planter->identification_number);
     }
 
     public function show(Planter $planter, PlanterIdentityService $identity): View
@@ -157,6 +163,10 @@ class PlanterController extends Controller
             Storage::disk('local')->delete($planter->application_document);
         }
 
+        if ($planter->prior_certificate_document) {
+            Storage::disk('local')->delete($planter->prior_certificate_document);
+        }
+
         $planter->delete();
 
         return redirect()
@@ -168,7 +178,7 @@ class PlanterController extends Controller
     {
         $planter = $identity->approve($planter, $request->user('web')->id);
 
-        return back()->with('success', 'Planter approved. Identification number issued: '.$planter->identification_number);
+        return back()->with('success', 'Planter approved. SCSNR ID: '.$planter->identification_number);
     }
 
     public function qr(Planter $planter, PlanterIdentityService $identity): Response
@@ -200,7 +210,17 @@ class PlanterController extends Controller
 
         return Storage::disk('local')->download(
             $planter->application_document,
-            $planter->temporary_id.'-registration-form.'.pathinfo($planter->application_document, PATHINFO_EXTENSION)
+            str_replace('/', '-', $planter->identification_number).'-registration-form.'.pathinfo($planter->application_document, PATHINFO_EXTENSION)
+        );
+    }
+
+    public function certificateDocument(Planter $planter)
+    {
+        abort_unless($planter->hasPriorCertificateDocument() && Storage::disk('local')->exists($planter->prior_certificate_document), 404);
+
+        return Storage::disk('local')->download(
+            $planter->prior_certificate_document,
+            str_replace('/', '-', $planter->identification_number).'-prior-certificate.'.pathinfo($planter->prior_certificate_document, PATHINFO_EXTENSION)
         );
     }
 }

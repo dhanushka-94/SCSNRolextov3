@@ -65,7 +65,7 @@
                         @endif
 
                         @if ($state === 'current' && $stage['key'] === \App\Models\Planter::AUDIT_OPEN && ($planter->audit_status ?? \App\Models\Planter::AUDIT_NOT_STARTED) === \App\Models\Planter::AUDIT_NOT_STARTED)
-                            <p class="mt-2 text-sm text-bark">Your audit file will open once RRISL schedules the first sustainability assessment.</p>
+                            <p class="mt-2 text-sm text-bark">Your audit file will open once the governing authorities schedule the first sustainability assessment.</p>
                         @endif
                     </div>
                 </li>

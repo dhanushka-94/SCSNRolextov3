@@ -45,8 +45,8 @@
                 <p class="mt-2 text-sm text-ink">{{ $planter->nic }}</p>
             </div>
             <div>
-                <p class="label-field">Temporary ID</p>
-                <p class="mt-2 font-mono text-sm text-ink">{{ $planter->temporary_id }}</p>
+                <p class="label-field">SCSNR registration number</p>
+                <p class="mt-2 font-mono text-sm text-ink">{{ $planter->identification_number }}</p>
             </div>
             <div>
                 <label for="email" class="label-field">Email</label>

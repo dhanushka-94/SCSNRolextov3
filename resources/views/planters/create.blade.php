@@ -9,7 +9,7 @@
 @endsection
 
 @section('content')
-    <form method="POST" action="{{ route('admin.planters.store') }}" class="card mx-auto max-w-3xl p-5 sm:p-8">
+    <form method="POST" action="{{ route('admin.planters.store') }}" class="card mx-auto max-w-4xl p-5 sm:p-8">
         @csrf
         @include('planters._form')
         <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

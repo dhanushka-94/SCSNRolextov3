@@ -17,7 +17,12 @@
                         {{ config('app.full_name') }}
                     </h1>
                 </div>
-                <p class="relative mt-10 text-xs text-tan lg:mt-0">{{ config('app.copyright') }}</p>
+                <div class="relative mt-10 lg:mt-0">
+                    <x-governing-logos size="sm" class="!justify-start gap-3" />
+                    <p class="mt-3 max-w-sm text-xs leading-5 text-tan">
+                        {{ config('app.powered_by') }}
+                    </p>
+                </div>
             </div>
 
             <div class="px-6 py-10 sm:px-10 lg:px-12">
@@ -46,8 +51,8 @@
                     @csrf
 
                     <div>
-                        <label for="login" class="label-field">Email</label>
-                        <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus autocomplete="username" class="input-field" placeholder="you@email.com">
+                        <label for="login" class="label-field">Email or SCSNR ID</label>
+                        <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus autocomplete="username" class="input-field" placeholder="you@email.com or SCSNR/Ad/Kr/2026/0001">
                     </div>
 
                     <div>

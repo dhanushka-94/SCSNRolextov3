@@ -37,6 +37,24 @@ class Planter extends Authenticatable
 
     public const AUDIT_OUTCOME_NOT_CERTIFIED = 'not_certified';
 
+    public const BUSINESS_INDIVIDUAL = 'individual';
+
+    public const BUSINESS_PARTNERSHIP = 'partnership';
+
+    public const BUSINESS_COMPANY = 'company';
+
+    public const BUSINESS_LIMITED = 'limited';
+
+    public const BUSINESS_SOCIETY = 'society';
+
+    public const BUSINESS_OTHER = 'other';
+
+    public const PROCESS_PLAN_YES = 'yes';
+
+    public const PROCESS_PLAN_NO = 'no';
+
+    public const PROCESS_PLAN_NA = 'na';
+
     /**
      * @var list<string>
      */
@@ -47,8 +65,25 @@ class Planter extends Authenticatable
         'nic',
         'email',
         'phone',
+        'whatsapp',
+        'fax',
         'district',
+        'rdd_division',
+        'farm_name',
         'address',
+        'business_type',
+        'already_certified',
+        'certification_standard',
+        'prior_certificate_document',
+        'certification_rejected_or_suspended',
+        'certification_issue_reason',
+        'crops_products',
+        'aware_of_certification',
+        'has_certification_leaflet',
+        'processes_rubber_on_farm',
+        'has_process_plan',
+        'group_name',
+        'group_address',
         'registration_type',
         'application_document',
         'password',
@@ -81,6 +116,12 @@ class Planter extends Authenticatable
             'approved_at' => 'datetime',
             'last_login_at' => 'datetime',
             'audit_status_updated_at' => 'datetime',
+            'already_certified' => 'boolean',
+            'certification_rejected_or_suspended' => 'boolean',
+            'aware_of_certification' => 'boolean',
+            'has_certification_leaflet' => 'boolean',
+            'processes_rubber_on_farm' => 'boolean',
+            'crops_products' => 'array',
         ];
     }
 
@@ -119,12 +160,63 @@ class Planter extends Authenticatable
         return filled($this->application_document);
     }
 
+    public function hasPriorCertificateDocument(): bool
+    {
+        return filled($this->prior_certificate_document);
+    }
+
     public static function registrationTypes(): array
     {
         return [
             self::TYPE_ONLINE => 'Online',
             self::TYPE_OFFLINE => 'Offline',
         ];
+    }
+
+    /**
+     * @return array<string, array{si: string, en: string}>
+     */
+    public static function businessTypes(): array
+    {
+        return [
+            self::BUSINESS_INDIVIDUAL => ['si' => 'තනි පුද්ගල', 'en' => 'Individual'],
+            self::BUSINESS_PARTNERSHIP => ['si' => 'හවුල් ව්‍යාපාර', 'en' => 'Partnership'],
+            self::BUSINESS_COMPANY => ['si' => 'සමාගම්', 'en' => 'Company'],
+            self::BUSINESS_LIMITED => ['si' => 'සීමාකාරී', 'en' => 'Limited'],
+            self::BUSINESS_SOCIETY => ['si' => 'සමිති', 'en' => 'Society'],
+            self::BUSINESS_OTHER => ['si' => 'අනෙකුත්', 'en' => 'Other'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{si: string, en: string}>
+     */
+    public static function processPlanOptions(): array
+    {
+        return [
+            self::PROCESS_PLAN_YES => ['si' => 'ඔව්', 'en' => 'Yes'],
+            self::PROCESS_PLAN_NO => ['si' => 'නැත', 'en' => 'No'],
+            self::PROCESS_PLAN_NA => ['si' => 'අදාළ නැත', 'en' => 'Not applicable'],
+        ];
+    }
+
+    public function businessTypeLabel(): string
+    {
+        return self::businessTypes()[$this->business_type]['en'] ?? '—';
+    }
+
+    public function yesNoLabel(?bool $value): string
+    {
+        if ($value === null) {
+            return '—';
+        }
+
+        return $value ? 'Yes' : 'No';
+    }
+
+    public function processPlanLabel(): string
+    {
+        return self::processPlanOptions()[$this->has_process_plan]['en'] ?? '—';
     }
 
     public static function statuses(): array
@@ -240,7 +332,7 @@ class Planter extends Authenticatable
             ],
             self::AUDIT_IN_REVIEW => [
                 'label' => 'Audit in review',
-                'description' => 'Audit findings submitted and under RRISL technical review.',
+                'description' => 'Audit findings submitted and under technical review by the governing authorities.',
             ],
             self::AUDIT_RESULT => [
                 'label' => 'Audit result',

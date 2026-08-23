@@ -80,7 +80,7 @@ class PlanterLoginRequest extends FormRequest
             return 'identification_number';
         }
 
-        return filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'temporary_id';
+        return filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'identification_number';
     }
 
     public function failAttempt(): never

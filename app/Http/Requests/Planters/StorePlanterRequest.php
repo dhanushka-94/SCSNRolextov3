@@ -9,9 +9,16 @@ use Illuminate\Validation\Rules\Password;
 
 class StorePlanterRequest extends FormRequest
 {
+    use ValidatesPlanterApplicationFields;
+
     public function authorize(): bool
     {
         return $this->user('web') !== null;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->prepareApplicationFields();
     }
 
     /**
@@ -19,7 +26,7 @@ class StorePlanterRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge([
             'name' => ['required', 'string', 'max:120'],
             'nic' => ['required', 'string', 'max:20', 'unique:planters,nic'],
             'email' => ['required', 'string', 'email', 'max:190', 'unique:planters,email'],
@@ -27,7 +34,16 @@ class StorePlanterRequest extends FormRequest
             'district' => ['required', Rule::in(Planter::districts())],
             'address' => ['required', 'string', 'max:500'],
             'status' => ['required', Rule::in(array_keys(Planter::statuses()))],
+            'rejection_reason' => ['nullable', 'required_if:status,rejected', 'string', 'max:500'],
             'password' => ['nullable', 'confirmed', Password::min(8)],
-        ];
+        ], $this->applicationFieldRules(requireCoreApplication: false));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return $this->applicationFieldAttributes();
     }
 }
