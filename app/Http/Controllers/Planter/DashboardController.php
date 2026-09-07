@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function __invoke(PlanterIdentityService $identity): View
     {
-        $planter = $identity->ensureIssued(auth('planter')->user())->load(['firstAudit', 'finalAudit']);
+        $planter = $identity->ensureIssued(auth('planter')->user())->load(['firstAudit', 'finalAudit', 'currentCertificate']);
 
         return view('planter.dashboard', [
             'planter' => $planter,

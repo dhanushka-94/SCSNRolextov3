@@ -3,21 +3,29 @@
 use App\Http\Controllers\Admin\AboutSystemController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\ChangelogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\PlanterController;
 use App\Http\Controllers\Admin\RdoDivisionController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\Planter\Auth\LoginController as PlanterLoginController;
 use App\Http\Controllers\Planter\Auth\RegisterController;
 use App\Http\Controllers\Planter\Auth\SetPasswordController;
+use App\Http\Controllers\Planter\CertificateController as PlanterCertificateController;
 use App\Http\Controllers\Planter\DashboardController as PlanterDashboardController;
 use App\Http\Controllers\Planter\ProfileController;
 use App\Http\Controllers\PartnerHomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', PartnerHomeController::class)->name('partner.home');
+
+Route::get('verify', [CertificateVerifyController::class, 'form'])->name('verify.form');
+Route::post('verify', [CertificateVerifyController::class, 'lookup'])->name('verify.lookup');
+Route::get('verify/{token}', [CertificateVerifyController::class, 'show'])->name('verify.show');
+Route::get('verify/{token}/qr.png', [CertificateVerifyController::class, 'qr'])->name('verify.qr');
 
 Route::get('register/form.pdf', [RegisterController::class, 'formPdf'])->name('planter.register.form');
 
@@ -41,6 +49,8 @@ Route::middleware('auth:planter')->group(function () {
     Route::get('profile/qr/download.{format}', [ProfileController::class, 'downloadQr'])
         ->whereIn('format', ['png', 'svg'])
         ->name('planter.profile.qr.download');
+    Route::get('certificate', [PlanterCertificateController::class, 'show'])->name('planter.certificate');
+    Route::get('certificate/print', [PlanterCertificateController::class, 'print'])->name('planter.certificate.print');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -62,6 +72,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('planters/{planter}/reject', [PlanterController::class, 'reject'])->name('planters.reject');
         Route::post('planters/{planter}/audits/first', [AuditController::class, 'sendFirst'])->name('planters.audits.send-first');
         Route::post('planters/{planter}/audits/final', [AuditController::class, 'sendFinal'])->name('planters.audits.send-final');
+        Route::post('planters/{planter}/certificates', [AdminCertificateController::class, 'issue'])->name('planters.certificates.issue');
         Route::get('planters/{planter}/document', [PlanterController::class, 'document'])->name('planters.document');
         Route::get('planters/{planter}/certificate-document', [PlanterController::class, 'certificateDocument'])->name('planters.certificate-document');
         Route::get('planters/{planter}/qr.png', [PlanterController::class, 'qr'])->name('planters.qr');
@@ -76,6 +87,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('audits/{audit}/submit', [AuditController::class, 'submit'])->name('audits.submit');
         Route::post('audits/{audit}/complete', [AuditController::class, 'complete'])->name('audits.complete');
         Route::post('audits/{audit}/reopen', [AuditController::class, 'reopen'])->name('audits.reopen');
+
+        Route::get('certificates/issued', [AdminCertificateController::class, 'issued'])->name('certificates.issued');
+        Route::get('certificates/revoked', [AdminCertificateController::class, 'revoked'])->name('certificates.revoked');
+        Route::get('certificates/{certificate}', [AdminCertificateController::class, 'show'])->name('certificates.show');
+        Route::get('certificates/{certificate}/print', [AdminCertificateController::class, 'print'])->name('certificates.print');
+        Route::get('certificates/{certificate}/qr.png', [AdminCertificateController::class, 'qr'])->name('certificates.qr');
+        Route::post('certificates/{certificate}/revoke', [AdminCertificateController::class, 'revoke'])->name('certificates.revoke');
 
         Route::middleware('admin')->group(function () {
             Route::resource('users', UserController::class);

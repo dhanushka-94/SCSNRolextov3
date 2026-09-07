@@ -13,10 +13,19 @@
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">SCSNR identification number</p>
                     <p class="mt-2 font-mono text-xl font-semibold tracking-wide text-forest-dark sm:text-2xl">{{ $planter->identification_number }}</p>
-                    <p class="mt-2 text-sm text-muted">This unique ID is encoded in your QR code. Keep a printed copy with plantation records.</p>
+                    <p class="mt-2 text-sm text-muted">
+                        @if ($planter->currentCertificate)
+                            Your QR code opens the public certificate verification page.
+                        @else
+                            This unique ID is encoded in your QR code. Keep a printed copy with plantation records.
+                        @endif
+                    </p>
                     <div class="mt-5 flex flex-wrap gap-2">
                         <a href="{{ route('planter.profile.qr.download', 'png') }}" class="btn-primary">Download high quality PNG</a>
                         <a href="{{ route('planter.profile.qr.download', 'svg') }}" class="btn-secondary">Download vector SVG</a>
+                        @if ($planter->currentCertificate)
+                            <a href="{{ route('planter.certificate') }}" class="btn-secondary">View certificate</a>
+                        @endif
                     </div>
                 </div>
             </div>

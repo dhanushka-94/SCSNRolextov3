@@ -31,6 +31,7 @@ class DemoResetSeeder extends Seeder
         }
 
         Schema::disableForeignKeyConstraints();
+        \App\Models\Certificate::query()->truncate();
         \App\Models\PlanterAuditChecklistAnswer::query()->truncate();
         \App\Models\PlanterAudit::query()->truncate();
         \App\Models\AuditChecklistItem::query()->truncate();

@@ -35,6 +35,9 @@ class DashboardController extends Controller
                     \App\Models\PlanterAudit::STATUS_FAILED,
                 ])
                 ->count(),
+            'issuedCertificates' => \App\Models\Certificate::query()
+                ->where('status', \App\Models\Certificate::STATUS_ISSUED)
+                ->count(),
             'recentPlanters' => Planter::query()->where('status', Planter::STATUS_APPROVED)->latest()->limit(6)->get(),
         ]);
     }

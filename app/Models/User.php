@@ -105,6 +105,11 @@ class User extends Authenticatable
         return $this->canDispatchAudits() || $this->canWorkAuditRound($round);
     }
 
+    public function canManageCertificates(): bool
+    {
+        return $this->isAdmin() || $this->isStaff();
+    }
+
     public static function roles(): array
     {
         return [

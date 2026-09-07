@@ -15,6 +15,18 @@ return [
     'releases' => [
 
         [
+            'version' => '0.5.0',
+            'date' => '2026-09-08',
+            'title' => 'Certificate issuance & public QR verify',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Issue SCSNR certificates after Final Audit pass or conditional, with printable certificate pages.'],
+                ['type' => 'added', 'text' => 'Public certificate verification via QR scan (/verify/{token}) or reference lookup (/verify).'],
+                ['type' => 'added', 'text' => 'Certificates menu with Issued and Revoked lists; staff can revoke with reason.'],
+                ['type' => 'changed', 'text' => 'Planter QR encodes the public verify URL once a certificate is issued.'],
+            ],
+        ],
+
+        [
             'version' => '0.4.2',
             'date' => '2026-09-08',
             'title' => 'Audits menu: Ongoing, Passed, Rejected',

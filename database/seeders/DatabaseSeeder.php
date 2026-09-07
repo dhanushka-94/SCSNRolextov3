@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             AuditChecklistItemSeeder::class,
             PlanterSeeder::class,
+            AuditCertificateDemoSeeder::class,
             DemoLoginsFileSeeder::class,
         ]);
     }

@@ -112,7 +112,7 @@ class PlanterController extends Controller
     public function show(Planter $planter, PlanterIdentityService $identity): View
     {
         $planter = $identity->ensureIssued($planter);
-        $planter->load(['approver', 'firstAudit', 'finalAudit']);
+        $planter->load(['approver', 'firstAudit', 'finalAudit', 'currentCertificate', 'latestCertificate']);
 
         return view('planters.show', compact('planter'));
     }
@@ -188,7 +188,7 @@ class PlanterController extends Controller
 
     public function qr(Planter $planter, PlanterIdentityService $identity): Response
     {
-        $planter = $identity->ensureIssued($planter);
+        $planter = $identity->ensureIssued($planter)->load('currentCertificate');
         abort_unless($planter->isApproved() && filled($planter->identification_number), 404);
 
         return response($identity->png($planter, 480), 200, [

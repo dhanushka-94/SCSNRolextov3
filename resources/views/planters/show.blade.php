@@ -260,6 +260,7 @@
 
             @if ($planter->isApproved())
                 <x-planter-audit-controls :planter="$planter" />
+                <x-planter-certificate-controls :planter="$planter" />
             @endif
         </div>
 

@@ -97,5 +97,19 @@
         </div>
 
         <x-planter-audit-tree :planter="$planter" class="mt-6" />
+
+        @if ($planter->currentCertificate)
+            <article class="card mt-6 overflow-hidden">
+                <div class="border-b border-sand bg-cream px-5 py-5 sm:px-8">
+                    <h2 class="text-lg font-semibold text-forest-dark">Your certificate</h2>
+                    <p class="mt-1 text-sm text-muted">{{ $planter->currentCertificate->outcomeLabel() }} · {{ $planter->currentCertificate->certificate_number }}</p>
+                </div>
+                <div class="flex flex-wrap gap-2 p-5 sm:p-8">
+                    <a href="{{ route('planter.certificate') }}" class="btn-primary">View certificate</a>
+                    <a href="{{ route('planter.certificate.print') }}" class="btn-secondary" target="_blank">Print</a>
+                    <a href="{{ $planter->currentCertificate->verifyUrl() }}" class="btn-secondary" target="_blank" rel="noopener">Public verify page</a>
+                </div>
+            </article>
+        @endif
     @endif
 @endsection

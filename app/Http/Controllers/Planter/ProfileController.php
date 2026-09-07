@@ -14,7 +14,7 @@ class ProfileController extends Controller
     public function edit(PlanterIdentityService $identity): View
     {
         return view('planter.profile', [
-            'planter' => $identity->ensureIssued(auth('planter')->user())->load(['firstAudit', 'finalAudit']),
+            'planter' => $identity->ensureIssued(auth('planter')->user())->load(['firstAudit', 'finalAudit', 'currentCertificate']),
         ]);
     }
 
@@ -29,7 +29,7 @@ class ProfileController extends Controller
 
     public function qrPng(PlanterIdentityService $identity): Response
     {
-        $planter = $identity->ensureIssued(auth('planter')->user());
+        $planter = $identity->ensureIssued(auth('planter')->user())->load('currentCertificate');
         abort_unless($planter->isApproved() && filled($planter->identification_number), 404);
 
         return response($identity->png($planter, 480), 200, [
@@ -40,7 +40,7 @@ class ProfileController extends Controller
 
     public function downloadQr(PlanterIdentityService $identity, string $format): Response
     {
-        $planter = $identity->ensureIssued(auth('planter')->user());
+        $planter = $identity->ensureIssued(auth('planter')->user())->load('currentCertificate');
         abort_unless($planter->isApproved() && filled($planter->identification_number), 404);
         abort_unless(in_array($format, ['png', 'svg'], true), 404);
 

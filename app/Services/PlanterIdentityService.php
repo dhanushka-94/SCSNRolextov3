@@ -127,6 +127,14 @@ class PlanterIdentityService
 
     public function qrPayload(Planter $planter): string
     {
+        $certificate = $planter->relationLoaded('currentCertificate')
+            ? $planter->currentCertificate
+            : $planter->currentCertificate()->first();
+
+        if ($certificate?->isIssued()) {
+            return $certificate->verifyUrl();
+        }
+
         return $planter->identification_number ?: $planter->temporary_id;
     }
 

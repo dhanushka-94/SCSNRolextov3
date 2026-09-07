@@ -62,6 +62,22 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                 Rejected
             </a>
+
+            @if (auth('web')->user()->canManageCertificates())
+                <p class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-tan">Certificates</p>
+                <a href="{{ route('admin.certificates.issued') }}" class="nav-link {{ request()->routeIs('admin.certificates.issued') || (request()->routeIs(['admin.certificates.show', 'admin.certificates.print']) && optional(request()->route('certificate'))?->isIssued()) ? 'nav-link-active' : '' }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M19.5 14.25v4.5a2.25 2.25 0 0 1-2.25 2.25h-10.5A2.25 2.25 0 0 1 4.5 18.75v-4.5m15 0V6.75A2.25 2.25 0 0 0 17.25 4.5h-10.5A2.25 2.25 0 0 0 4.5 6.75v7.5m15 0h-15"/></svg>
+                    Issued
+                    @php($issuedCertCount = \App\Models\Certificate::query()->where('status', \App\Models\Certificate::STATUS_ISSUED)->count())
+                    @if ($issuedCertCount > 0)
+                        <span class="ml-auto rounded-full bg-tan px-2 py-0.5 text-[11px] font-bold text-forest-dark">{{ $issuedCertCount }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.certificates.revoked') }}" class="nav-link {{ request()->routeIs('admin.certificates.revoked') || (request()->routeIs(['admin.certificates.show', 'admin.certificates.print']) && optional(request()->route('certificate'))?->isRevoked()) ? 'nav-link-active' : '' }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                    Revoked
+                </a>
+            @endif
             @if (auth('web')->user()->isAdmin())
                 <p class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-tan">Master data</p>
                 <a href="{{ route('admin.districts.index') }}" class="nav-link {{ request()->routeIs('admin.districts.*') ? 'nav-link-active' : '' }}">

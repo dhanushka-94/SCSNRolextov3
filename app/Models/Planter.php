@@ -176,6 +176,23 @@ class Planter extends Authenticatable
             ->orderByDesc('attempt_number');
     }
 
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function currentCertificate(): HasOne
+    {
+        return $this->hasOne(Certificate::class)
+            ->where('is_current', true)
+            ->where('status', Certificate::STATUS_ISSUED);
+    }
+
+    public function latestCertificate(): HasOne
+    {
+        return $this->hasOne(Certificate::class)->latestOfMany();
+    }
+
     public function districtRecord(): BelongsTo
     {
         return $this->belongsTo(District::class, 'district_id');
@@ -503,5 +520,15 @@ class Planter extends Authenticatable
     public function isAuditActive(): bool
     {
         return $this->isApproved() && ! $this->isAuditComplete();
+    }
+
+    public function canIssueCertificate(): bool
+    {
+        return app(\App\Services\CertificateService::class)->canIssue($this);
+    }
+
+    public function hasActiveCertificate(): bool
+    {
+        return $this->currentCertificate()->exists();
     }
 }

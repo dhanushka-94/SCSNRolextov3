@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Certificate;
+use App\Models\PlanterAudit;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 
@@ -10,6 +12,17 @@ class DemoLoginsFileSeeder extends Seeder
     public function run(): void
     {
         $generated = sl_datetime(now());
+        $issuedCerts = Certificate::query()->where('status', Certificate::STATUS_ISSUED)->count();
+        $revokedCerts = Certificate::query()->where('status', Certificate::STATUS_REVOKED)->count();
+        $sampleCert = Certificate::query()->where('status', Certificate::STATUS_ISSUED)->orderBy('id')->first();
+        $verifyHint = $sampleCert
+            ? $sampleCert->certificate_number.'  →  /verify  or  '.$sampleCert->verifyUrl()
+            : '(issue a certificate first)';
+
+        $firstQueued = PlanterAudit::query()->where('round', 'first')->where('is_current', true)->where('status', 'queued')->count();
+        $ongoing = PlanterAudit::query()->where('is_current', true)->whereIn('status', ['queued', 'in_progress', 'in_review'])->count();
+        $passedAudits = PlanterAudit::query()->whereIn('status', ['passed', 'conditional'])->count();
+        $failedAudits = PlanterAudit::query()->where('status', 'failed')->count();
 
         $content = <<<TEXT
 SCSNR Demo Login Reference
@@ -63,7 +76,7 @@ Pending offline (25)
 Approved with password (90)
   Email   : records 071–160
   Password: Planter@12345
-  Notes   : Registration number issued on approval; ready for Send to First Audit
+  Notes   : Registration number issued; many already have demo audits/certificates
   Alt login: Registration ID RUB/SUS/{district}/{division}/{#####} (see admin planter list)
 
 Approved without password (20)
@@ -74,13 +87,33 @@ Rejected (20)
   Email   : records 181–200
   Status  : Cannot sign in — registration number still issued on reject for reference
 
+
+SAMPLE AUDITS (from approved planters with password)
+----------------------------------------------------
+Ongoing audits (current) : {$ongoing}
+First queued (sample)    : {$firstQueued}
+Passed/conditional rows  : {$passedAudits}
+Failed audit attempts    : {$failedAudits}
+
+Includes: First queued / in progress / failed, Final queued / in progress / failed,
+Final passed+certificate, Final conditional+certificate, revoked certificates.
+
+
+SAMPLE CERTIFICATES
+-------------------
+Issued  : {$issuedCerts}
+Revoked : {$revokedCerts}
+Verify  : {$verifyHint}
+Public form: /verify  (certificate No. or SCSNR ID)
+
+
 Coverage
   • Kegalle, Kalutara, Galle, Ratnapura, Monaragala regions
   • Full RDO division lists per region
   • All business types (individual, partnership, company, limited, society, other)
-  • Audit path: Send to First Audit → checklist → Send to Final Audit → checklist → result
+  • Audit path + certificates with public QR verify
   • Online and offline registration types
-  • Registration IDs: issued only on approve/reject as RUB/SUS/{district_code}/{division_code}/00001+
+  • Registration IDs: RUB/SUS/{district_code}/{division_code}/00001+
   • Farm map pins (latitude/longitude) on sample records
 
 

@@ -5,7 +5,7 @@
 @section('subheading', 'Overview of registrations, approvals, and system activity')
 
 @section('content')
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-9">
         <article class="card p-5">
             <p class="text-sm text-muted">Pending approval</p>
             <p class="mt-3 text-3xl font-semibold text-bark">{{ $pendingPlanters }}</p>
@@ -40,6 +40,11 @@
             <p class="text-sm text-muted">Completed audits</p>
             <p class="mt-3 text-3xl font-semibold text-forest">{{ $completedAudits }}</p>
             <a href="{{ route('admin.audits.passed') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">View Passed</a>
+        </article>
+        <article class="card p-5">
+            <p class="text-sm text-muted">Issued certificates</p>
+            <p class="mt-3 text-3xl font-semibold text-leaf">{{ $issuedCertificates }}</p>
+            <a href="{{ route('admin.certificates.issued') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">View Issued</a>
         </article>
         <article class="card p-5">
             <p class="text-sm text-muted">Active staff</p>
