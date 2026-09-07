@@ -52,7 +52,7 @@
 
                     <div>
                         <label for="login" class="label-field">Email or SCSNR ID</label>
-                        <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus autocomplete="username" class="input-field" placeholder="you@email.com or SCSNR/Ad/Kr/2026/0001">
+                        <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus autocomplete="username" class="input-field" placeholder="you@email.com or RUB/SUS/KEGA/AMIT/00001">
                     </div>
 
                     <div>

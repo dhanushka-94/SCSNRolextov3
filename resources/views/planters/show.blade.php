@@ -1,12 +1,16 @@
 @extends('layouts.app')
 
 @section('title', $planter->name)
-@section('heading', 'Planter details')
-@section('subheading', $planter->identification_number)
+@section('heading', 'Registry details')
+@section('subheading', $planter->identification_number ?: $planter->temporary_id)
 
 @section('actions')
     @if ($planter->isPending())
-        <a href="{{ route('admin.planters.approval-lobby') }}" class="btn-secondary">Back to lobby</a>
+        <a href="{{ route('admin.planters.registration-lobby') }}" class="btn-secondary">Back to lobby</a>
+    @elseif ($planter->isRejected())
+        <a href="{{ route('admin.planters.rejected') }}" class="btn-secondary">Back to rejected</a>
+    @else
+        <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Back to registry</a>
     @endif
     <a href="{{ route('admin.planters.edit', $planter) }}" class="btn-primary">Edit</a>
 @endsection
@@ -15,7 +19,10 @@
     <article class="card mx-auto max-w-4xl overflow-hidden">
         <div class="flex flex-col gap-4 border-b border-sand bg-cream px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <div>
-                <p class="font-mono text-sm font-semibold text-forest">{{ $planter->identification_number }}</p>
+                <p class="font-mono text-sm font-semibold text-forest">{{ $planter->identification_number ?: 'Not issued yet' }}</p>
+                @unless ($planter->identification_number)
+                    <p class="mt-1 font-mono text-xs text-muted">Ref {{ $planter->temporary_id }}</p>
+                @endunless
                 <h2 class="mt-1 text-xl font-semibold text-forest-dark">{{ $planter->name }}</h2>
                 <p class="text-sm text-muted">{{ \App\Models\Planter::statuses()[$planter->status] }}</p>
             </div>
@@ -27,7 +34,7 @@
                     </form>
                 </div>
             @elseif ($planter->isApproved() && $planter->identification_number)
-                <img src="{{ route('admin.planters.qr', $planter) }}" alt="Planter QR code" class="h-28 w-28 rounded-xl bg-white p-2 shadow-sm">
+                <img src="{{ route('admin.planters.qr', $planter) }}" alt="Registry QR code" class="h-28 w-28 rounded-xl bg-white p-2 shadow-sm">
             @endif
         </div>
 
@@ -36,8 +43,12 @@
                 <h3 class="border-b border-sand pb-2 text-sm font-semibold text-forest-dark">Registration</h3>
                 <dl class="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">SCSNR ID</dt>
-                        <dd class="mt-1 font-mono text-sm">{{ $planter->identification_number }}</dd>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Registration number</dt>
+                        <dd class="mt-1 font-mono text-sm">{{ $planter->identification_number ?: 'Issued on approve / reject' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Submission reference</dt>
+                        <dd class="mt-1 font-mono text-sm">{{ $planter->temporary_id }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Registration type</dt>

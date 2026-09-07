@@ -42,7 +42,7 @@ class RegisterController extends Controller
 
         return redirect()
             ->route('planter.register.submitted')
-            ->with('identification_number', $planter->identification_number);
+            ->with('submission_reference', $planter->temporary_id);
     }
 
     public function storeOffline(OfflineRegisterPlanterRequest $request): RedirectResponse
@@ -56,19 +56,19 @@ class RegisterController extends Controller
 
         return redirect()
             ->route('planter.register.submitted')
-            ->with('identification_number', $planter->identification_number);
+            ->with('submission_reference', $planter->temporary_id);
     }
 
     public function submitted(): View|RedirectResponse
     {
-        $identificationNumber = session('identification_number');
+        $submissionReference = session('submission_reference');
 
-        if (blank($identificationNumber)) {
+        if (blank($submissionReference)) {
             return redirect()->route('planter.register');
         }
 
         return view('planter.auth.submitted', [
-            'identificationNumber' => $identificationNumber,
+            'submissionReference' => $submissionReference,
         ]);
     }
 
@@ -109,8 +109,9 @@ class RegisterController extends Controller
             unset($data['password']);
             $data['status'] = Planter::STATUS_PENDING;
             $data['registration_type'] = $type;
+            $data = \App\Support\PlanterLocation::hydrateNames($data);
 
-            $data = app(PlanterIdentityService::class)->assignRegistrationNumbers($data);
+            $data = app(PlanterIdentityService::class)->assignTemporaryId($data);
 
             return Planter::query()->create($data);
         });

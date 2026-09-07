@@ -8,8 +8,12 @@
             <img src="{{ asset('SCSNR-logo.png') }}" alt="{{ config('app.short_name') }}" class="mx-auto h-16 w-16 rounded-full bg-white object-contain p-1">
             <p class="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-leaf">Approval process</p>
             <h1 class="mt-2 text-2xl font-semibold text-forest-dark">Registration submitted</h1>
-            <p class="mt-3 text-sm text-muted">Your SCSNR registration number has been issued. Keep this number. After approval, use it with your NIC to create a password and sign in.</p>
-            <p class="mt-6 font-mono text-xl font-semibold tracking-wide text-forest sm:text-2xl">{{ $identificationNumber }}</p>
+            <p class="mt-3 text-sm text-muted">
+                Your application is waiting for review. A permanent registration number will be issued when the application is approved or rejected. After approval, use that number with your NIC to create a password and sign in.
+            </p>
+            <p class="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Submission reference</p>
+            <p class="mt-2 font-mono text-lg font-semibold tracking-wide text-bark sm:text-xl">{{ $submissionReference }}</p>
+            <p class="mt-2 text-xs text-muted">This temporary reference is for tracking only — not for login.</p>
             <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <a href="{{ route('planter.login') }}" class="btn-secondary">Go to login</a>
                 <a href="{{ route('planter.password.create') }}" class="btn-primary">Create password after approval</a>

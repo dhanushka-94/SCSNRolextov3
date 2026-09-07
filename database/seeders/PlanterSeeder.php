@@ -2,33 +2,57 @@
 
 namespace Database\Seeders;
 
+use App\Models\District;
 use App\Models\Planter;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class PlanterSeeder extends Seeder
 {
-    public const PLANTER_COUNT = 120;
+    public const PLANTER_COUNT = 200;
 
     public const PLANTER_PASSWORD = 'Planter@12345';
 
-    public const PENDING_ONLINE = 30;
+    public const PENDING_ONLINE = 45;
 
-    public const PENDING_OFFLINE = 15;
+    public const PENDING_OFFLINE = 25;
 
-    public const APPROVED_WITH_PASSWORD = 55;
+    public const APPROVED_WITH_PASSWORD = 90;
 
-    public const APPROVED_NO_PASSWORD = 10;
+    public const APPROVED_NO_PASSWORD = 20;
 
-    public const REJECTED = 10;
+    public const REJECTED = 20;
 
     public function run(): void
     {
         $adminId = User::query()->where('email', UserSeeder::ADMIN_EMAIL)->value('id');
-        $districts = Planter::districts();
+        $districtModels = District::query()
+            ->with(['rdoDivisions' => fn ($query) => $query->orderBy('name')])
+            ->orderBy('name')
+            ->get();
+
+        if ($districtModels->isEmpty()) {
+            $this->command?->warn('No districts found. Run DistrictSeeder before PlanterSeeder.');
+
+            return;
+        }
+
+        $locationPairs = [];
+
+        foreach ($districtModels as $districtModel) {
+            foreach ($districtModel->rdoDivisions as $division) {
+                $locationPairs[] = [$districtModel, $division];
+            }
+        }
+
+        if ($locationPairs === []) {
+            $this->command?->warn('No RDO divisions found. Run DistrictSeeder before PlanterSeeder.');
+
+            return;
+        }
+
         $businessTypes = array_keys(Planter::businessTypes());
-        $year = (string) now()->year;
-        $districtSequences = [];
+        $divisionSequences = [];
         $auditStages = [
             Planter::AUDIT_NOT_STARTED,
             Planter::AUDIT_OPEN,
@@ -45,18 +69,28 @@ class PlanterSeeder extends Seeder
 
         for ($i = 1; $i <= self::PLANTER_COUNT; $i++) {
             $number = str_pad((string) $i, 3, '0', STR_PAD_LEFT);
-            $district = $districts[($i - 1) % count($districts)];
-            $districtCode = Planter::districtCode($district);
+            [$districtModel, $division] = $locationPairs[($i - 1) % count($locationPairs)];
+            $districtCode = $districtModel->code;
+            $divisionCode = $division->code;
             $name = $names[($i - 1) % count($names)].' '.$this->surnameFor($i);
             $emailSlug = strtolower(str_replace([' ', '.'], ['.', ''], $names[($i - 1) % count($names)])).'.'.$number;
+            $year = (string) now()->year;
+            $temporaryId = 'TMP-'.$year.'-'.str_pad((string) $i, 6, '0', STR_PAD_LEFT);
+            $pendingCutoff = self::PENDING_ONLINE + self::PENDING_OFFLINE;
+            $isPending = $i <= $pendingCutoff;
 
-            $districtSequences[$districtCode] = ($districtSequences[$districtCode] ?? 0) + 1;
-            $sequence = str_pad((string) $districtSequences[$districtCode], 4, '0', STR_PAD_LEFT);
-            $scsnrId = 'SCSNR/Ad/'.$districtCode.'/'.$year.'/'.$sequence;
+            $registrationId = null;
 
-            $data = array_merge($this->applicationDefaults($i, $name, $emailSlug, $district, $businessTypes), [
-                'identification_number' => $scsnrId,
-                'temporary_id' => $scsnrId,
+            if (! $isPending) {
+                $sequenceKey = $districtCode.'/'.$divisionCode;
+                $divisionSequences[$sequenceKey] = ($divisionSequences[$sequenceKey] ?? 0) + 1;
+                $sequence = str_pad((string) $divisionSequences[$sequenceKey], 5, '0', STR_PAD_LEFT);
+                $registrationId = 'RUB/SUS/'.$districtCode.'/'.$divisionCode.'/'.$sequence;
+            }
+
+            $data = array_merge($this->applicationDefaults($i, $name, $emailSlug, $districtModel, $division, $businessTypes), [
+                'identification_number' => $registrationId,
+                'temporary_id' => $temporaryId,
                 'status' => Planter::STATUS_PENDING,
                 'registration_type' => Planter::TYPE_ONLINE,
                 'password' => null,
@@ -73,9 +107,9 @@ class PlanterSeeder extends Seeder
 
             if ($i <= self::PENDING_ONLINE) {
                 $data['registration_type'] = Planter::TYPE_ONLINE;
-            } elseif ($i <= self::PENDING_ONLINE + self::PENDING_OFFLINE) {
+            } elseif ($i <= $pendingCutoff) {
                 $data['registration_type'] = Planter::TYPE_OFFLINE;
-            } elseif ($i <= self::PENDING_ONLINE + self::PENDING_OFFLINE + self::APPROVED_WITH_PASSWORD) {
+            } elseif ($i <= $pendingCutoff + self::APPROVED_WITH_PASSWORD) {
                 $auditStage = $auditStages[($i - 1) % count($auditStages)];
 
                 $data['status'] = Planter::STATUS_APPROVED;
@@ -98,7 +132,7 @@ class PlanterSeeder extends Seeder
                 if ($i % 7 === 0) {
                     $data['last_login_at'] = now()->subHours($i % 48);
                 }
-            } elseif ($i <= self::PENDING_ONLINE + self::PENDING_OFFLINE + self::APPROVED_WITH_PASSWORD + self::APPROVED_NO_PASSWORD) {
+            } elseif ($i <= $pendingCutoff + self::APPROVED_WITH_PASSWORD + self::APPROVED_NO_PASSWORD) {
                 $data['status'] = Planter::STATUS_APPROVED;
                 $data['approved_by'] = $adminId;
                 $data['approved_at'] = now()->subDays(2);
@@ -119,8 +153,15 @@ class PlanterSeeder extends Seeder
      * @param  list<string>  $businessTypes
      * @return array<string, mixed>
      */
-    private function applicationDefaults(int $index, string $name, string $emailSlug, string $district, array $businessTypes): array
-    {
+    private function applicationDefaults(
+        int $index,
+        string $name,
+        string $emailSlug,
+        District $districtModel,
+        ?\App\Models\RdoDivision $division,
+        array $businessTypes,
+    ): array {
+        $district = $districtModel->name;
         $towns = ['Town Centre', 'Estate Junction', 'Village Road', 'Plantation Lane', 'Rubber Colony'];
         $town = $towns[$index % count($towns)];
         $phoneSuffix = str_pad((string) (3000000 + $index), 7, '0', STR_PAD_LEFT);
@@ -136,7 +177,9 @@ class PlanterSeeder extends Seeder
             'whatsapp' => '077'.$phoneSuffix,
             'fax' => $index % 4 === 0 ? '011'.substr($phoneSuffix, 0, 7) : null,
             'district' => $district,
-            'rdd_division' => $district.' RDD Division',
+            'district_id' => $districtModel->id,
+            'rdd_division' => $division?->name,
+            'rdo_division_id' => $division?->id,
             'farm_name' => $name.' Rubber Estate',
             'address' => $town.', '.$district,
             'business_type' => $businessType,

@@ -68,7 +68,9 @@ class Planter extends Authenticatable
         'whatsapp',
         'fax',
         'district',
+        'district_id',
         'rdd_division',
+        'rdo_division_id',
         'farm_name',
         'address',
         'business_type',
@@ -128,6 +130,16 @@ class Planter extends Authenticatable
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function districtRecord(): BelongsTo
+    {
+        return $this->belongsTo(District::class, 'district_id');
+    }
+
+    public function rdoDivision(): BelongsTo
+    {
+        return $this->belongsTo(RdoDivision::class, 'rdo_division_id');
     }
 
     public function isPending(): bool
@@ -230,7 +242,7 @@ class Planter extends Authenticatable
 
     public static function districts(): array
     {
-        return array_keys(self::districtCodes());
+        return District::activeNames();
     }
 
     /**
@@ -240,38 +252,15 @@ class Planter extends Authenticatable
      */
     public static function districtCodes(): array
     {
-        return [
-            'Ampara' => 'Ap',
-            'Anuradhapura' => 'An',
-            'Badulla' => 'Bd',
-            'Batticaloa' => 'Bt',
-            'Colombo' => 'Co',
-            'Galle' => 'Gl',
-            'Gampaha' => 'Gp',
-            'Hambantota' => 'Hb',
-            'Jaffna' => 'Jf',
-            'Kalutara' => 'Kt',
-            'Kandy' => 'Kd',
-            'Kegalle' => 'Kg',
-            'Kilinochchi' => 'Kl',
-            'Kurunegala' => 'Kr',
-            'Mannar' => 'Mn',
-            'Matale' => 'Mt',
-            'Matara' => 'Mr',
-            'Monaragala' => 'Mg',
-            'Mullaitivu' => 'Mu',
-            'Nuwara Eliya' => 'Ne',
-            'Polonnaruwa' => 'Po',
-            'Puttalam' => 'Pu',
-            'Ratnapura' => 'Rt',
-            'Trincomalee' => 'Tr',
-            'Vavuniya' => 'Vv',
-        ];
+        return District::query()
+            ->orderBy('name')
+            ->pluck('code', 'name')
+            ->all();
     }
 
     public static function districtCode(?string $district): string
     {
-        return self::districtCodes()[$district] ?? 'Xx';
+        return District::codeFor($district);
     }
 
     public function qrDownloadName(string $extension): string

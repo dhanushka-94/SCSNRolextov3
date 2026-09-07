@@ -58,15 +58,10 @@
                 <input id="phone" name="phone" type="text" value="{{ old('phone', $planter->phone) }}" required class="input-field">
                 @error('phone')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
             </div>
-            <div>
-                <label for="district" class="label-field">District</label>
-                <select id="district" name="district" required class="input-field">
-                    @foreach (\App\Models\Planter::districts() as $district)
-                        <option value="{{ $district }}" @selected(old('district', $planter->district) === $district)>{{ $district }}</option>
-                    @endforeach
-                </select>
-                @error('district')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
-            </div>
+            <x-district-rdo-fields
+                :district-id="$planter->district_id"
+                :rdo-division-id="$planter->rdo_division_id"
+            />
             <div class="sm:col-span-2">
                 <label for="address" class="label-field">Address</label>
                 <textarea id="address" name="address" rows="3" required class="input-field">{{ old('address', $planter->address) }}</textarea>

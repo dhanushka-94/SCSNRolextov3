@@ -25,8 +25,20 @@ class UpdatePlanterProfileRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'email' => ['nullable', 'string', 'email', 'max:190', Rule::unique('planters', 'email')->ignore($planter->id)],
             'phone' => ['required', 'string', 'max:30'],
-            'district' => ['required', Rule::in(Planter::districts())],
+            'district_id' => \App\Support\PlanterLocation::districtIdRules(),
+            'rdo_division_id' => \App\Support\PlanterLocation::rdoDivisionIdRules(),
             'address' => ['required', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'district_id' => 'district',
+            'rdo_division_id' => 'Rubber Development Officer division',
         ];
     }
 }

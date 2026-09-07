@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultView('vendor.pagination.earth');
         Paginator::defaultSimpleView('vendor.pagination.earth');
 
+        config([
+            'app.version' => config('app.version') ?: config('changelog.releases.0.version', '0.0.1'),
+        ]);
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
             URL::forceRootUrl(config('app.url'));

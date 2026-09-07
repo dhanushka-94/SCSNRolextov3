@@ -1,5 +1,5 @@
 SCSNR Demo Login Reference
-Generated: 23/08/2026, 18:33 SLST
+Generated: 07/09/2026, 22:30 SLST
 ========================================
 
 SYSTEM USERS (Admin portal: /admin)
@@ -26,47 +26,47 @@ Total system users seeded: 103
 
 PLANTER USERS (Planter portal: /login)
 ---------------------------------------
-Total planter records seeded: 120
+Total planter records seeded: 200
 
-Pending online (30)
-  Email   : sunil.001@sample.lk  to  (planter records 001–030)
-  Status  : Pending approval — SCSNR ID issued, cannot sign in
+Pending online (45)
+  Email   : sunil.001@sample.lk  to  (planter records 001–045)
+  Status  : Pending approval — temporary submission reference only (no RUB/SUS number yet)
 
-Pending offline (15)
-  Email   : records 031–045
+Pending offline (25)
+  Email   : records 046–070
   Status  : Pending approval — offline registration
 
-Approved with password (55)
-  Email   : records 046–100
+Approved with password (90)
+  Email   : records 071–160
   Password: Planter@12345
   Notes   : Covers all audit stages and certification outcomes
   Examples:
-    malith.046@sample.lk / Planter@12345
-    sanjeewa.050@sample.lk / Planter@12345
-    sachini.100@sample.lk / Planter@12345
-  Alt login: SCSNR ID (see admin planter list)
+    Check admin planter list for RUB/SUS/... IDs
+  Alt login: Registration ID RUB/SUS/{district}/{division}/{#####} (see admin planter list)
 
-Approved without password (10)
-  Email   : records 101–110
-  Action  : Use /set-password (SCSNR ID + NIC)
+Approved without password (20)
+  Email   : records 161–180
+  Action  : Use /set-password (registration ID + NIC)
 
-Rejected (10)
-  Email   : records 111–120
-  Status  : Cannot sign in — SCSNR ID retained for reference
+Rejected (20)
+  Email   : records 181–200
+  Status  : Cannot sign in — registration number still issued on reject for reference
 
 Coverage
-  • All 25 districts represented
+  • Kegalle, Kalutara, Galle, Ratnapura, Monaragala regions
+  • Full RDO division lists per region
   • All business types (individual, partnership, company, limited, society, other)
   • All audit stages: not started, open, in progress, in review, result
   • All audit outcomes: certified, conditional, not certified
   • Online and offline registration types
+  • Registration IDs: issued only on approve/reject as RUB/SUS/{district_code}/{division_code}/00001+
 
 
 QUICK TEST ACCOUNTS
 -------------------
 Admin     : admin@rrisl.gov.lk / Admin@12345
 Staff     : staff001@rrisl.gov.lk / Staff@12345
-Planter   : sanjeewa.050@sample.lk / Planter@12345
+Planter   : sanjeewa.086@sample.lk / Planter@12345
 
 Refresh all demo data:
   php artisan db:seed

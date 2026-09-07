@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\District;
 use App\Models\Planter;
+use App\Models\RdoDivision;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
@@ -31,6 +33,8 @@ class DemoResetSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
         Planter::query()->truncate();
         User::query()->truncate();
+        RdoDivision::query()->truncate();
+        District::query()->truncate();
         Schema::enableForeignKeyConstraints();
     }
 }

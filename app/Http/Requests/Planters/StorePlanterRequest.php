@@ -31,7 +31,8 @@ class StorePlanterRequest extends FormRequest
             'nic' => ['required', 'string', 'max:20', 'unique:planters,nic'],
             'email' => ['required', 'string', 'email', 'max:190', 'unique:planters,email'],
             'phone' => ['required', 'string', 'max:30'],
-            'district' => ['required', Rule::in(Planter::districts())],
+            'district_id' => \App\Support\PlanterLocation::districtIdRules(),
+            'rdo_division_id' => \App\Support\PlanterLocation::rdoDivisionIdRules(),
             'address' => ['required', 'string', 'max:500'],
             'status' => ['required', Rule::in(array_keys(Planter::statuses()))],
             'rejection_reason' => ['nullable', 'required_if:status,rejected', 'string', 'max:500'],
@@ -44,6 +45,8 @@ class StorePlanterRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return $this->applicationFieldAttributes();
+        return array_merge([
+            'district_id' => 'district',
+        ], $this->applicationFieldAttributes());
     }
 }

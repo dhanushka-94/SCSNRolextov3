@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Approval lobby')
-@section('heading', 'Planter approval lobby')
-@section('subheading', 'Review pending registrations waiting for approval')
+@section('title', 'Registration Lobby')
+@section('heading', 'Registration Lobby')
+@section('subheading', 'Review pending registry applications waiting for approval or rejection')
 
 @section('actions')
-    <a href="{{ route('admin.planters.index') }}" class="btn-secondary">All planters</a>
+    <a href="{{ route('admin.planters.rejected') }}" class="btn-secondary">Rejected</a>
+    <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Registry</a>
 @endsection
 
 @section('content')
@@ -24,11 +25,11 @@
         </article>
     </div>
 
-    <form method="GET" action="{{ route('admin.planters.approval-lobby') }}" class="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-        <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search name, NIC, phone, or SCSNR ID" class="input-field sm:col-span-2">
+    <form method="GET" action="{{ route('admin.planters.registration-lobby') }}" class="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search name, NIC, phone, or reference" class="input-field sm:col-span-2">
         <select name="district" class="input-field">
             <option value="">All districts</option>
-            @foreach (\App\Models\Planter::districts() as $district)
+            @foreach (\App\Models\District::query()->orderBy('name')->pluck('name') as $district)
                 <option value="{{ $district }}" @selected(($filters['district'] ?? '') === $district)>{{ $district }}</option>
             @endforeach
         </select>
@@ -46,7 +47,7 @@
     @if ($planters->isEmpty())
         <section class="card px-5 py-16 text-center">
             <p class="text-lg font-semibold text-forest-dark">No pending applications</p>
-            <p class="mt-2 text-sm text-muted">New planter registrations will appear here until they are approved or rejected.</p>
+            <p class="mt-2 text-sm text-muted">New registry applications will appear here until they are approved or rejected.</p>
         </section>
     @else
         <div class="space-y-4">
@@ -54,7 +55,7 @@
                 <article class="card overflow-hidden">
                     <div class="flex flex-col gap-3 border-b border-sand bg-cream px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div>
-                            <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number }}</p>
+                            <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number ?: $planter->temporary_id }}</p>
                             <h2 class="mt-1 text-lg font-semibold text-forest-dark">{{ $planter->name }}</h2>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">

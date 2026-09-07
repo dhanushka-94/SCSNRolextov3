@@ -27,21 +27,10 @@
                 <input id="email" name="email" type="email" value="{{ old('email', $planter->email) }}" required class="input-field">
                 @error('email')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
             </div>
-            <div>
-                <label for="district" class="label-field">District</label>
-                <select id="district" name="district" required class="input-field">
-                    <option value="">Select</option>
-                    @foreach (\App\Models\Planter::districts() as $district)
-                        <option value="{{ $district }}" @selected(old('district', $planter->district) === $district)>{{ $district }}</option>
-                    @endforeach
-                </select>
-                @error('district')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
-            </div>
-            <div>
-                <label for="rdd_division" class="label-field">RDD officer division</label>
-                <input id="rdd_division" name="rdd_division" type="text" value="{{ old('rdd_division', $planter->rdd_division) }}" class="input-field">
-                @error('rdd_division')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
-            </div>
+            <x-district-rdo-fields
+                :district-id="$planter->district_id"
+                :rdo-division-id="$planter->rdo_division_id"
+            />
         </div>
     </section>
 
@@ -258,7 +247,7 @@
                     <input id="password" name="password" type="password" autocomplete="new-password" class="input-field pr-12">
                     <button type="button" data-password-toggle="password" class="absolute inset-y-0 right-0 px-3 text-xs font-semibold text-bark">Show</button>
                 </div>
-                <p class="mt-1 text-xs text-muted">{{ $isEdit ? 'Leave blank to keep the current password.' : 'Optional. The planter can create a password after approval.' }}</p>
+                <p class="mt-1 text-xs text-muted">{{ $isEdit ? 'Leave blank to keep the current password.' : 'Optional. The applicant can create a password after approval.' }}</p>
                 @error('password')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
             </div>
             <div>

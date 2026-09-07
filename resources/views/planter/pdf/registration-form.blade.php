@@ -256,7 +256,7 @@
 
     <p class="note">
         අනුමැතියෙන් පසු SCSNR ලියාපදිංචි අංකය සහ ජා. හැ. අංකය භාවිතයෙන් මුරපදය සාදන්න.
-        After approval, create a password using your SCSNR registration number and NIC.
+        After approval, create a password using your registration number and NIC.
         All SCSNR dates use Sri Lanka Standard Time (Asia/Colombo, UTC+05:30).
     </p>
 

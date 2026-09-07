@@ -28,24 +28,47 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
                 Dashboard
             </a>
-            <a href="{{ route('admin.planters.approval-lobby') }}" class="nav-link {{ request()->routeIs('admin.planters.approval-lobby') ? 'nav-link-active' : '' }}">
+            <a href="{{ route('admin.planters.registration-lobby') }}" class="nav-link {{ request()->routeIs('admin.planters.registration-lobby') || (request()->routeIs(['admin.planters.show', 'admin.planters.edit']) && optional(request()->route('planter'))->isPending()) ? 'nav-link-active' : '' }}">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0"/></svg>
-                Approval lobby
+                Registration Lobby
                 @php($pendingPlanterCount = \App\Models\Planter::query()->where('status', \App\Models\Planter::STATUS_PENDING)->count())
                 @if ($pendingPlanterCount > 0)
                     <span class="ml-auto rounded-full bg-tan px-2 py-0.5 text-[11px] font-bold text-forest-dark">{{ $pendingPlanterCount }}</span>
                 @endif
             </a>
-            <a href="{{ route('admin.planters.index') }}" class="nav-link {{ request()->routeIs('admin.planters.*') && ! request()->routeIs('admin.planters.approval-lobby') ? 'nav-link-active' : '' }}">
+            <a href="{{ route('admin.planters.index') }}" class="nav-link {{ request()->routeIs(['admin.planters.index', 'admin.planters.create']) || (request()->routeIs(['admin.planters.show', 'admin.planters.edit']) && optional(request()->route('planter'))->isApproved()) ? 'nav-link-active' : '' }}">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M5 21V7.5L12 3l7 4.5V21M9 21v-6h6v6"/></svg>
-                Rubber planters
+                Registry
+            </a>
+            <a href="{{ route('admin.planters.rejected') }}" class="nav-link {{ request()->routeIs('admin.planters.rejected') || (request()->routeIs(['admin.planters.show', 'admin.planters.edit']) && optional(request()->route('planter'))->isRejected()) ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                Rejected
             </a>
             @if (auth('web')->user()->isAdmin())
+                <p class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-tan">Master data</p>
+                <a href="{{ route('admin.districts.index') }}" class="nav-link {{ request()->routeIs('admin.districts.*') ? 'nav-link-active' : '' }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13 6-3m-6 3V7m6 10 5.447 2.724A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-1.447-.894L15 9m0 8V9m0 0L9 7"/></svg>
+                    Districts
+                </a>
+                <a href="{{ route('admin.rdo-divisions.index') }}" class="nav-link {{ request()->routeIs('admin.rdo-divisions.*') ? 'nav-link-active' : '' }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg>
+                    RDO divisions
+                </a>
                 <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'nav-link-active' : '' }}">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8m13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     System users
                 </a>
             @endif
+            <p class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-tan">System info</p>
+            <a href="{{ route('admin.about-system') }}" class="nav-link {{ request()->routeIs('admin.about-system') ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25h.008v.008H11.25zm0 3.75h.008v.008H11.25zM12 2.25a9.75 9.75 0 1 0 0 19.5 9.75 9.75 0 0 0 0-19.5z"/></svg>
+                About System
+            </a>
+            <a href="{{ route('admin.changelog') }}" class="nav-link {{ request()->routeIs('admin.changelog') ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>
+                Changelog
+                <span class="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-bold text-sand">v{{ config('app.version') }}</span>
+            </a>
         </nav>
 
         <div class="border-t border-white/10 p-4">

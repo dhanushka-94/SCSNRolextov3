@@ -4,7 +4,6 @@ namespace App\Http\Requests\Planters;
 
 use App\Models\Planter;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 trait ValidatesPlanterApplicationFields
 {
@@ -16,7 +15,6 @@ trait ValidatesPlanterApplicationFields
         $presence = $requireCoreApplication ? 'required' : 'nullable';
 
         return [
-            'rdd_division' => [$presence, 'string', 'max:120'],
             'farm_name' => [$presence, 'string', 'max:160'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
             'fax' => ['nullable', 'string', 'max:30'],
@@ -52,7 +50,7 @@ trait ValidatesPlanterApplicationFields
             'crops_products' => $crops === [] ? null : $crops,
             'whatsapp' => $this->filled('whatsapp') ? $this->whatsapp : null,
             'fax' => $this->filled('fax') ? $this->fax : null,
-            'rdd_division' => $this->filled('rdd_division') ? $this->rdd_division : null,
+            'rdo_division_id' => $this->filled('rdo_division_id') ? $this->rdo_division_id : null,
             'farm_name' => $this->filled('farm_name') ? $this->farm_name : null,
             'business_type' => $this->filled('business_type') ? $this->business_type : null,
             'certification_standard' => $this->filled('certification_standard') ? $this->certification_standard : null,
@@ -76,7 +74,7 @@ trait ValidatesPlanterApplicationFields
     protected function applicationFieldAttributes(): array
     {
         return [
-            'rdd_division' => 'RDD officer division',
+            'rdo_division_id' => 'Rubber Development Officer division',
             'farm_name' => 'farm name',
             'business_type' => 'nature of business',
             'already_certified' => 'existing certification',

@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\AboutSystemController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Admin\ChangelogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\PlanterController;
+use App\Http\Controllers\Admin\RdoDivisionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Planter\Auth\LoginController as PlanterLoginController;
 use App\Http\Controllers\Planter\Auth\RegisterController;
@@ -47,7 +51,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth:web', 'active'])->group(function () {
         Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
-        Route::get('planters/approval-lobby', [PlanterController::class, 'approvalLobby'])->name('planters.approval-lobby');
+        Route::get('about-system', AboutSystemController::class)->name('about-system');
+        Route::get('changelog', ChangelogController::class)->name('changelog');
+        Route::redirect('planters/approval-lobby', '/admin/planters/registration-lobby');
+        Route::get('planters/registration-lobby', [PlanterController::class, 'approvalLobby'])->name('planters.registration-lobby');
+        Route::get('planters/rejected', [PlanterController::class, 'rejected'])->name('planters.rejected');
         Route::resource('planters', PlanterController::class);
         Route::post('planters/{planter}/approve', [PlanterController::class, 'approve'])->name('planters.approve');
         Route::post('planters/{planter}/reject', [PlanterController::class, 'reject'])->name('planters.reject');
@@ -57,6 +65,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::middleware('admin')->group(function () {
             Route::resource('users', UserController::class);
+            Route::resource('districts', DistrictController::class);
+            Route::resource('rdo-divisions', RdoDivisionController::class);
         });
     });
 });

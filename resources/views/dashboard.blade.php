@@ -10,7 +10,7 @@
             <p class="text-sm text-muted">Pending approval</p>
             <p class="mt-3 text-3xl font-semibold text-bark">{{ $pendingPlanters }}</p>
             @if ($pendingPlanters > 0)
-                <a href="{{ route('admin.planters.approval-lobby') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">Open approval lobby</a>
+                <a href="{{ route('admin.planters.registration-lobby') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">Open Registration Lobby</a>
             @endif
         </article>
         <article class="card p-5">
@@ -22,12 +22,14 @@
             <p class="mt-3 text-3xl font-semibold text-tan">{{ $pendingOffline }}</p>
         </article>
         <article class="card p-5">
-            <p class="text-sm text-muted">Approved planters</p>
+            <p class="text-sm text-muted">Approved in registry</p>
             <p class="mt-3 text-3xl font-semibold text-leaf">{{ $approvedPlanters }}</p>
+            <a href="{{ route('admin.planters.index') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">Open Registry</a>
         </article>
         <article class="card p-5">
             <p class="text-sm text-muted">Rejected</p>
             <p class="mt-3 text-3xl font-semibold text-red-800">{{ $rejectedPlanters }}</p>
+            <a href="{{ route('admin.planters.rejected') }}" class="mt-3 inline-flex text-sm font-semibold text-red-800 hover:text-red-900">View rejected</a>
         </article>
         <article class="card p-5">
             <p class="text-sm text-muted">Active staff</p>
@@ -36,13 +38,13 @@
         </article>
     </div>
 
-    <section class="mt-6 grid gap-4 lg:grid-cols-3">
-        <a href="{{ route('admin.planters.approval-lobby') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
+    <section class="mt-6 grid gap-4 lg:grid-cols-4">
+        <a href="{{ route('admin.planters.registration-lobby') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
             <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-leaf/10 text-leaf">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0"/></svg>
             </span>
             <span>
-                <span class="block font-semibold text-forest-dark">Approval lobby</span>
+                <span class="block font-semibold text-forest-dark">Registration Lobby</span>
                 <span class="text-sm text-muted">Review pending applications</span>
             </span>
         </a>
@@ -51,8 +53,17 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M5 21V7.5L12 3l7 4.5V21M9 21v-6h6v6"/></svg>
             </span>
             <span>
-                <span class="block font-semibold text-forest-dark">All planters</span>
-                <span class="text-sm text-muted">Search and manage records</span>
+                <span class="block font-semibold text-forest-dark">Registry</span>
+                <span class="text-sm text-muted">Approved records only</span>
+            </span>
+        </a>
+        <a href="{{ route('admin.planters.rejected') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
+            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-800">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </span>
+            <span>
+                <span class="block font-semibold text-forest-dark">Rejected</span>
+                <span class="text-sm text-muted">Reviewed and declined</span>
             </span>
         </a>
         <a href="{{ route('admin.planters.create') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
@@ -60,7 +71,7 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
             </span>
             <span>
-                <span class="block font-semibold text-forest-dark">Add planter</span>
+                <span class="block font-semibold text-forest-dark">Add entry</span>
                 <span class="text-sm text-muted">Create a registration manually</span>
             </span>
         </a>
@@ -68,7 +79,7 @@
 
     <section class="card mt-6 overflow-hidden">
         <div class="flex items-center justify-between border-b border-sand px-5 py-4">
-            <h2 class="font-semibold text-forest-dark">Recent planter registrations</h2>
+            <h2 class="font-semibold text-forest-dark">Recent approved entries</h2>
             <a href="{{ route('admin.planters.index') }}" class="text-sm font-semibold text-leaf hover:text-forest">View all</a>
         </div>
 
@@ -102,7 +113,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-5 py-8 text-center text-muted">No planter registrations yet.</td></tr>
+                        <tr><td colspan="6" class="px-5 py-8 text-center text-muted">No registry entries yet.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -117,7 +128,7 @@
                     <a href="{{ route('admin.planters.show', $planter) }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">View application</a>
                 </article>
             @empty
-                <p class="text-sm text-muted">No planter registrations yet.</p>
+                <p class="text-sm text-muted">No registry entries yet.</p>
             @endforelse
         </div>
     </section>

@@ -20,7 +20,9 @@ class ProfileController extends Controller
 
     public function update(UpdatePlanterProfileRequest $request): RedirectResponse
     {
-        $request->user('planter')->update($request->validated());
+        $request->user('planter')->update(
+            \App\Support\PlanterLocation::hydrateNames($request->validated())
+        );
 
         return back()->with('success', 'Your profile has been updated.');
     }

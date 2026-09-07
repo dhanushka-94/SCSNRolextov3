@@ -46,8 +46,8 @@ class RegisterPlanterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:120'],
             'nic' => ['required', 'string', 'max:20', 'unique:planters,nic'],
-            'rdd_division' => ['required', 'string', 'max:120'],
-            'district' => ['required', Rule::in(Planter::districts())],
+            'district_id' => \App\Support\PlanterLocation::districtIdRules(),
+            'rdo_division_id' => \App\Support\PlanterLocation::rdoDivisionIdRules(),
             'farm_name' => ['required', 'string', 'max:160'],
             'address' => ['required', 'string', 'max:500'],
             'phone' => ['required', 'string', 'max:30'],
@@ -82,7 +82,8 @@ class RegisterPlanterRequest extends FormRequest
     {
         return [
             'name' => 'applicant name',
-            'rdd_division' => 'RDD officer division',
+            'district_id' => 'district',
+            'rdo_division_id' => 'Rubber Development Officer division',
             'farm_name' => 'farm name',
             'address' => 'farm address',
             'business_type' => 'nature of business',

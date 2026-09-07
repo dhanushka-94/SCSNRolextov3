@@ -19,7 +19,7 @@ return [
 
     'short_name' => env('APP_SHORT_NAME', 'SCSNR'),
 
-    'version' => env('APP_VERSION', '0.0.1'),
+    'version' => env('APP_VERSION'),
 
     'copyright' => env('APP_COPYRIGHT', 'Sustainability Certification System for Natural Rubber'),
 

@@ -55,21 +55,7 @@
                                 <input id="nic" name="nic" type="text" value="{{ old('nic') }}" required class="input-field">
                                 @error('nic')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                             </div>
-                            <div>
-                                <x-bilingual-label si="දිස්ත්‍රික්කය" en="District" for="district" />
-                                <select id="district" name="district" required class="input-field">
-                                    <option value="">තෝරන්න / Select</option>
-                                    @foreach (\App\Models\Planter::districts() as $district)
-                                        <option value="{{ $district }}" @selected(old('district') === $district)>{{ $district }}</option>
-                                    @endforeach
-                                </select>
-                                @error('district')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="sm:col-span-2">
-                                <x-bilingual-label si="රබර් සංවර්ධන නිලධාරි කොට්ඨාසය" en="Rubber Development Officer division" for="rdd_division" />
-                                <input id="rdd_division" name="rdd_division" type="text" value="{{ old('rdd_division') }}" required class="input-field">
-                                @error('rdd_division')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
-                            </div>
+                            <x-district-rdo-fields bilingual="true" />
                         </div>
                     </section>
 
@@ -335,6 +321,12 @@
                                 <x-bilingual-label si="ඊ මේල් (විකල්ප)" en="Email (optional)" for="offline_email" />
                                 <input id="offline_email" name="email" type="email" value="{{ old('_offline') ? old('email') : '' }}" class="input-field">
                             </div>
+                            <x-district-rdo-fields
+                                bilingual="true"
+                                id-prefix="offline_"
+                                :district-id="old('_offline') ? old('district_id') : null"
+                                :rdo-division-id="old('_offline') ? old('rdo_division_id') : null"
+                            />
                             <div class="sm:col-span-2">
                                 <x-bilingual-label si="පුරවා අවසන් පෝරමය උඩුගත කරන්න" en="Upload completed form (PDF or image)" for="application_document" />
                                 <input id="application_document" name="application_document" type="file" required accept=".pdf,image/png,image/jpeg,image/webp" class="input-field file:mr-3 file:rounded-lg file:border-0 file:bg-leaf file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white">

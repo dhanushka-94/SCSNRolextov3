@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Add planter')
-@section('heading', 'Add planter')
-@section('subheading', 'Create a planter registration')
+@section('title', 'Add entry')
+@section('heading', 'Add entry')
+@section('subheading', 'Create a registry record')
 
 @section('actions')
     <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Back</a>
@@ -14,7 +14,7 @@
         @include('planters._form')
         <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Cancel</a>
-            <button type="submit" class="btn-primary">Save planter</button>
+            <button type="submit" class="btn-primary">Save entry</button>
         </div>
     </form>
 @endsection

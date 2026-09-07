@@ -19,29 +19,12 @@ class PlanterController extends Controller
 {
     public function index(Request $request): View
     {
-        $planters = Planter::query()
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $search = '%'.$request->string('q')->trim().'%';
+        return $this->registryList($request, Planter::STATUS_APPROVED, 'admin.planters.index');
+    }
 
-                $query->where(function ($inner) use ($search) {
-                    $inner->where('name', 'like', $search)
-                        ->orWhere('email', 'like', $search)
-                        ->orWhere('nic', 'like', $search)
-                        ->orWhere('phone', 'like', $search)
-                        ->orWhere('temporary_id', 'like', $search)
-                        ->orWhere('identification_number', 'like', $search);
-                });
-            })
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
-            ->when($request->filled('district'), fn ($query) => $query->where('district', $request->string('district')))
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('planters.index', [
-            'planters' => $planters,
-            'filters' => $request->only(['q', 'status', 'district']),
-        ]);
+    public function rejected(Request $request): View
+    {
+        return $this->registryList($request, Planter::STATUS_REJECTED, 'admin.planters.rejected');
     }
 
     public function approvalLobby(Request $request): View
@@ -57,6 +40,7 @@ class PlanterController extends Controller
                         ->orWhere('email', 'like', $search)
                         ->orWhere('nic', 'like', $search)
                         ->orWhere('phone', 'like', $search)
+                        ->orWhere('temporary_id', 'like', $search)
                         ->orWhere('identification_number', 'like', $search);
                 });
             })
@@ -66,7 +50,7 @@ class PlanterController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('planters.approval-lobby', [
+        return view('planters.registration-lobby', [
             'planters' => $planters,
             'filters' => $request->only(['q', 'district', 'registration_type']),
             'stats' => [
@@ -88,6 +72,7 @@ class PlanterController extends Controller
     {
         $planter = DB::transaction(function () use ($request, $identity) {
             $data = $request->validated();
+            $data = \App\Support\PlanterLocation::hydrateNames($data);
             $data['registration_type'] = Planter::TYPE_ONLINE;
 
             if (blank($data['password'] ?? null)) {
@@ -98,20 +83,30 @@ class PlanterController extends Controller
                 $data['rejection_reason'] = null;
             }
 
-            $data = $identity->assignRegistrationNumbers($data);
+            $data = $identity->assignTemporaryId($data);
 
             $planter = Planter::query()->create($data);
 
             if ($planter->status === Planter::STATUS_APPROVED) {
                 $planter = $identity->approve($planter, $request->user('web')->id);
+            } elseif ($planter->status === Planter::STATUS_REJECTED) {
+                $planter = $identity->reject(
+                    $planter,
+                    $request->user('web')->id,
+                    $data['rejection_reason'] ?? 'Rejected by administrator.',
+                );
             }
 
             return $planter;
         });
 
+        $message = filled($planter->identification_number)
+            ? 'Registry entry saved successfully. Registration number: '.$planter->identification_number
+            : 'Registry entry saved as pending. Registration number will be issued on approve or reject.';
+
         return redirect()
-            ->route('admin.planters.index')
-            ->with('success', 'Planter registration saved successfully. SCSNR ID: '.$planter->identification_number);
+            ->route($this->listRouteFor($planter))
+            ->with('success', $message);
     }
 
     public function show(Planter $planter, PlanterIdentityService $identity): View
@@ -130,6 +125,7 @@ class PlanterController extends Controller
     public function update(UpdatePlanterRequest $request, Planter $planter): RedirectResponse
     {
         $data = $request->validated();
+        $data = \App\Support\PlanterLocation::hydrateNames($data);
 
         if (blank($data['password'] ?? null)) {
             unset($data['password']);
@@ -146,19 +142,28 @@ class PlanterController extends Controller
         }
 
         $wasApproved = $planter->isApproved();
+        $wasRejected = $planter->isRejected();
         $planter->update($data);
 
         if ($planter->status === Planter::STATUS_APPROVED && ! $wasApproved) {
             app(PlanterIdentityService::class)->approve($planter, $request->user('web')->id);
+        } elseif ($planter->status === Planter::STATUS_REJECTED && ! $wasRejected) {
+            app(PlanterIdentityService::class)->reject(
+                $planter,
+                $request->user('web')->id,
+                $data['rejection_reason'] ?? 'Rejected by administrator.',
+            );
         }
 
         return redirect()
-            ->route('admin.planters.index')
-            ->with('success', 'Planter record updated successfully.');
+            ->route($this->listRouteFor($planter))
+            ->with('success', 'Registry entry updated successfully.');
     }
 
     public function destroy(Planter $planter): RedirectResponse
     {
+        $listRoute = $this->listRouteFor($planter);
+
         if ($planter->application_document) {
             Storage::disk('local')->delete($planter->application_document);
         }
@@ -170,15 +175,15 @@ class PlanterController extends Controller
         $planter->delete();
 
         return redirect()
-            ->route('admin.planters.index')
-            ->with('success', 'Planter record deleted successfully.');
+            ->route($listRoute)
+            ->with('success', 'Registry entry deleted successfully.');
     }
 
     public function approve(Request $request, Planter $planter, PlanterIdentityService $identity): RedirectResponse
     {
         $planter = $identity->approve($planter, $request->user('web')->id);
 
-        return back()->with('success', 'Planter approved. SCSNR ID: '.$planter->identification_number);
+        return back()->with('success', 'Registry entry approved. Registration number: '.$planter->identification_number);
     }
 
     public function qr(Planter $planter, PlanterIdentityService $identity): Response
@@ -192,25 +197,26 @@ class PlanterController extends Controller
         ]);
     }
 
-    public function reject(RejectPlanterRequest $request, Planter $planter): RedirectResponse
+    public function reject(RejectPlanterRequest $request, Planter $planter, PlanterIdentityService $identity): RedirectResponse
     {
-        $planter->update([
-            'status' => Planter::STATUS_REJECTED,
-            'approved_by' => $request->user('web')->id,
-            'approved_at' => now(),
-            'rejection_reason' => $request->validated('rejection_reason'),
-        ]);
+        $planter = $identity->reject(
+            $planter,
+            $request->user('web')->id,
+            $request->validated('rejection_reason'),
+        );
 
-        return back()->with('success', 'Planter registration rejected.');
+        return back()->with('success', 'Registry entry rejected. Registration number: '.$planter->identification_number);
     }
 
     public function document(Planter $planter)
     {
         abort_unless($planter->hasApplicationDocument() && Storage::disk('local')->exists($planter->application_document), 404);
 
+        $basename = str_replace('/', '-', $planter->identification_number ?: $planter->temporary_id);
+
         return Storage::disk('local')->download(
             $planter->application_document,
-            str_replace('/', '-', $planter->identification_number).'-registration-form.'.pathinfo($planter->application_document, PATHINFO_EXTENSION)
+            $basename.'-registration-form.'.pathinfo($planter->application_document, PATHINFO_EXTENSION)
         );
     }
 
@@ -218,9 +224,49 @@ class PlanterController extends Controller
     {
         abort_unless($planter->hasPriorCertificateDocument() && Storage::disk('local')->exists($planter->prior_certificate_document), 404);
 
+        $basename = str_replace('/', '-', $planter->identification_number ?: $planter->temporary_id);
+
         return Storage::disk('local')->download(
             $planter->prior_certificate_document,
-            str_replace('/', '-', $planter->identification_number).'-prior-certificate.'.pathinfo($planter->prior_certificate_document, PATHINFO_EXTENSION)
+            $basename.'-prior-certificate.'.pathinfo($planter->prior_certificate_document, PATHINFO_EXTENSION)
         );
+    }
+
+    private function registryList(Request $request, string $status, string $routeName): View
+    {
+        $planters = Planter::query()
+            ->where('status', $status)
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $search = '%'.$request->string('q')->trim().'%';
+
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('name', 'like', $search)
+                        ->orWhere('email', 'like', $search)
+                        ->orWhere('nic', 'like', $search)
+                        ->orWhere('phone', 'like', $search)
+                        ->orWhere('temporary_id', 'like', $search)
+                        ->orWhere('identification_number', 'like', $search);
+                });
+            })
+            ->when($request->filled('district'), fn ($query) => $query->where('district', $request->string('district')))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('planters.index', [
+            'planters' => $planters,
+            'filters' => $request->only(['q', 'district']),
+            'listStatus' => $status,
+            'listRoute' => $routeName,
+        ]);
+    }
+
+    private function listRouteFor(Planter $planter): string
+    {
+        return match ($planter->status) {
+            Planter::STATUS_REJECTED => 'admin.planters.rejected',
+            Planter::STATUS_PENDING => 'admin.planters.registration-lobby',
+            default => 'admin.planters.index',
+        };
     }
 }

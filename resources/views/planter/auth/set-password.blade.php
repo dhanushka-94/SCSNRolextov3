@@ -22,7 +22,7 @@
 
                 <div>
                     <x-bilingual-label si="SCSNR ලියාපදිංචි අංකය" en="SCSNR registration number" for="identification_number" />
-                    <input id="identification_number" name="identification_number" type="text" value="{{ old('identification_number') }}" required class="input-field font-mono" placeholder="SCSNR/Ad/Kr/2026/0001">
+                    <input id="identification_number" name="identification_number" type="text" value="{{ old('identification_number') }}" required class="input-field font-mono" placeholder="RUB/SUS/KEGA/AMIT/00001">
                     @error('identification_number')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                 </div>
                 <div>
