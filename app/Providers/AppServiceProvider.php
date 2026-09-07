@@ -23,8 +23,13 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultView('vendor.pagination.earth');
         Paginator::defaultSimpleView('vendor.pagination.earth');
 
+        $releases = config('changelog.releases', []);
+        $latestVersion = is_array($releases) && isset($releases[0]['version'])
+            ? (string) $releases[0]['version']
+            : '0.0.1';
+
         config([
-            'app.version' => config('app.version') ?: config('changelog.releases.0.version', '0.0.1'),
+            'app.version' => $latestVersion,
         ]);
 
         if ($this->app->environment('production')) {

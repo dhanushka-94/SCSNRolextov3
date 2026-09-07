@@ -19,7 +19,11 @@ return [
 
     'short_name' => env('APP_SHORT_NAME', 'SCSNR'),
 
-    'version' => env('APP_VERSION'),
+    /*
+    | Application version is resolved from config/changelog.php (newest release).
+    | Do not set this from APP_VERSION — bump the top changelog entry instead.
+    */
+    'version' => null,
 
     'copyright' => env('APP_COPYRIGHT', 'Sustainability Certification System for Natural Rubber'),
 

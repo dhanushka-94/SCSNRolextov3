@@ -7,8 +7,9 @@ return [
     | Release history
     |--------------------------------------------------------------------------
     |
-    | Newest release first. The top version becomes the running app version
-    | unless APP_VERSION is set in the environment.
+    | Newest release first. The top version is the running app version
+    | everywhere (footer, sidebar, changelog “current”, etc.).
+    | Bump the top entry to update the whole system — no APP_VERSION needed.
     |
     */
 

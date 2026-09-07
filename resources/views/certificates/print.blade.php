@@ -70,6 +70,7 @@
 
         <footer class="mt-10 border-t border-sand pt-6 text-center text-xs text-muted">
             <p>{{ config('app.powered_by') }}</p>
+            <p class="mt-2">{{ config('app.short_name') }} v{{ config('app.version') }}</p>
             <p class="mt-2">Verify at {{ $certificate->verifyUrl() }}</p>
         </footer>
     </article>
