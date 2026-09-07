@@ -14,7 +14,7 @@ class ProfileController extends Controller
     public function edit(PlanterIdentityService $identity): View
     {
         return view('planter.profile', [
-            'planter' => $identity->ensureIssued(auth('planter')->user()),
+            'planter' => $identity->ensureIssued(auth('planter')->user())->load(['firstAudit', 'finalAudit']),
         ]);
     }
 

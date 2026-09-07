@@ -35,6 +35,10 @@ class RegisterPlanterRequest extends FormRequest
             'group_name' => $this->filled('group_name') ? $this->group_name : null,
             'group_address' => $this->filled('group_address') ? $this->group_address : null,
             'has_process_plan' => $this->filled('has_process_plan') ? $this->has_process_plan : null,
+            ...\App\Support\FarmCoordinates::prepare(
+                $this->input('latitude'),
+                $this->input('longitude'),
+            ),
         ]);
     }
 
@@ -43,7 +47,7 @@ class RegisterPlanterRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge([
             'name' => ['required', 'string', 'max:120'],
             'nic' => ['required', 'string', 'max:20', 'unique:planters,nic'],
             'district_id' => \App\Support\PlanterLocation::districtIdRules(),
@@ -72,7 +76,7 @@ class RegisterPlanterRequest extends FormRequest
             ],
             'group_name' => ['nullable', 'string', 'max:160'],
             'group_address' => ['nullable', 'string', 'max:500'],
-        ];
+        ], \App\Support\FarmCoordinates::rules(required: true));
     }
 
     /**
@@ -80,7 +84,7 @@ class RegisterPlanterRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return [
+        return array_merge([
             'name' => 'applicant name',
             'district_id' => 'district',
             'rdo_division_id' => 'Rubber Development Officer division',
@@ -99,6 +103,6 @@ class RegisterPlanterRequest extends FormRequest
             'has_process_plan' => 'process plan',
             'group_name' => 'plantation company / group name',
             'group_address' => 'group address',
-        ];
+        ], \App\Support\FarmCoordinates::attributes());
     }
 }

@@ -112,7 +112,7 @@ class PlanterController extends Controller
     public function show(Planter $planter, PlanterIdentityService $identity): View
     {
         $planter = $identity->ensureIssued($planter);
-        $planter->load('approver');
+        $planter->load(['approver', 'firstAudit', 'finalAudit']);
 
         return view('planters.show', compact('planter'));
     }

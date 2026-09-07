@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AboutSystemController;
+use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\ChangelogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -59,9 +60,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('planters', PlanterController::class);
         Route::post('planters/{planter}/approve', [PlanterController::class, 'approve'])->name('planters.approve');
         Route::post('planters/{planter}/reject', [PlanterController::class, 'reject'])->name('planters.reject');
+        Route::post('planters/{planter}/audits/first', [AuditController::class, 'sendFirst'])->name('planters.audits.send-first');
+        Route::post('planters/{planter}/audits/final', [AuditController::class, 'sendFinal'])->name('planters.audits.send-final');
         Route::get('planters/{planter}/document', [PlanterController::class, 'document'])->name('planters.document');
         Route::get('planters/{planter}/certificate-document', [PlanterController::class, 'certificateDocument'])->name('planters.certificate-document');
         Route::get('planters/{planter}/qr.png', [PlanterController::class, 'qr'])->name('planters.qr');
+
+        Route::get('audits/ongoing', [AuditController::class, 'ongoing'])->name('audits.ongoing');
+        Route::get('audits/passed', [AuditController::class, 'passed'])->name('audits.passed');
+        Route::get('audits/rejected', [AuditController::class, 'rejected'])->name('audits.rejected');
+        Route::redirect('audits', '/admin/audits/ongoing')->name('audits.lobby');
+        Route::get('audits/{audit}', [AuditController::class, 'show'])->name('audits.show');
+        Route::post('audits/{audit}/start', [AuditController::class, 'start'])->name('audits.start');
+        Route::post('audits/{audit}/checklist', [AuditController::class, 'saveChecklist'])->name('audits.checklist.save');
+        Route::post('audits/{audit}/submit', [AuditController::class, 'submit'])->name('audits.submit');
+        Route::post('audits/{audit}/complete', [AuditController::class, 'complete'])->name('audits.complete');
+        Route::post('audits/{audit}/reopen', [AuditController::class, 'reopen'])->name('audits.reopen');
 
         Route::middleware('admin')->group(function () {
             Route::resource('users', UserController::class);

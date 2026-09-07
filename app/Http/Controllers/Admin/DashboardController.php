@@ -21,6 +21,20 @@ class DashboardController extends Controller
             'pendingOffline' => (clone $pendingQuery)->where('registration_type', Planter::TYPE_OFFLINE)->count(),
             'approvedPlanters' => Planter::query()->where('status', Planter::STATUS_APPROVED)->count(),
             'rejectedPlanters' => Planter::query()->where('status', Planter::STATUS_REJECTED)->count(),
+            'activeAudits' => \App\Models\PlanterAudit::query()
+                ->whereIn('status', [
+                    \App\Models\PlanterAudit::STATUS_QUEUED,
+                    \App\Models\PlanterAudit::STATUS_IN_PROGRESS,
+                    \App\Models\PlanterAudit::STATUS_IN_REVIEW,
+                ])
+                ->count(),
+            'completedAudits' => \App\Models\PlanterAudit::query()
+                ->whereIn('status', [
+                    \App\Models\PlanterAudit::STATUS_PASSED,
+                    \App\Models\PlanterAudit::STATUS_CONDITIONAL,
+                    \App\Models\PlanterAudit::STATUS_FAILED,
+                ])
+                ->count(),
             'recentPlanters' => Planter::query()->where('status', Planter::STATUS_APPROVED)->latest()->limit(6)->get(),
         ]);
     }

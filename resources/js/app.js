@@ -1,4 +1,5 @@
 import './bootstrap';
+import L from 'leaflet';
 
 const sidebar = document.getElementById('app-sidebar');
 const overlay = document.getElementById('sidebar-overlay');
@@ -395,3 +396,201 @@ document.querySelectorAll('[data-search-select]').forEach((root) => {
 
     initSearchSelect(root);
 });
+
+const farmPinIcon = L.divIcon({
+    className: 'map-pin-marker',
+    html: '<span></span>',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+});
+
+const initMapPin = (root) => {
+    const canvas = root.querySelector('[data-map-canvas]');
+    const latInput = root.querySelector('[data-map-lat]');
+    const lngInput = root.querySelector('[data-map-lng]');
+    const status = root.querySelector('[data-map-status]');
+    const locateButton = root.querySelector('[data-map-locate]');
+    const clearButton = root.querySelector('[data-map-clear]');
+    const readonly = root.getAttribute('data-readonly') === '1';
+
+    if (!canvas || !latInput || !lngInput) {
+        return;
+    }
+
+    const defaultLat = Number(root.getAttribute('data-default-lat') || 7.8731);
+    const defaultLng = Number(root.getAttribute('data-default-lng') || 80.7718);
+    const defaultZoom = Number(root.getAttribute('data-default-zoom') || 7);
+    const pinnedZoom = Number(root.getAttribute('data-pinned-zoom') || 14);
+    const minLat = 5.8;
+    const maxLat = 10.0;
+    const minLng = 79.4;
+    const maxLng = 82.1;
+
+    const parseCoord = (value) => {
+        if (value === null || value === undefined || String(value).trim() === '') {
+            return null;
+        }
+
+        const number = Number(value);
+
+        return Number.isFinite(number) ? number : null;
+    };
+
+    const withinSriLanka = (lat, lng) => (
+        lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng
+    );
+
+    const formatCoord = (value) => value.toFixed(7);
+
+    let marker = null;
+
+    const setStatus = (message) => {
+        if (status) {
+            status.textContent = message;
+        }
+    };
+
+    const writeInputs = (lat, lng) => {
+        latInput.value = formatCoord(lat);
+        lngInput.value = formatCoord(lng);
+    };
+
+    const clearInputs = () => {
+        latInput.value = '';
+        lngInput.value = '';
+    };
+
+    const placeMarker = (lat, lng, { pan = true, zoom = false } = {}) => {
+        if (!withinSriLanka(lat, lng)) {
+            setStatus('Choose a point inside Sri Lanka.');
+            return false;
+        }
+
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng], {
+                icon: farmPinIcon,
+                draggable: !readonly,
+            }).addTo(map);
+
+            if (!readonly) {
+                marker.on('dragend', () => {
+                    const position = marker.getLatLng();
+                    if (!withinSriLanka(position.lat, position.lng)) {
+                        setStatus('Pin must stay inside Sri Lanka.');
+                        const lastLat = parseCoord(latInput.value);
+                        const lastLng = parseCoord(lngInput.value);
+                        if (lastLat !== null && lastLng !== null) {
+                            marker.setLatLng([lastLat, lastLng]);
+                        }
+                        return;
+                    }
+
+                    writeInputs(position.lat, position.lng);
+                    setStatus('Pin updated.');
+                });
+            }
+        }
+
+        writeInputs(lat, lng);
+
+        if (pan) {
+            map.setView([lat, lng], zoom ? pinnedZoom : Math.max(map.getZoom(), pinnedZoom - 2));
+        }
+
+        setStatus('Pin set.');
+        return true;
+    };
+
+    const clearMarker = () => {
+        if (marker) {
+            map.removeLayer(marker);
+            marker = null;
+        }
+
+        clearInputs();
+        map.setView([defaultLat, defaultLng], defaultZoom);
+        setStatus(readonly ? 'No map pin recorded.' : 'No pin yet — click the map to set one.');
+    };
+
+    const initialLat = parseCoord(latInput.value);
+    const initialLng = parseCoord(lngInput.value);
+    const hasInitial = initialLat !== null && initialLng !== null && withinSriLanka(initialLat, initialLng);
+
+    const map = L.map(canvas, {
+        scrollWheelZoom: !readonly,
+        dragging: true,
+        doubleClickZoom: !readonly,
+        boxZoom: !readonly,
+        keyboard: !readonly,
+    }).setView(
+        hasInitial ? [initialLat, initialLng] : [defaultLat, defaultLng],
+        hasInitial ? pinnedZoom : defaultZoom,
+    );
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    if (hasInitial) {
+        placeMarker(initialLat, initialLng, { pan: false });
+    }
+
+    window.setTimeout(() => map.invalidateSize(), 80);
+
+    if (!readonly) {
+        map.on('click', (event) => {
+            placeMarker(event.latlng.lat, event.latlng.lng, { pan: true, zoom: true });
+        });
+
+        const syncFromInputs = () => {
+            const lat = parseCoord(latInput.value);
+            const lng = parseCoord(lngInput.value);
+
+            if (lat === null && lng === null) {
+                clearMarker();
+                return;
+            }
+
+            if (lat === null || lng === null) {
+                setStatus('Enter both latitude and longitude, or click the map.');
+                return;
+            }
+
+            placeMarker(lat, lng, { pan: true, zoom: true });
+        };
+
+        latInput.addEventListener('change', syncFromInputs);
+        lngInput.addEventListener('change', syncFromInputs);
+
+        clearButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+            clearMarker();
+        });
+
+        locateButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            if (!navigator.geolocation) {
+                setStatus('Location is not supported in this browser.');
+                return;
+            }
+
+            setStatus('Finding your location…');
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    placeMarker(position.coords.latitude, position.coords.longitude, {
+                        pan: true,
+                        zoom: true,
+                    });
+                },
+                () => setStatus('Could not read your location. Click the map instead.'),
+                { enableHighAccuracy: true, timeout: 12000 },
+            );
+        });
+    }
+};
+
+document.querySelectorAll('[data-map-pin]').forEach((root) => initMapPin(root));

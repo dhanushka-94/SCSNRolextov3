@@ -16,6 +16,10 @@ class User extends Authenticatable
 
     public const ROLE_STAFF = 'staff';
 
+    public const ROLE_FIRST_AUDITOR = 'first_auditor';
+
+    public const ROLE_FINAL_AUDITOR = 'final_auditor';
+
     public const STATUS_ACTIVE = 'active';
 
     public const STATUS_INACTIVE = 'inactive';
@@ -58,9 +62,47 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    public function isStaff(): bool
+    {
+        return $this->role === self::ROLE_STAFF;
+    }
+
+    public function isFirstAuditor(): bool
+    {
+        return $this->role === self::ROLE_FIRST_AUDITOR;
+    }
+
+    public function isFinalAuditor(): bool
+    {
+        return $this->role === self::ROLE_FINAL_AUDITOR;
+    }
+
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function canDispatchAudits(): bool
+    {
+        return $this->isAdmin() || $this->isStaff();
+    }
+
+    public function canWorkAuditRound(string $round): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return match ($round) {
+            \App\Models\PlanterAudit::ROUND_FIRST => $this->isFirstAuditor(),
+            \App\Models\PlanterAudit::ROUND_FINAL => $this->isFinalAuditor(),
+            default => false,
+        };
+    }
+
+    public function canViewAuditRound(string $round): bool
+    {
+        return $this->canDispatchAudits() || $this->canWorkAuditRound($round);
     }
 
     public static function roles(): array
@@ -68,6 +110,8 @@ class User extends Authenticatable
         return [
             self::ROLE_ADMIN => 'Administrator',
             self::ROLE_STAFF => 'Staff',
+            self::ROLE_FIRST_AUDITOR => 'First Auditor',
+            self::ROLE_FINAL_AUDITOR => 'Final Auditor',
         ];
     }
 

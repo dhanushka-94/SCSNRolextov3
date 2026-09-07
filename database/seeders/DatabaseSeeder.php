@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             DemoResetSeeder::class,
             DistrictSeeder::class,
             UserSeeder::class,
+            AuditChecklistItemSeeder::class,
             PlanterSeeder::class,
             DemoLoginsFileSeeder::class,
         ]);

@@ -15,6 +15,51 @@ return [
     'releases' => [
 
         [
+            'version' => '0.4.2',
+            'date' => '2026-09-08',
+            'title' => 'Audits menu: Ongoing, Passed, Rejected',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Separate Audits sidebar section with Ongoing, Passed, and Rejected lists.'],
+                ['type' => 'changed', 'text' => 'Audit queues keep First/Final tabs inside each list.'],
+            ],
+        ],
+
+        [
+            'version' => '0.4.1',
+            'date' => '2026-09-07',
+            'title' => 'Audit attempt history',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Failed and completed First/Final Audit attempts are archived when starting a new attempt.'],
+                ['type' => 'added', 'text' => 'Attempt history on the audit checklist page with full checklist answers preserved.'],
+            ],
+        ],
+
+        [
+            'version' => '0.4.0',
+            'date' => '2026-09-07',
+            'title' => 'First & Final Audit checklists',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Separate First Audit and Final Audit rounds with Send to First/Final Audit actions after approval.'],
+                ['type' => 'added', 'text' => 'Auditor module checklists for PSM, EMM, WHSWM, PMM, and GRM.'],
+                ['type' => 'added', 'text' => 'First Auditor and Final Auditor system roles with round-scoped access.'],
+                ['type' => 'changed', 'text' => 'Audit workspace supports First/Final tabs and per-audit module checklists.'],
+                ['type' => 'changed', 'text' => 'Planter timeline shows Registration → First Audit → Final Audit → Result.'],
+            ],
+        ],
+
+        [
+            'version' => '0.3.0',
+            'date' => '2026-09-07',
+            'title' => 'Audit workflow & farm map pins',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Audit Lobby for advancing sustainability audits on approved registry entries.'],
+                ['type' => 'added', 'text' => 'Admin audit controls to open, progress, review, publish, update, or reopen results.'],
+                ['type' => 'added', 'text' => 'Farm map pin picker on registration, admin CRUD, and planter profile (Sri Lanka bounds).'],
+                ['type' => 'changed', 'text' => 'Dashboard now surfaces active and completed audit counts.'],
+            ],
+        ],
+
+        [
             'version' => '0.2.0',
             'date' => '2026-09-07',
             'title' => 'Registry workflow',

@@ -75,6 +75,9 @@
                                 <textarea id="address" name="address" rows="3" required class="input-field">{{ old('address') }}</textarea>
                                 @error('address')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                             </div>
+                            <div class="sm:col-span-2">
+                                <x-map-pin-fields bilingual="true" />
+                            </div>
                             <div>
                                 <x-bilingual-label si="දුරකථන අංකය" en="Phone number" for="phone" />
                                 <input id="phone" name="phone" type="text" value="{{ old('phone') }}" required class="input-field">

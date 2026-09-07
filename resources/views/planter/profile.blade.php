@@ -68,6 +68,12 @@
                 @error('address')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
             </div>
             <div class="sm:col-span-2">
+                <x-map-pin-fields
+                    :latitude="$planter->latitude"
+                    :longitude="$planter->longitude"
+                />
+            </div>
+            <div class="sm:col-span-2">
                 <button type="submit" class="btn-primary">Save profile</button>
             </div>
         </form>

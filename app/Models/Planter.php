@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +75,8 @@ class Planter extends Authenticatable
         'rdo_division_id',
         'farm_name',
         'address',
+        'latitude',
+        'longitude',
         'business_type',
         'already_certified',
         'certification_standard',
@@ -124,12 +128,52 @@ class Planter extends Authenticatable
             'has_certification_leaflet' => 'boolean',
             'processes_rubber_on_farm' => 'boolean',
             'crops_products' => 'array',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
         ];
+    }
+
+    public function hasMapPin(): bool
+    {
+        return filled($this->latitude) && filled($this->longitude);
     }
 
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function audits(): HasMany
+    {
+        return $this->hasMany(PlanterAudit::class);
+    }
+
+    public function firstAudit(): HasOne
+    {
+        return $this->hasOne(PlanterAudit::class)
+            ->where('round', PlanterAudit::ROUND_FIRST)
+            ->where('is_current', true);
+    }
+
+    public function finalAudit(): HasOne
+    {
+        return $this->hasOne(PlanterAudit::class)
+            ->where('round', PlanterAudit::ROUND_FINAL)
+            ->where('is_current', true);
+    }
+
+    public function firstAuditAttempts(): HasMany
+    {
+        return $this->hasMany(PlanterAudit::class)
+            ->where('round', PlanterAudit::ROUND_FIRST)
+            ->orderByDesc('attempt_number');
+    }
+
+    public function finalAuditAttempts(): HasMany
+    {
+        return $this->hasMany(PlanterAudit::class)
+            ->where('round', PlanterAudit::ROUND_FINAL)
+            ->orderByDesc('attempt_number');
     }
 
     public function districtRecord(): BelongsTo
@@ -294,10 +338,9 @@ class Planter extends Authenticatable
     {
         return [
             'registration_approved',
-            self::AUDIT_OPEN,
-            self::AUDIT_IN_PROGRESS,
-            self::AUDIT_IN_REVIEW,
-            self::AUDIT_RESULT,
+            'first_audit',
+            'final_audit',
+            'audit_result',
         ];
     }
 
@@ -311,19 +354,15 @@ class Planter extends Authenticatable
                 'label' => 'Registration approved',
                 'description' => 'Planter registration verified and SCSNR identification issued.',
             ],
-            self::AUDIT_OPEN => [
-                'label' => 'Audit open',
-                'description' => 'Sustainability audit file opened and assigned for scheduling.',
+            'first_audit' => [
+                'label' => 'First Audit',
+                'description' => 'First auditor team completes the SCSNR module checklist.',
             ],
-            self::AUDIT_IN_PROGRESS => [
-                'label' => 'Auditing in progress',
-                'description' => 'Field inspection and plantation documentation review underway.',
+            'final_audit' => [
+                'label' => 'Final Audit',
+                'description' => 'Final auditor team reviews evidence and completes the final checklist.',
             ],
-            self::AUDIT_IN_REVIEW => [
-                'label' => 'Audit in review',
-                'description' => 'Audit findings submitted and under technical review by the governing authorities.',
-            ],
-            self::AUDIT_RESULT => [
+            'audit_result' => [
                 'label' => 'Audit result',
                 'description' => 'Final certification decision published to the planter record.',
             ],
@@ -348,10 +387,22 @@ class Planter extends Authenticatable
             return 'registration_approved';
         }
 
-        return match ($this->audit_status ?? self::AUDIT_NOT_STARTED) {
-            self::AUDIT_NOT_STARTED => self::AUDIT_OPEN,
-            default => $this->audit_status,
-        };
+        $first = $this->relationLoaded('firstAudit') ? $this->firstAudit : $this->firstAudit()->first();
+        $final = $this->relationLoaded('finalAudit') ? $this->finalAudit : $this->finalAudit()->first();
+
+        if ($final?->isComplete() || ($this->audit_status === self::AUDIT_RESULT && filled($this->audit_result_outcome))) {
+            return 'audit_result';
+        }
+
+        if ($final) {
+            return 'final_audit';
+        }
+
+        if ($first) {
+            return 'first_audit';
+        }
+
+        return 'first_audit';
     }
 
     public function auditStageState(string $stageKey): string
@@ -364,27 +415,28 @@ class Planter extends Authenticatable
             return 'completed';
         }
 
-        $stages = self::auditStageKeys();
-        $currentIndex = array_search($this->currentAuditStageKey(), $stages, true);
-        $stageIndex = array_search($stageKey, $stages, true);
+        $first = $this->relationLoaded('firstAudit') ? $this->firstAudit : $this->firstAudit()->first();
+        $final = $this->relationLoaded('finalAudit') ? $this->finalAudit : $this->finalAudit()->first();
 
-        if ($stageIndex === false || $currentIndex === false) {
-            return 'upcoming';
-        }
-
-        if ($this->audit_status === self::AUDIT_RESULT && $stageKey === self::AUDIT_RESULT) {
-            return 'completed';
-        }
-
-        if ($stageIndex < $currentIndex) {
-            return 'completed';
-        }
-
-        if ($stageIndex === $currentIndex) {
-            return 'current';
-        }
-
-        return 'upcoming';
+        return match ($stageKey) {
+            'first_audit' => match (true) {
+                $first === null => 'current',
+                $first->isComplete() => 'completed',
+                default => 'current',
+            },
+            'final_audit' => match (true) {
+                $first === null || ! $first->canProceedToFinal() => 'upcoming',
+                $final === null => ($first->canProceedToFinal() ? 'current' : 'upcoming'),
+                $final->isComplete() => 'completed',
+                default => 'current',
+            },
+            'audit_result' => match (true) {
+                $final?->isComplete() => 'completed',
+                $first?->status === PlanterAudit::STATUS_FAILED => 'completed',
+                default => 'upcoming',
+            },
+            default => 'upcoming',
+        };
     }
 
     /**
@@ -392,19 +444,64 @@ class Planter extends Authenticatable
      */
     public function auditTimelineTree(): array
     {
+        $this->loadMissing(['firstAudit', 'finalAudit']);
+
         $stages = self::auditStages();
         $tree = [];
 
         foreach (self::auditStageKeys() as $key) {
+            $description = $stages[$key]['description'];
+
+            if ($key === 'first_audit' && $this->firstAudit) {
+                $description .= ' Attempt #'.$this->firstAudit->attempt_number.'. Status: '.$this->firstAudit->statusLabel().'.';
+            }
+
+            if ($key === 'final_audit' && $this->finalAudit) {
+                $description .= ' Attempt #'.$this->finalAudit->attempt_number.'. Status: '.$this->finalAudit->statusLabel().'.';
+            }
+
+            if ($key === 'audit_result' && filled($this->audit_result_outcome)) {
+                $description .= ' Result: '.(self::auditResultOutcomes()[$this->audit_result_outcome] ?? $this->audit_result_outcome).'.';
+            }
+
             $tree[] = [
                 'key' => $key,
                 'label' => $stages[$key]['label'],
-                'description' => $stages[$key]['description'],
+                'description' => $description,
                 'state' => $this->auditStageState($key),
                 'children' => [],
             ];
         }
 
         return $tree;
+    }
+
+    public function canSendToFirstAudit(): bool
+    {
+        return $this->isApproved()
+            && ! $this->audits()->where('round', PlanterAudit::ROUND_FIRST)->exists();
+    }
+
+    public function canSendToFinalAudit(): bool
+    {
+        if (! $this->isApproved() || $this->audits()->where('round', PlanterAudit::ROUND_FINAL)->exists()) {
+            return false;
+        }
+
+        $first = $this->relationLoaded('firstAudit') ? $this->firstAudit : $this->firstAudit()->first();
+
+        return $first?->canProceedToFinal() === true;
+    }
+
+    public function isAuditComplete(): bool
+    {
+        return $this->isApproved()
+            && ($this->audit_status ?? self::AUDIT_NOT_STARTED) === self::AUDIT_RESULT
+            && filled($this->audit_result_outcome);
+    }
+
+    public function isAuditActive(): bool
+    {
+        return $this->isApproved() && ! $this->isAuditComplete();
     }
 }

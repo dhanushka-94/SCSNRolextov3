@@ -44,6 +44,24 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                 Rejected
             </a>
+
+            <p class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-tan">Audits</p>
+            <a href="{{ route('admin.audits.ongoing') }}" class="nav-link {{ request()->routeIs(['admin.audits.ongoing', 'admin.audits.lobby']) || (request()->routeIs('admin.audits.show') && optional(request()->route('audit'))->isOpen()) ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0"/></svg>
+                Ongoing
+                @php($ongoingAuditCount = \App\Models\PlanterAudit::query()->where('is_current', true)->whereIn('status', [\App\Models\PlanterAudit::STATUS_QUEUED, \App\Models\PlanterAudit::STATUS_IN_PROGRESS, \App\Models\PlanterAudit::STATUS_IN_REVIEW])->count())
+                @if ($ongoingAuditCount > 0)
+                    <span class="ml-auto rounded-full bg-tan px-2 py-0.5 text-[11px] font-bold text-forest-dark">{{ $ongoingAuditCount }}</span>
+                @endif
+            </a>
+            <a href="{{ route('admin.audits.passed') }}" class="nav-link {{ request()->routeIs('admin.audits.passed') || (request()->routeIs('admin.audits.show') && in_array(optional(request()->route('audit'))->status, [\App\Models\PlanterAudit::STATUS_PASSED, \App\Models\PlanterAudit::STATUS_CONDITIONAL], true)) ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>
+                Passed
+            </a>
+            <a href="{{ route('admin.audits.rejected') }}" class="nav-link {{ request()->routeIs('admin.audits.rejected') || (request()->routeIs('admin.audits.show') && optional(request()->route('audit'))->status === \App\Models\PlanterAudit::STATUS_FAILED) ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                Rejected
+            </a>
             @if (auth('web')->user()->isAdmin())
                 <p class="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-tan">Master data</p>
                 <a href="{{ route('admin.districts.index') }}" class="nav-link {{ request()->routeIs('admin.districts.*') ? 'nav-link-active' : '' }}">

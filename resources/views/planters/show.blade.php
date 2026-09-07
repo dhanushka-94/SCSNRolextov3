@@ -114,6 +114,20 @@
                         <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Farm address</dt>
                         <dd class="mt-1 text-sm">{{ $planter->address ?: '—' }}</dd>
                     </div>
+                    <div class="sm:col-span-2">
+                        <dt class="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Farm map pin</dt>
+                        @if ($planter->hasMapPin())
+                            <x-map-pin-fields
+                                :latitude="$planter->latitude"
+                                :longitude="$planter->longitude"
+                                :required="false"
+                                readonly="true"
+                                height="14rem"
+                            />
+                        @else
+                            <dd class="text-sm text-muted">No map pin recorded.</dd>
+                        @endif
+                    </div>
                 </dl>
             </section>
 
@@ -243,6 +257,10 @@
                     @endif
                 </dl>
             </section>
+
+            @if ($planter->isApproved())
+                <x-planter-audit-controls :planter="$planter" />
+            @endif
         </div>
 
         @if ($planter->isPending() || $planter->isApproved())

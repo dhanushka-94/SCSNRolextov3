@@ -53,18 +53,6 @@ class PlanterSeeder extends Seeder
 
         $businessTypes = array_keys(Planter::businessTypes());
         $divisionSequences = [];
-        $auditStages = [
-            Planter::AUDIT_NOT_STARTED,
-            Planter::AUDIT_OPEN,
-            Planter::AUDIT_IN_PROGRESS,
-            Planter::AUDIT_IN_REVIEW,
-            Planter::AUDIT_RESULT,
-        ];
-        $auditOutcomes = [
-            Planter::AUDIT_OUTCOME_CERTIFIED,
-            Planter::AUDIT_OUTCOME_CONDITIONAL,
-            Planter::AUDIT_OUTCOME_NOT_CERTIFIED,
-        ];
         $names = $this->namePool();
 
         for ($i = 1; $i <= self::PLANTER_COUNT; $i++) {
@@ -110,24 +98,11 @@ class PlanterSeeder extends Seeder
             } elseif ($i <= $pendingCutoff) {
                 $data['registration_type'] = Planter::TYPE_OFFLINE;
             } elseif ($i <= $pendingCutoff + self::APPROVED_WITH_PASSWORD) {
-                $auditStage = $auditStages[($i - 1) % count($auditStages)];
-
                 $data['status'] = Planter::STATUS_APPROVED;
                 $data['password'] = self::PLANTER_PASSWORD;
                 $data['approved_by'] = $adminId;
                 $data['approved_at'] = now()->subDays(max(1, self::PLANTER_COUNT - $i));
-                $data['audit_status'] = $auditStage;
-                $data['audit_status_updated_at'] = now()->subDays(max(1, (int) floor((self::PLANTER_COUNT - $i) / 2)));
-
-                if ($auditStage === Planter::AUDIT_RESULT) {
-                    $outcome = $auditOutcomes[($i - 1) % count($auditOutcomes)];
-                    $data['audit_result_outcome'] = $outcome;
-                    $data['audit_result_notes'] = match ($outcome) {
-                        Planter::AUDIT_OUTCOME_CERTIFIED => 'Certified under SCSNR audit programme.',
-                        Planter::AUDIT_OUTCOME_CONDITIONAL => 'Conditional certification pending corrective actions.',
-                        Planter::AUDIT_OUTCOME_NOT_CERTIFIED => 'Not certified — audit requirements not fully met.',
-                    };
-                }
+                $data['audit_status'] = Planter::AUDIT_NOT_STARTED;
 
                 if ($i % 7 === 0) {
                     $data['last_login_at'] = now()->subHours($i % 48);
@@ -136,8 +111,7 @@ class PlanterSeeder extends Seeder
                 $data['status'] = Planter::STATUS_APPROVED;
                 $data['approved_by'] = $adminId;
                 $data['approved_at'] = now()->subDays(2);
-                $data['audit_status'] = Planter::AUDIT_OPEN;
-                $data['audit_status_updated_at'] = now()->subDay();
+                $data['audit_status'] = Planter::AUDIT_NOT_STARTED;
             } else {
                 $data['status'] = Planter::STATUS_REJECTED;
                 $data['rejection_reason'] = 'Application rejected — incomplete or invalid supporting documents.';
@@ -182,6 +156,7 @@ class PlanterSeeder extends Seeder
             'rdo_division_id' => $division?->id,
             'farm_name' => $name.' Rubber Estate',
             'address' => $town.', '.$district,
+            ...$this->coordinatesFor($district, $index),
             'business_type' => $businessType,
             'already_certified' => $alreadyCertified,
             'certification_standard' => $alreadyCertified ? 'SCSNR Natural Rubber' : null,
@@ -201,6 +176,28 @@ class PlanterSeeder extends Seeder
             'group_name' => $businessType !== Planter::BUSINESS_INDIVIDUAL ? $name.' Group' : null,
             'group_address' => $businessType !== Planter::BUSINESS_INDIVIDUAL ? $town.', '.$district : null,
             'application_document' => null,
+        ];
+    }
+
+    /**
+     * @return array{latitude: float, longitude: float}
+     */
+    private function coordinatesFor(string $district, int $index): array
+    {
+        $centres = [
+            'Kegalle' => [7.2513, 80.3464],
+            'Kalutara' => [6.5854, 79.9607],
+            'Galle' => [6.0535, 80.2210],
+            'Ratnapura' => [6.6828, 80.4012],
+            'Monaragala' => [6.8726, 81.3509],
+        ];
+
+        [$baseLat, $baseLng] = $centres[$district] ?? [7.8731, 80.7718];
+        $jitter = (($index % 17) - 8) * 0.012;
+
+        return [
+            'latitude' => round($baseLat + $jitter, 7),
+            'longitude' => round($baseLng + (($index % 13) - 6) * 0.012, 7),
         ];
     }
 

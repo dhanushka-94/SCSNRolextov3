@@ -47,6 +47,26 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
+        User::query()->create([
+            'name' => 'First Audit Officer',
+            'email' => 'first.auditor@rrisl.gov.lk',
+            'phone' => '0112600003',
+            'role' => User::ROLE_FIRST_AUDITOR,
+            'status' => User::STATUS_ACTIVE,
+            'password' => self::STAFF_PASSWORD,
+            'email_verified_at' => now(),
+        ]);
+
+        User::query()->create([
+            'name' => 'Final Audit Officer',
+            'email' => 'final.auditor@rrisl.gov.lk',
+            'phone' => '0112600004',
+            'role' => User::ROLE_FINAL_AUDITOR,
+            'status' => User::STATUS_ACTIVE,
+            'password' => self::STAFF_PASSWORD,
+            'email_verified_at' => now(),
+        ]);
+
         for ($i = 1; $i <= self::STAFF_COUNT; $i++) {
             $number = str_pad((string) $i, 3, '0', STR_PAD_LEFT);
 

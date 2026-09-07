@@ -31,11 +31,21 @@ Inactive staff sample
   Password: Staff@12345
   Status  : Inactive — cannot sign in
 
+First Auditor
+  Email   : first.auditor@rrisl.gov.lk
+  Password: Staff@12345
+  Access  : First Audit checklist queue only
+
+Final Auditor
+  Email   : final.auditor@rrisl.gov.lk
+  Password: Staff@12345
+  Access  : Final Audit checklist queue only
+
 Staff accounts (100 samples)
   Email   : staff001@rrisl.gov.lk  to  staff100@rrisl.gov.lk
   Password: Staff@12345  (same for all staff accounts)
 
-Total system users seeded: 103
+Total system users seeded: 105
 
 
 PLANTER USERS (Planter portal: /login)
@@ -53,9 +63,7 @@ Pending offline (25)
 Approved with password (90)
   Email   : records 071–160
   Password: Planter@12345
-  Notes   : Registration number issued on approval
-  Examples:
-    Check admin planter list for RUB/SUS/... IDs
+  Notes   : Registration number issued on approval; ready for Send to First Audit
   Alt login: Registration ID RUB/SUS/{district}/{division}/{#####} (see admin planter list)
 
 Approved without password (20)
@@ -70,16 +78,18 @@ Coverage
   • Kegalle, Kalutara, Galle, Ratnapura, Monaragala regions
   • Full RDO division lists per region
   • All business types (individual, partnership, company, limited, society, other)
-  • All audit stages: not started, open, in progress, in review, result
-  • All audit outcomes: certified, conditional, not certified
+  • Audit path: Send to First Audit → checklist → Send to Final Audit → checklist → result
   • Online and offline registration types
   • Registration IDs: issued only on approve/reject as RUB/SUS/{district_code}/{division_code}/00001+
+  • Farm map pins (latitude/longitude) on sample records
 
 
 QUICK TEST ACCOUNTS
 -------------------
 Admin     : admin@rrisl.gov.lk / Admin@12345
 Staff     : staff001@rrisl.gov.lk / Staff@12345
+First auditor : first.auditor@rrisl.gov.lk / Staff@12345
+Final auditor : final.auditor@rrisl.gov.lk / Staff@12345
 Planter   : sanjeewa.086@sample.lk / Planter@12345
 
 Refresh all demo data:

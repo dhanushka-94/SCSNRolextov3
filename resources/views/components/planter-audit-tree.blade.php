@@ -7,7 +7,7 @@
 <article {{ $attributes->merge(['class' => 'card overflow-hidden']) }}>
     <div class="border-b border-sand bg-cream px-5 py-5 sm:px-8">
         <h2 class="text-lg font-semibold text-forest-dark">Sustainability audit status</h2>
-        <p class="mt-1 text-sm text-muted">Track your certification audit from opening through to the final result.</p>
+        <p class="mt-1 text-sm text-muted">Track First Audit and Final Audit from opening through to the final result.</p>
     </div>
 
     <div class="p-5 sm:p-8">
@@ -52,7 +52,7 @@
                         </div>
                         <p class="mt-1 text-sm {{ $state === 'upcoming' ? 'text-muted/80' : 'text-muted' }}">{{ $stage['description'] }}</p>
 
-                        @if ($stage['key'] === \App\Models\Planter::AUDIT_RESULT && $planter->audit_status === \App\Models\Planter::AUDIT_RESULT && $planter->audit_result_outcome)
+                        @if ($stage['key'] === 'audit_result' && filled($planter->audit_result_outcome))
                             <div class="mt-3 rounded-xl border border-sand bg-cream px-4 py-3">
                                 <p class="text-xs font-semibold uppercase tracking-wide text-muted">Result</p>
                                 <p class="mt-1 font-semibold text-forest-dark">
@@ -64,8 +64,8 @@
                             </div>
                         @endif
 
-                        @if ($state === 'current' && $stage['key'] === \App\Models\Planter::AUDIT_OPEN && ($planter->audit_status ?? \App\Models\Planter::AUDIT_NOT_STARTED) === \App\Models\Planter::AUDIT_NOT_STARTED)
-                            <p class="mt-2 text-sm text-bark">Your audit file will open once the governing authorities schedule the first sustainability assessment.</p>
+                        @if ($state === 'current' && $stage['key'] === 'first_audit' && ! $planter->firstAudit)
+                            <p class="mt-2 text-sm text-bark">Waiting for governing authorities to send this registration to First Audit.</p>
                         @endif
                     </div>
                 </li>

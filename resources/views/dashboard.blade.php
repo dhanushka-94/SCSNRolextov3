@@ -5,7 +5,7 @@
 @section('subheading', 'Overview of registrations, approvals, and system activity')
 
 @section('content')
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8">
         <article class="card p-5">
             <p class="text-sm text-muted">Pending approval</p>
             <p class="mt-3 text-3xl font-semibold text-bark">{{ $pendingPlanters }}</p>
@@ -32,13 +32,23 @@
             <a href="{{ route('admin.planters.rejected') }}" class="mt-3 inline-flex text-sm font-semibold text-red-800 hover:text-red-900">View rejected</a>
         </article>
         <article class="card p-5">
+            <p class="text-sm text-muted">Active audits</p>
+            <p class="mt-3 text-3xl font-semibold text-bark">{{ $activeAudits }}</p>
+            <a href="{{ route('admin.audits.ongoing') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">Open Ongoing audits</a>
+        </article>
+        <article class="card p-5">
+            <p class="text-sm text-muted">Completed audits</p>
+            <p class="mt-3 text-3xl font-semibold text-forest">{{ $completedAudits }}</p>
+            <a href="{{ route('admin.audits.passed') }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">View Passed</a>
+        </article>
+        <article class="card p-5">
             <p class="text-sm text-muted">Active staff</p>
             <p class="mt-3 text-3xl font-semibold text-forest-dark">{{ $activeUsers }}</p>
             <p class="mt-1 text-xs text-muted">{{ $totalUsers }} system users</p>
         </article>
     </div>
 
-    <section class="mt-6 grid gap-4 lg:grid-cols-4">
+    <section class="mt-6 grid gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <a href="{{ route('admin.planters.registration-lobby') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
             <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-leaf/10 text-leaf">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0"/></svg>
@@ -57,13 +67,40 @@
                 <span class="text-sm text-muted">Approved records only</span>
             </span>
         </a>
+        <a href="{{ route('admin.audits.ongoing') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
+            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-leaf/10 text-leaf">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>
+            </span>
+            <span>
+                <span class="block font-semibold text-forest-dark">Ongoing audits</span>
+                <span class="text-sm text-muted">Queued and in-progress work</span>
+            </span>
+        </a>
+        <a href="{{ route('admin.audits.passed') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
+            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-leaf/10 text-leaf">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            </span>
+            <span>
+                <span class="block font-semibold text-forest-dark">Passed audits</span>
+                <span class="text-sm text-muted">Passed &amp; conditional results</span>
+            </span>
+        </a>
+        <a href="{{ route('admin.audits.rejected') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
+            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-800">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </span>
+            <span>
+                <span class="block font-semibold text-forest-dark">Rejected audits</span>
+                <span class="text-sm text-muted">Failed audit attempts</span>
+            </span>
+        </a>
         <a href="{{ route('admin.planters.rejected') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">
             <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-800">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
             </span>
             <span>
-                <span class="block font-semibold text-forest-dark">Rejected</span>
-                <span class="text-sm text-muted">Reviewed and declined</span>
+                <span class="block font-semibold text-forest-dark">Rejected registry</span>
+                <span class="text-sm text-muted">Declined applications</span>
             </span>
         </a>
         <a href="{{ route('admin.planters.create') }}" class="card flex items-center gap-4 p-5 transition hover:border-leaf/40 hover:shadow-md">

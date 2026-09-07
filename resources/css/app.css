@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -451,6 +452,23 @@
     .partner-fab-register.is-hidden {
         @apply pointer-events-none opacity-0;
         transform: translate(-50%, 1rem);
+    }
+
+    .map-pin-canvas {
+        z-index: 0;
+    }
+
+    .map-pin-canvas .leaflet-container {
+        @apply h-full w-full rounded-2xl font-sans;
+        z-index: 0;
+    }
+
+    .map-pin-marker {
+        @apply flex h-8 w-8 items-center justify-center;
+    }
+
+    .map-pin-marker span {
+        @apply block h-4 w-4 rounded-full border-2 border-white bg-leaf shadow-md ring-2 ring-forest/30;
     }
 }
 

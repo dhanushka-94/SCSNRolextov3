@@ -48,6 +48,12 @@
                 <textarea id="address" name="address" rows="3" required class="input-field">{{ old('address', $planter->address) }}</textarea>
                 @error('address')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
             </div>
+            <div class="sm:col-span-2">
+                <x-map-pin-fields
+                    :latitude="$planter->latitude"
+                    :longitude="$planter->longitude"
+                />
+            </div>
             <div>
                 <label for="whatsapp" class="label-field">WhatsApp number</label>
                 <input id="whatsapp" name="whatsapp" type="text" value="{{ old('whatsapp', $planter->whatsapp) }}" class="input-field">

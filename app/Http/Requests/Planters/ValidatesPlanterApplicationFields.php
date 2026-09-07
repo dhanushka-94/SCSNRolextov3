@@ -14,7 +14,7 @@ trait ValidatesPlanterApplicationFields
     {
         $presence = $requireCoreApplication ? 'required' : 'nullable';
 
-        return [
+        return array_merge([
             'farm_name' => [$presence, 'string', 'max:160'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
             'fax' => ['nullable', 'string', 'max:30'],
@@ -35,7 +35,7 @@ trait ValidatesPlanterApplicationFields
             ],
             'group_name' => ['nullable', 'string', 'max:160'],
             'group_address' => ['nullable', 'string', 'max:500'],
-        ];
+        ], \App\Support\FarmCoordinates::rules(required: true));
     }
 
     protected function prepareApplicationFields(): void
@@ -65,6 +65,10 @@ trait ValidatesPlanterApplicationFields
             'aware_of_certification' => $this->has('aware_of_certification') ? $this->aware_of_certification : null,
             'has_certification_leaflet' => $this->has('has_certification_leaflet') ? $this->has_certification_leaflet : null,
             'processes_rubber_on_farm' => $this->has('processes_rubber_on_farm') ? $this->processes_rubber_on_farm : null,
+            ...\App\Support\FarmCoordinates::prepare(
+                $this->input('latitude'),
+                $this->input('longitude'),
+            ),
         ]);
     }
 
@@ -73,7 +77,7 @@ trait ValidatesPlanterApplicationFields
      */
     protected function applicationFieldAttributes(): array
     {
-        return [
+        return array_merge([
             'rdo_division_id' => 'Rubber Development Officer division',
             'farm_name' => 'farm name',
             'business_type' => 'nature of business',
@@ -88,6 +92,6 @@ trait ValidatesPlanterApplicationFields
             'has_process_plan' => 'process plan',
             'group_name' => 'plantation company / group name',
             'group_address' => 'group address',
-        ];
+        ], \App\Support\FarmCoordinates::attributes());
     }
 }
