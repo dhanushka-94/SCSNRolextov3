@@ -25,7 +25,7 @@ class DemoLoginsFileSeeder extends Seeder
         $failedAudits = PlanterAudit::query()->where('status', 'failed')->count();
 
         $content = <<<TEXT
-SCSNR Demo Login Reference
+SPPNR Demo Login Reference
 Generated: {$generated}
 ========================================
 
@@ -104,7 +104,7 @@ SAMPLE CERTIFICATES
 Issued  : {$issuedCerts}
 Revoked : {$revokedCerts}
 Verify  : {$verifyHint}
-Public form: /verify  (certificate No. or SCSNR ID)
+Public form: /verify  (certificate No. or SPPNR ID)
 
 
 Coverage

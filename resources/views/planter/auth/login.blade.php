@@ -51,7 +51,7 @@
                     @csrf
 
                     <div>
-                        <label for="login" class="label-field">Email or SCSNR ID</label>
+                        <label for="login" class="label-field">Email or SPPNR ID</label>
                         <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus autocomplete="username" class="input-field" placeholder="you@email.com or RUB/SUS/KEGA/AMIT/00001">
                     </div>
 

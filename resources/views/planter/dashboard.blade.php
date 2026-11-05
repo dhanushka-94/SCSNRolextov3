@@ -14,7 +14,7 @@
         </article>
 
         <article class="card p-5">
-            <p class="text-xs font-semibold uppercase tracking-wide text-muted">SCSNR ID</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-muted">SPPNR ID</p>
             <p class="mt-2 font-mono text-sm font-semibold text-forest">{{ $planter->identification_number }}</p>
             <p class="mt-1 text-sm text-muted">{{ $planter->district ?: 'District not set' }}</p>
         </article>
@@ -36,7 +36,7 @@
                     @if ($planter->isPending())
                         Wait for approval, then create your password to sign in.
                     @else
-                        Contact SCSNR administration if you need assistance.
+                        Contact SPPNR administration if you need assistance.
                     @endif
                 </p>
             </article>
@@ -47,7 +47,7 @@
         <article class="card mt-6 overflow-hidden">
             <div class="border-b border-sand bg-cream px-5 py-5 sm:px-8">
                 <h2 class="text-lg font-semibold text-forest-dark">Awaiting approval</h2>
-                <p class="mt-1 text-sm text-muted">Your application is in the review queue. Use your SCSNR ID for correspondence.</p>
+                <p class="mt-1 text-sm text-muted">Your application is in the review queue. Use your SPPNR ID for correspondence.</p>
             </div>
             <dl class="grid gap-5 p-5 sm:grid-cols-2 sm:p-8">
                 <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Name</dt><dd class="mt-1 text-sm">{{ $planter->name }}</dd></div>
@@ -60,7 +60,7 @@
         <article class="card mt-6 overflow-hidden">
             <div class="border-b border-red-200 bg-red-50 px-5 py-5 sm:px-8">
                 <h2 class="text-lg font-semibold text-red-800">Registration rejected</h2>
-                <p class="mt-1 text-sm text-red-800/80">{{ $planter->rejection_reason ?: 'Please contact SCSNR administration for more information.' }}</p>
+                <p class="mt-1 text-sm text-red-800/80">{{ $planter->rejection_reason ?: 'Please contact SPPNR administration for more information.' }}</p>
             </div>
         </article>
     @else
@@ -68,7 +68,7 @@
             <article class="card overflow-hidden">
                 <div class="border-b border-sand bg-cream px-5 py-5 sm:px-8">
                     <h2 class="text-lg font-semibold text-forest-dark">Your QR code</h2>
-                    <p class="mt-1 text-sm text-muted">Share or print this code with your SCSNR identification number.</p>
+                    <p class="mt-1 text-sm text-muted">Share or print this code with your SPPNR identification number.</p>
                 </div>
                 <div class="flex flex-col items-center gap-4 p-6 sm:p-8">
                     @if ($planter->identification_number)

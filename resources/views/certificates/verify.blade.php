@@ -28,7 +28,7 @@
                     <dd class="mt-1 text-sm font-semibold">{{ $planter->name }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-muted">SCSNR ID</dt>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-muted">SPPNR ID</dt>
                     <dd class="mt-1 font-mono text-sm">{{ $planter->identification_number }}</dd>
                 </div>
                 <div>

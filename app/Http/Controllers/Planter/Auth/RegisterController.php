@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Planters\OfflineRegisterPlanterRequest;
 use App\Http\Requests\Planters\RegisterPlanterRequest;
 use App\Models\Planter;
+use App\Services\NotifySmsService;
 use App\Services\PlanterIdentityService;
 use App\Services\RegistrationSpamGuard;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -37,6 +38,7 @@ class RegisterController extends Controller
         }
 
         $planter = $this->createPendingPlanter($data, Planter::TYPE_ONLINE);
+        app(NotifySmsService::class)->sendRegistrationSubmitted($planter);
 
         session()->forget('planter_registration_started_at');
 
@@ -51,6 +53,7 @@ class RegisterController extends Controller
         $data['application_document'] = $request->file('application_document')->store('planter-applications', 'local');
 
         $planter = $this->createPendingPlanter($data, Planter::TYPE_OFFLINE);
+        app(NotifySmsService::class)->sendRegistrationSubmitted($planter);
 
         session()->forget('planter_registration_started_at');
 
@@ -97,7 +100,7 @@ class RegisterController extends Controller
         $pdf->setOption('isHtml5ParserEnabled', true);
         $pdf->setOption('defaultFont', 'NotoSinhala');
 
-        return $pdf->download('SCSNR-planter-registration-form.pdf');
+        return $pdf->download('SPPNR-planter-registration-form.pdf');
     }
 
     /**

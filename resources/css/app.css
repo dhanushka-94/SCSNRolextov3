@@ -335,6 +335,59 @@
         @apply mt-2 text-sm leading-6 text-muted;
     }
 
+    .pillar-grid {
+        @apply mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-5;
+    }
+
+    .pillar-card {
+        @apply rounded-2xl border border-sand bg-paper p-5 shadow-sm sm:p-6;
+    }
+
+    .pillar-card-wide {
+        @apply sm:col-span-2;
+    }
+
+    .pillar-visual {
+        @apply mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-leaf/10 text-forest;
+    }
+
+    .pillar-svg {
+        @apply h-12 w-12;
+    }
+
+    .pillar-index {
+        @apply font-display text-sm font-semibold tracking-[0.16em] text-tan;
+    }
+
+    .pillar-card h3 {
+        @apply mt-2 text-lg font-semibold text-forest-dark;
+    }
+
+    .pillar-label {
+        @apply mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-leaf;
+    }
+
+    .pillar-card ul {
+        @apply mt-4 space-y-2 text-sm leading-6 text-muted;
+    }
+
+    .pillar-card li {
+        @apply relative pl-5;
+    }
+
+    .pillar-card li::before {
+        content: '';
+        @apply absolute left-0 top-[0.55rem] h-1.5 w-1.5 rounded-full bg-leaf;
+    }
+
+    .pillar-standards {
+        @apply mb-4 flex flex-wrap gap-2;
+    }
+
+    .pillar-standards span {
+        @apply inline-flex h-14 min-w-14 items-center justify-center rounded-2xl bg-forest-dark px-3 text-sm font-semibold tracking-wide text-white;
+    }
+
     .partner-bullet-list {
         @apply mt-4 space-y-2.5 text-sm leading-6 text-muted;
     }

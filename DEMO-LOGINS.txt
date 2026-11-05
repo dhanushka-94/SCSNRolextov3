@@ -1,4 +1,4 @@
-SCSNR Demo Login Reference
+SPPNR Demo Login Reference
 Generated: 08/09/2026, 00:42 SLST
 ========================================
 
@@ -76,8 +76,8 @@ SAMPLE CERTIFICATES
 -------------------
 Issued  : 17
 Revoked : 4
-Verify  : SCSNR/CERT/2026/00001  →  /verify  or  http://127.0.0.1:8000/verify/a5f067c4-1e0e-4d1f-a1c0-a08260613ba8
-Public form: /verify  (certificate No. or SCSNR ID)
+Verify  : SPPNR/CERT/2026/00001  →  /verify  or  http://127.0.0.1:8000/verify/a5f067c4-1e0e-4d1f-a1c0-a08260613ba8
+Public form: /verify  (certificate No. or SPPNR ID)
 
 
 Coverage

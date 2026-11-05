@@ -8,7 +8,7 @@
             <div class="border-b border-sand bg-forest-dark px-6 py-8 text-white">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-tan">Planter Portal</p>
                 <h1 class="mt-2 text-2xl font-semibold">Create password</h1>
-                <p class="mt-2 text-sm text-sand/80">Use your SCSNR registration number and NIC after approval.</p>
+                <p class="mt-2 text-sm text-sand/80">Use your SPPNR registration number and NIC after approval.</p>
             </div>
 
             <form method="POST" action="{{ route('planter.password.store') }}" class="space-y-5 p-6 sm:p-8">
@@ -21,7 +21,7 @@
                 @endif
 
                 <div>
-                    <x-bilingual-label si="SCSNR ලියාපදිංචි අංකය" en="SCSNR registration number" for="identification_number" />
+                    <x-bilingual-label si="SPPNR ලියාපදිංචි අංකය" en="SPPNR registration number" for="identification_number" />
                     <input id="identification_number" name="identification_number" type="text" value="{{ old('identification_number') }}" required class="input-field font-mono" placeholder="RUB/SUS/KEGA/AMIT/00001">
                     @error('identification_number')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                 </div>

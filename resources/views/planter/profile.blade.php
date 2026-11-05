@@ -11,7 +11,7 @@
                     <img src="{{ route('planter.profile.qr') }}" alt="Planter QR code" class="h-40 w-40">
                 </div>
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">SCSNR identification number</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">SPPNR identification number</p>
                     <p class="mt-2 font-mono text-xl font-semibold tracking-wide text-forest-dark sm:text-2xl">{{ $planter->identification_number }}</p>
                     <p class="mt-2 text-sm text-muted">
                         @if ($planter->currentCertificate)
@@ -54,7 +54,7 @@
                 <p class="mt-2 text-sm text-ink">{{ $planter->nic }}</p>
             </div>
             <div>
-                <p class="label-field">SCSNR registration number</p>
+                <p class="label-field">SPPNR registration number</p>
                 <p class="mt-2 font-mono text-sm text-ink">{{ $planter->identification_number }}</p>
             </div>
             <div>

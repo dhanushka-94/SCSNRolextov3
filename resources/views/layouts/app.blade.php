@@ -98,6 +98,10 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25h.008v.008H11.25zm0 3.75h.008v.008H11.25zM12 2.25a9.75 9.75 0 1 0 0 19.5 9.75 9.75 0 0 0 0-19.5z"/></svg>
                 About System
             </a>
+            <a href="{{ route('admin.sms-templates.index') }}" class="nav-link {{ request()->routeIs('admin.sms-templates.*') ? 'nav-link-active' : '' }}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75h6.75M8.625 12.75h4.5m-7.5 6.75 1.886-3.772A4.5 4.5 0 0 1 11.014 14.25h1.972a4.5 4.5 0 0 1 4.003 2.478L19.5 19.5M6.75 19.5h10.5A2.25 2.25 0 0 0 19.5 17.25V6.75A2.25 2.25 0 0 0 17.25 4.5H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5A2.25 2.25 0 0 0 6.75 19.5z"/></svg>
+                SMS templates
+            </a>
             <a href="{{ route('admin.changelog') }}" class="nav-link {{ request()->routeIs('admin.changelog') ? 'nav-link-active' : '' }}">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>
                 Changelog

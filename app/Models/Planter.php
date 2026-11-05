@@ -307,7 +307,7 @@ class Planter extends Authenticatable
     }
 
     /**
-     * Two-letter district codes used in SCSNR identification numbers.
+     * Two-letter district codes used in SPPNR identification numbers.
      *
      * @return array<string, string>
      */
@@ -369,11 +369,11 @@ class Planter extends Authenticatable
         return [
             'registration_approved' => [
                 'label' => 'Registration approved',
-                'description' => 'Planter registration verified and SCSNR identification issued.',
+                'description' => 'Planter registration verified and SPPNR identification issued.',
             ],
             'first_audit' => [
                 'label' => 'First Audit',
-                'description' => 'First auditor team completes the SCSNR module checklist.',
+                'description' => 'First auditor team completes the SPPNR module checklist.',
             ],
             'final_audit' => [
                 'label' => 'Final Audit',

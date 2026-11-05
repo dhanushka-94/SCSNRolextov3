@@ -12,7 +12,7 @@ use InvalidArgumentException;
 
 class CertificateService
 {
-    public const NUMBER_PREFIX = 'SCSNR/CERT';
+    public const NUMBER_PREFIX = 'SPPNR/CERT';
 
     public const SEQUENCE_PAD = 5;
 

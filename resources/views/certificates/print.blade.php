@@ -32,7 +32,7 @@
                 <p class="text-2xl font-semibold text-forest-dark">{{ $certificate->planter->name }}</p>
                 <dl class="grid gap-3 text-sm sm:grid-cols-2">
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">SCSNR ID</dt>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">SPPNR ID</dt>
                         <dd class="mt-1 font-mono">{{ $certificate->planter->identification_number }}</dd>
                     </div>
                     <div>

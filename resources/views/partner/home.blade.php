@@ -18,7 +18,7 @@
                     <a href="#to-whom">To whom</a>
                     <a href="#why-certification">Why certification</a>
                     <a href="#benefits">Benefits</a>
-                    <a href="#governing-modules">Governing modules</a>
+                    <a href="#governing-modules">Responsibilities</a>
                     <a href="#certification-pathway">Pathway</a>
                 </nav>
 
@@ -38,7 +38,7 @@
                     <a href="#to-whom">To whom</a>
                     <a href="#why-certification">Why certification</a>
                     <a href="#benefits">Benefits</a>
-                    <a href="#governing-modules">Governing modules</a>
+                    <a href="#governing-modules">Responsibilities</a>
                     <a href="#certification-pathway">Certification pathway</a>
                     <a href="#powered-by">Implemented by</a>
                     <a href="#access">Partner access</a>
@@ -83,7 +83,7 @@
                     Certification is the formal process of assessing farms and plantations against agreed sustainability criteria — covering on-farm production and post-production practices — so produce is safe, traceable and responsible across economic, social and environmental dimensions.
                 </p>
                 <p class="mt-6 max-w-3xl text-sm leading-7 text-muted">
-                    As guided by FAO / UNSDG / EU principles, SCSNR applies a collection of requirements that producers implement and auditors verify, resulting in sustainable natural rubber that can be trusted by markets, manufacturers and consumers.
+                    As guided by FAO / UNSDG / EU principles, SPPNR applies a collection of requirements that producers implement and auditors verify, resulting in sustainable natural rubber that can be trusted by markets, manufacturers and consumers.
                 </p>
             </div>
         </section>
@@ -97,7 +97,7 @@
                 </p>
                 <div class="partner-features mt-10">
                     <article class="partner-feature-card">
-                        <span class="partner-feature-icon">SCSNR</span>
+                        <span class="partner-feature-icon">SPPNR</span>
                         <h3>Official short name</h3>
                         <p>Used across registration, QR codes, certificates and the digital partner portal.</p>
                     </article>
@@ -118,8 +118,8 @@
         <section id="to-whom" class="partner-section">
             <div class="partner-section-inner">
                 <p class="partner-section-kicker">To whom</p>
-                <h2 class="partner-section-title">Who SCSNR is for</h2>
-                <p class="partner-section-lead">SCSNR serves every stage of the natural rubber value chain in Sri Lanka.</p>
+                <h2 class="partner-section-title">Who SPPNR is for</h2>
+                <p class="partner-section-lead">SPPNR serves every stage of the natural rubber value chain in Sri Lanka.</p>
 
                 <ul class="partner-audience">
                     <li>
@@ -164,7 +164,7 @@
         <section id="why-certification" class="partner-section bg-cream">
             <div class="partner-section-inner">
                 <p class="partner-section-kicker">Why certification?</p>
-                <h2 class="partner-section-title">Why SCSNR is required</h2>
+                <h2 class="partner-section-title">Why SPPNR is required</h2>
                 <p class="partner-section-lead">
                     Markets and consumers demand sustainable, deforestation-free and traceable rubber. Certification closes the gap between local production and global trade expectations.
                 </p>
@@ -206,7 +206,7 @@
         <section id="benefits" class="partner-section">
             <div class="partner-section-inner">
                 <p class="partner-section-kicker">Benefits</p>
-                <h2 class="partner-section-title">Who benefits from SCSNR</h2>
+                <h2 class="partner-section-title">Who benefits from SPPNR</h2>
                 <p class="partner-section-lead">Built for smallholder growers (about 85%), large planters, processors, manufacturers and exporters.</p>
 
                 <div class="mt-12 grid gap-8 lg:grid-cols-2">
@@ -238,40 +238,99 @@
 
         <section id="governing-modules" class="partner-section bg-cream">
             <div class="partner-section-inner">
-                <p class="partner-section-kicker">Governing modules</p>
-                <h2 class="partner-section-title">Five modules of SCSNR</h2>
-                <p class="partner-section-lead">In accordance with the Global Platform for Sustainable Natural Rubber (GPSNR) policy framework.</p>
+                <p class="partner-section-kicker">Responsibilities</p>
+                <h2 class="partner-section-title">Five pillars of SPPNR</h2>
+                <p class="partner-section-lead">Criteria for sustainable natural rubber, in accordance with GPSNR, FAO and EUDR.</p>
 
-                <div class="partner-features">
-                    <article class="partner-feature-card">
-                        <span class="partner-feature-icon">01</span>
-                        <h3>Product Safety Module (PSM)</h3>
-                        <p>Safe and quality rubber through responsible on-farm production and post-harvest handling.</p>
+                <div class="pillar-grid">
+                    <article class="pillar-card">
+                        <div class="pillar-visual" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" class="pillar-svg">
+                                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M32 44V28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M32 28c0-8 6-12 6-12s-2 6 0 10c4-2 8-1 8-1s-4 4-6 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M32 30c0-7-6-11-6-11s2 5 0 9c-4-2-8-1-8-1s4 4 6 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <p class="pillar-index">01</p>
+                        <h3>Environment Responsibility</h3>
+                        <p class="pillar-label">Criteria</p>
+                        <ul>
+                            <li>Protect soil, water and biodiversity</li>
+                            <li>Control waste and pollution</li>
+                            <li>Avoid deforestation of natural forest</li>
+                        </ul>
                     </article>
-                    <article class="partner-feature-card">
-                        <span class="partner-feature-icon">02</span>
-                        <h3>Environmental Management (EMM)</h3>
-                        <p>Environmental responsibility and sustainable management across plantation operations.</p>
+
+                    <article class="pillar-card">
+                        <div class="pillar-visual" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" class="pillar-svg">
+                                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="24" cy="26" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="40" cy="26" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M16 44c2-7 6-10 8-10s6 3 8 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M32 44c2-7 6-10 8-10s6 3 8 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <p class="pillar-index">02</p>
+                        <h3>Social Responsibility</h3>
+                        <p class="pillar-label">Criteria</p>
+                        <ul>
+                            <li>Worker health, safety and welfare</li>
+                            <li>No child labour or forced labour</li>
+                            <li>Fair treatment of communities</li>
+                        </ul>
                     </article>
-                    <article class="partner-feature-card">
-                        <span class="partner-feature-icon">03</span>
-                        <h3>Worker Health &amp; Welfare (WHSWM)</h3>
-                        <p>Social responsibility — worker health, safety, welfare and labour-law compliance.</p>
+
+                    <article class="pillar-card">
+                        <div class="pillar-visual" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" class="pillar-svg">
+                                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M20 40V28h8v12M28 40V22h8v18M36 40V32h8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <p class="pillar-index">03</p>
+                        <h3>Economic Responsibility</h3>
+                        <p class="pillar-label">Criteria</p>
+                        <ul>
+                            <li>Viable income for producers</li>
+                            <li>Fair and transparent market access</li>
+                            <li>Records that support value-chain trade</li>
+                        </ul>
                     </article>
-                    <article class="partner-feature-card">
-                        <span class="partner-feature-icon">04</span>
-                        <h3>Product Marketing (PMM)</h3>
-                        <p>Economic responsibility — market access, documentation and value-chain transparency.</p>
+
+                    <article class="pillar-card">
+                        <div class="pillar-visual" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" class="pillar-svg">
+                                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M22 40h20M24 40V30l8-8 8 8v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M30 40v-6h4v6" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <p class="pillar-index">04</p>
+                        <h3>Production Responsibility</h3>
+                        <p class="pillar-label">Criteria</p>
+                        <ul>
+                            <li>Responsible tapping and processing</li>
+                            <li>Product quality and safety</li>
+                            <li>Traceable production from farm to buyer</li>
+                        </ul>
                     </article>
-                    <article class="partner-feature-card">
-                        <span class="partner-feature-icon">05</span>
-                        <h3>General Requirements (GRM)</h3>
-                        <p>Registration, documentation and digital traceability for farms and plantations.</p>
-                    </article>
-                    <article class="partner-feature-card">
-                        <span class="partner-feature-icon">QR</span>
-                        <h3>QR traceability</h3>
-                        <p>Compulsory crop traceability with QR codes from application and audit through certificate and market.</p>
+
+                    <article class="pillar-card pillar-card-wide">
+                        <div class="pillar-standards" aria-hidden="true">
+                            <span>GPSNR</span>
+                            <span>FAO</span>
+                            <span>EUDR</span>
+                        </div>
+                        <p class="pillar-index">05</p>
+                        <h3>In accordance with GPSNR, FAO and EUDR</h3>
+                        <p class="pillar-label">Criteria</p>
+                        <ul>
+                            <li>GPSNR policy framework for sustainable natural rubber</li>
+                            <li>FAO principles for sustainable production</li>
+                            <li>EUDR deforestation-free and legal supply</li>
+                        </ul>
                     </article>
                 </div>
             </div>
@@ -281,7 +340,7 @@
             <div class="partner-section-inner">
                 <p class="partner-section-kicker">Certification pathway</p>
                 <h2 class="partner-section-title">From application to certificate</h2>
-                <p class="partner-section-lead">A clear path for rubber planters joining SCSNR through this digital partner portal.</p>
+                <p class="partner-section-lead">A clear path for rubber planters joining SPPNR through this digital partner portal.</p>
 
                 <ol class="partner-pathway">
                     <li>
@@ -295,7 +354,7 @@
                         <span class="partner-pathway-num">02</span>
                         <div>
                             <h3>Application &amp; field audit</h3>
-                            <p>Governing authorities review your application. Field audit and documentation checks progress under the SCSNR scheme.</p>
+                            <p>Governing authorities review your application. Field audit and documentation checks progress under the SPPNR scheme.</p>
                         </div>
                     </li>
                     <li>
@@ -309,7 +368,7 @@
                         <span class="partner-pathway-num">04</span>
                         <div>
                             <h3>Certificate issued</h3>
-                            <p>Receive certification outcomes with your SCSNR ID and QR code for farm-to-market traceability in local and export markets.</p>
+                            <p>Receive certification outcomes with your SPPNR ID and QR code for farm-to-market traceability in local and export markets.</p>
                         </div>
                     </li>
                 </ol>
@@ -342,7 +401,7 @@
             <div class="partner-access-inner">
                 <div>
                     <p class="partner-section-kicker text-tan">Partner access</p>
-                    <h2 class="partner-access-title">Ready to join SCSNR?</h2>
+                    <h2 class="partner-access-title">Ready to join SPPNR?</h2>
                     <p class="partner-access-lead">New planters register first. Approved planters sign in to continue certification and traceability.</p>
                 </div>
                 <div class="partner-access-actions">

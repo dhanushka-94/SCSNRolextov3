@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\ChangelogController;
+use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\PlanterController;
@@ -64,6 +65,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('about-system', AboutSystemController::class)->name('about-system');
         Route::get('changelog', ChangelogController::class)->name('changelog');
+        Route::get('sms-templates', [SmsTemplateController::class, 'index'])->name('sms-templates.index');
+        Route::post('sms-templates/send-samples', [SmsTemplateController::class, 'sendSamples'])->name('sms-templates.send-samples');
         Route::redirect('planters/approval-lobby', '/admin/planters/registration-lobby');
         Route::get('planters/registration-lobby', [PlanterController::class, 'approvalLobby'])->name('planters.registration-lobby');
         Route::get('planters/rejected', [PlanterController::class, 'rejected'])->name('planters.rejected');

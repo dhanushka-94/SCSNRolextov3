@@ -7,7 +7,7 @@
 
 @section('title', $heading)
 @section('heading', $heading)
-@section('subheading', $isRevoked ? 'Revoked SCSNR certificates' : 'Active SCSNR certificates')
+@section('subheading', $isRevoked ? 'Revoked SPPNR certificates' : 'Active SPPNR certificates')
 
 @section('actions')
     <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Registry</a>
@@ -26,7 +26,7 @@
     </div>
 
     <form method="GET" action="{{ route($listRoute) }}" class="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-        <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search certificate, SCSNR ID, name" class="input-field sm:col-span-2">
+        <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search certificate, SPPNR ID, name" class="input-field sm:col-span-2">
         <select name="district" class="input-field">
             <option value="">All districts</option>
             @foreach (\App\Models\District::query()->orderBy('name')->pluck('name') as $district)

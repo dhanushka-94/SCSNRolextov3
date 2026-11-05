@@ -10,7 +10,8 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "endroid/qr-code": "^6.0",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "notifylk/notify-php": "*@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -87,5 +88,11 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": {
+        "notifylk": {
+            "type": "vcs",
+            "url": "https://github.com/notifylk/notify-php.git"
+        }
+    }
 }

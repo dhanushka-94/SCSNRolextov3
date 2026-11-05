@@ -2,7 +2,7 @@
 <html lang="si">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>SCSNR Sustainability Certification Application</title>
+    <title>{{ config('app.full_name') }}</title>
     <style>
         @font-face {
             font-family: 'NotoSinhala';
@@ -74,11 +74,11 @@
     <table class="header">
         <tr>
             <td width="60" style="vertical-align: middle;">
-                <img class="logo" src="{{ $logo }}" alt="SCSNR">
+                <img class="logo" src="{{ $logo }}" alt="SPPNR">
             </td>
             <td style="vertical-align: middle;">
                 <h1>{{ config('app.full_name') }} ({{ config('app.short_name') }})</h1>
-                <h2>ස්වභාවික රබර් සඳහා තිරසාර සහතිකරණය අයදුම්පත<br>Application for Sustainability Certification for Natural Rubber</h2>
+                <h2>ස්වභාවික රබර් සඳහා තිරසාර සහතිකරණය අයදුම්පත<br>{{ config('app.full_name') }}</h2>
                 <div style="font-size: 9px; color: #6f6256;">මුද්‍රණය කර පුරවා, ස්කෑන්/ඡායාරූපය උඩුගත කරන්න. Print, complete by hand, then upload a scan.</div>
             </td>
             <td width="160" style="vertical-align: middle;">
@@ -255,9 +255,9 @@
     </div>
 
     <p class="note">
-        අනුමැතියෙන් පසු SCSNR ලියාපදිංචි අංකය සහ ජා. හැ. අංකය භාවිතයෙන් මුරපදය සාදන්න.
+        අනුමැතියෙන් පසු SPPNR ලියාපදිංචි අංකය සහ ජා. හැ. අංකය භාවිතයෙන් මුරපදය සාදන්න.
         After approval, create a password using your registration number and NIC.
-        All SCSNR dates use Sri Lanka Standard Time (Asia/Colombo, UTC+05:30).
+        All SPPNR dates use Sri Lanka Standard Time (Asia/Colombo, UTC+05:30).
     </p>
 
     <div class="powered-footer">

@@ -129,7 +129,7 @@
             <table class="min-w-full text-left text-sm">
                 <thead class="bg-cream text-muted">
                     <tr>
-                        <th class="px-5 py-3 font-medium">SCSNR ID</th>
+                        <th class="px-5 py-3 font-medium">SPPNR ID</th>
                         <th class="px-5 py-3 font-medium">Name</th>
                         <th class="px-5 py-3 font-medium">District</th>
                         <th class="px-5 py-3 font-medium">Type</th>

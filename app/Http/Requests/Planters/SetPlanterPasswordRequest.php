@@ -35,7 +35,7 @@ class SetPlanterPasswordRequest extends FormRequest
 
         if (! $planter) {
             throw ValidationException::withMessages([
-                'identification_number' => 'No approved registration matches this SCSNR ID and NIC.',
+                'identification_number' => 'No approved registration matches this SPPNR ID and NIC.',
             ]);
         }
 
@@ -47,7 +47,7 @@ class SetPlanterPasswordRequest extends FormRequest
 
         if ($planter->isRejected()) {
             throw ValidationException::withMessages([
-                'identification_number' => 'This registration was rejected. Please contact SCSNR administration.',
+                'identification_number' => 'This registration was rejected. Please contact SPPNR administration.',
             ]);
         }
 

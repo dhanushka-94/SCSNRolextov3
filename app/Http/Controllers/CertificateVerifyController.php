@@ -41,7 +41,7 @@ class CertificateVerifyController extends Controller
         if ($ref === '') {
             return redirect()
                 ->route('verify.form')
-                ->withErrors(['ref' => 'Enter a certificate number or SCSNR ID.']);
+                ->withErrors(['ref' => 'Enter a certificate number or SPPNR ID.']);
         }
 
         $certificate = $this->findByReference($ref);

@@ -16,11 +16,41 @@ return [
     'releases' => [
 
         [
+            'version' => '0.5.3',
+            'date' => '2026-11-05',
+            'title' => 'Admin SMS template catalogue',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Admin SMS templates page lists active and planned Notify.lk message texts with sample previews.'],
+                ['type' => 'added', 'text' => 'Staff can send sample SMS messages for one or all templates to a test mobile number.'],
+            ],
+        ],
+
+        [
+            'version' => '0.5.2',
+            'date' => '2026-11-05',
+            'title' => 'Registration SMS via Notify.lk',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Notify.lk SMS gateway sends a confirmation with the submission reference when a planter registers (online or offline).'],
+                ['type' => 'added', 'text' => 'NOTIFY_* environment settings control User ID, API key, sender ID, and enable/disable.'],
+            ],
+        ],
+
+        [
+            'version' => '0.5.1',
+            'date' => '2026-10-22',
+            'title' => 'System renamed to SPPNR',
+            'changes' => [
+                ['type' => 'changed', 'text' => 'System name is now SUSTAINABLE PRODUCTION AND PROCESSING OF NATURAL RUBBER (SPPNR).'],
+                ['type' => 'changed', 'text' => 'Certificate numbers use the SPPNR prefix.'],
+            ],
+        ],
+
+        [
             'version' => '0.5.0',
             'date' => '2026-09-08',
             'title' => 'Certificate issuance & public QR verify',
             'changes' => [
-                ['type' => 'added', 'text' => 'Issue SCSNR certificates after Final Audit pass or conditional, with printable certificate pages.'],
+                ['type' => 'added', 'text' => 'Issue SPPNR certificates after Final Audit pass or conditional, with printable certificate pages.'],
                 ['type' => 'added', 'text' => 'Public certificate verification via QR scan (/verify/{token}) or reference lookup (/verify).'],
                 ['type' => 'added', 'text' => 'Certificates menu with Issued and Revoked lists; staff can revoke with reason.'],
                 ['type' => 'changed', 'text' => 'Planter QR encodes the public verify URL once a certificate is issued.'],
@@ -104,7 +134,7 @@ return [
             'date' => '2026-07-01',
             'title' => 'Initial release',
             'changes' => [
-                ['type' => 'added', 'text' => 'SCSNR application foundation and branding.'],
+                ['type' => 'added', 'text' => 'SPPNR application foundation and branding.'],
                 ['type' => 'added', 'text' => 'Base authentication for admin and planter portals.'],
             ],
         ],

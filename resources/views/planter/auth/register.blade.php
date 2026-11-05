@@ -12,7 +12,7 @@
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-tan">Planter Portal</p>
                             <h1 class="mt-1 text-xl font-semibold sm:text-2xl">ස්වභාවික රබර් සඳහා තිරසාර සහතිකරණය අයදුම්පත</h1>
-                            <p class="mt-1 text-sm text-sand/85">Application for Sustainability Certification for Natural Rubber</p>
+                            <p class="mt-1 text-sm text-sand/85">{{ config('app.full_name') }}</p>
                         </div>
                     </div>
                 </div>

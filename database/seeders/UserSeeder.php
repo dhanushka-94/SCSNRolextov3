@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::query()->create([
-            'name' => 'SCSNR Review Officer',
+            'name' => 'SPPNR Review Officer',
             'email' => 'staff@rrisl.gov.lk',
             'phone' => '0112600001',
             'role' => User::ROLE_STAFF,
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
             $number = str_pad((string) $i, 3, '0', STR_PAD_LEFT);
 
             User::query()->create([
-                'name' => 'SCSNR Staff '.$number,
+                'name' => 'SPPNR Staff '.$number,
                 'email' => 'staff'.$number.'@rrisl.gov.lk',
                 'phone' => '0112'.str_pad((string) (600000 + $i), 6, '0', STR_PAD_LEFT),
                 'role' => User::ROLE_STAFF,

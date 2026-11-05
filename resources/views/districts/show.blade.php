@@ -12,7 +12,7 @@
     <article class="card mx-auto max-w-3xl overflow-hidden">
         <div class="border-b border-sand bg-cream px-5 py-6 sm:px-8">
             <h2 class="text-xl font-semibold text-forest-dark">{{ $district->name }}</h2>
-            <p class="mt-1 text-sm text-muted">SCSNR code {{ $district->code }}</p>
+            <p class="mt-1 text-sm text-muted">SPPNR code {{ $district->code }}</p>
         </div>
 
         <dl class="grid gap-5 p-5 sm:grid-cols-2 sm:p-8">

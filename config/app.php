@@ -13,11 +13,11 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'SCSNR'),
+    'name' => env('APP_NAME', 'SPPNR'),
 
-    'full_name' => env('APP_FULL_NAME', 'Sustainability Certification System for Natural Rubber'),
+    'full_name' => env('APP_FULL_NAME', 'SUSTAINABLE PRODUCTION AND PROCESSING OF NATURAL RUBBER'),
 
-    'short_name' => env('APP_SHORT_NAME', 'SCSNR'),
+    'short_name' => env('APP_SHORT_NAME', 'SPPNR'),
 
     /*
     | Application version is resolved from config/changelog.php (newest release).
@@ -25,7 +25,7 @@ return [
     */
     'version' => null,
 
-    'copyright' => env('APP_COPYRIGHT', 'Sustainability Certification System for Natural Rubber'),
+    'copyright' => env('APP_COPYRIGHT', 'SUSTAINABLE PRODUCTION AND PROCESSING OF NATURAL RUBBER'),
 
     'powered_by' => 'Powered by the Ministry of Plantation & Community Infrastructure, Rubber Development Department & Rubber Research Institute of Sri Lanka',
 

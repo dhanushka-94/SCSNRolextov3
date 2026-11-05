@@ -11,14 +11,14 @@
         <div class="text-center">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-tan">{{ config('app.short_name') }}</p>
             <h1 class="mt-2 text-2xl font-semibold text-forest-dark">Verify a certificate</h1>
-            <p class="mt-2 text-sm text-muted">Enter a certificate number (e.g. SCSNR/CERT/2026/00001) or SCSNR ID.</p>
+            <p class="mt-2 text-sm text-muted">Enter a certificate number (e.g. SPPNR/CERT/2026/00001) or SPPNR ID.</p>
         </div>
 
         <form method="POST" action="{{ route('verify.lookup') }}" class="card mt-8 space-y-4 p-5 sm:p-6">
             @csrf
             <div>
                 <label for="ref" class="label-field">Reference number</label>
-                <input id="ref" name="ref" type="text" value="{{ old('ref', $ref) }}" required class="input-field font-mono" placeholder="SCSNR/CERT/2026/00001" autofocus>
+                <input id="ref" name="ref" type="text" value="{{ old('ref', $ref) }}" required class="input-field font-mono" placeholder="SPPNR/CERT/2026/00001" autofocus>
                 @error('ref')
                     <p class="mt-2 text-sm text-red-700">{{ $message }}</p>
                 @enderror

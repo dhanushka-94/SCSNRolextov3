@@ -50,7 +50,7 @@ class PlanterLoginRequest extends FormRequest
 
         if ($planter->isRejected()) {
             throw ValidationException::withMessages([
-                'login' => 'This registration was rejected. Please contact SCSNR administration.',
+                'login' => 'This registration was rejected. Please contact SPPNR administration.',
             ]);
         }
 

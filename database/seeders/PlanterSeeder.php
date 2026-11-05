@@ -159,7 +159,7 @@ class PlanterSeeder extends Seeder
             ...$this->coordinatesFor($district, $index),
             'business_type' => $businessType,
             'already_certified' => $alreadyCertified,
-            'certification_standard' => $alreadyCertified ? 'SCSNR Natural Rubber' : null,
+            'certification_standard' => $alreadyCertified ? 'SPPNR Natural Rubber' : null,
             'prior_certificate_document' => null,
             'certification_rejected_or_suspended' => $index % 11 === 0,
             'certification_issue_reason' => $index % 11 === 0 ? 'Prior certification suspended pending review.' : null,
