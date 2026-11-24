@@ -11,15 +11,20 @@ class UserSeeder extends Seeder
 
     public const ADMIN_EMAIL = 'admin@rrisl.gov.lk';
 
-    public const ADMIN_PASSWORD = 'password';
+    /**
+     * Shared demo password for every seeded account. It comes from DEMO_PASSWORD in .env,
+     * so the password is never committed to the repository.
+     */
+    public static function demoPassword(): string
+    {
+        $password = (string) config('demo.password');
 
-    public const OFFICER_PASSWORD = 'password';
+        if (strlen($password) < 10) {
+            throw new \RuntimeException('Set DEMO_PASSWORD (at least 10 characters) in .env before seeding demo data.');
+        }
 
-    /** Shared demo password for every system user. */
-    public const DEMO_PASSWORD = 'password';
-
-    /** @deprecated */
-    public const STAFF_PASSWORD = self::DEMO_PASSWORD;
+        return $password;
+    }
 
     public function run(): void
     {
@@ -30,7 +35,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600900',
                 'role' => User::ROLE_DEVELOPER,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::DEMO_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'System Administrator',
@@ -38,7 +43,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600000',
                 'role' => User::ROLE_ADMIN,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::ADMIN_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'RRISL Officer',
@@ -46,7 +51,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600100',
                 'role' => User::ROLE_RRISL_OFFICER,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'SPPNR Review Officer (RRISL)',
@@ -54,7 +59,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600001',
                 'role' => User::ROLE_RRISL_OFFICER,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'RDD Officer',
@@ -62,7 +67,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600200',
                 'role' => User::ROLE_RDD_OFFICER,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'Ministry Officer',
@@ -70,7 +75,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600300',
                 'role' => User::ROLE_MINISTRY_OFFICER,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'Field Officer',
@@ -78,7 +83,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600400',
                 'role' => User::ROLE_FIELD_OFFICER,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'First Auditor',
@@ -86,7 +91,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600003',
                 'role' => User::ROLE_FIRST_AUDITOR,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'Second Auditor',
@@ -94,7 +99,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600004',
                 'role' => User::ROLE_SECOND_AUDITOR,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'Second Auditor (legacy email)',
@@ -102,7 +107,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600005',
                 'role' => User::ROLE_SECOND_AUDITOR,
                 'status' => User::STATUS_ACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
             [
                 'name' => 'Inactive RRISL Officer',
@@ -110,7 +115,7 @@ class UserSeeder extends Seeder
                 'phone' => '0112600002',
                 'role' => User::ROLE_RRISL_OFFICER,
                 'status' => User::STATUS_INACTIVE,
-                'password' => self::OFFICER_PASSWORD,
+                'password' => self::demoPassword(),
             ],
         ];
 
@@ -135,7 +140,7 @@ class UserSeeder extends Seeder
                     'phone' => '011'.str_pad((string) ($phoneBase + $i), 7, '0', STR_PAD_LEFT),
                     'role' => $role,
                     'status' => User::STATUS_ACTIVE,
-                    'password' => self::OFFICER_PASSWORD,
+                    'password' => self::demoPassword(),
                     'email_verified_at' => now(),
                 ]);
             }

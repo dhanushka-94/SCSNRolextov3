@@ -16,6 +16,9 @@
 /public/hot
 /public/storage
 /storage/*.key
+# Demo login sheet: lists demo passwords, keep it out of the repository
+/DEMO-LOGINS.txt
+/storage/demo-logins
 /storage/pail
 /vendor
 Homestead.json

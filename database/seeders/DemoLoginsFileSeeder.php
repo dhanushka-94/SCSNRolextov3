@@ -37,7 +37,7 @@ class DemoLoginsFileSeeder extends Seeder
             ->whereDoesntHave('currentCertificate')
             ->count();
 
-        $pwd = UserSeeder::DEMO_PASSWORD;
+        $pwd = UserSeeder::demoPassword();
 
         $content = <<<TEXT
 SPPNR Demo Login Reference
@@ -145,6 +145,8 @@ Refresh all demo data:
 
 TEXT;
 
-        File::put(base_path('DEMO-LOGINS.txt'), $content);
+        // Local-only copy (git-ignored): it lists the demo passwords, so it never goes in the repo root.
+        File::ensureDirectoryExists(storage_path('demo-logins'));
+        File::put(storage_path('demo-logins/DEMO-LOGINS.txt'), $content);
     }
 }

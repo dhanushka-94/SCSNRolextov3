@@ -11,8 +11,6 @@ class PlanterSeeder extends Seeder
 {
     public const PLANTER_COUNT = 200;
 
-    public const PLANTER_PASSWORD = 'password';
-
     public const PENDING_ONLINE = 45;
 
     public const PENDING_OFFLINE = 25;
@@ -99,7 +97,7 @@ class PlanterSeeder extends Seeder
                 $data['registration_type'] = Planter::TYPE_OFFLINE;
             } elseif ($i <= $pendingCutoff + self::APPROVED_WITH_PASSWORD) {
                 $data['status'] = Planter::STATUS_APPROVED;
-                $data['password'] = self::PLANTER_PASSWORD;
+                $data['password'] = UserSeeder::demoPassword();
                 $data['approved_by'] = $adminId;
                 $data['approved_at'] = now()->subDays(max(1, self::PLANTER_COUNT - $i));
                 $data['audit_status'] = Planter::AUDIT_NOT_STARTED;

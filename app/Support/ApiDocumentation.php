@@ -310,7 +310,7 @@ class ApiDocumentation
                         self::p('password', 'string', true, ''),
                         self::p('device_name', 'string', true, 'Label for this device, e.g. "Pradeep Android". Shown when listing tokens.'),
                     ],
-                    'request' => ['login' => 'RUB/SUS/KEGA/REDE/00001', 'password' => 'password', 'device_name' => 'Pradeep Android'],
+                    'request' => ['login' => 'RUB/SUS/KEGA/REDE/00001', 'password' => 'your-password', 'device_name' => 'Pradeep Android'],
                     'response' => ['token' => '3|Q1b0r4n2xM9ExampleTokenValue', 'token_type' => 'Bearer', 'account_type' => 'planter', 'user' => self::planter()],
                     'errors' => [
                         [422, 'Wrong credentials; registration still pending, rejected, or no password created yet (message says which); or too many attempts.'],
@@ -325,7 +325,7 @@ class ApiDocumentation
                         self::p('password', 'string', true, ''),
                         self::p('device_name', 'string', true, 'Label for this device.'),
                     ],
-                    'request' => ['email' => 'first.auditor@rrisl.gov.lk', 'password' => 'password', 'device_name' => 'Auditor tablet'],
+                    'request' => ['email' => 'first.auditor@rrisl.gov.lk', 'password' => 'your-password', 'device_name' => 'Auditor tablet'],
                     'response' => ['token' => '4|Rk2xExampleStaffTokenValue', 'token_type' => 'Bearer', 'account_type' => 'staff', 'user' => self::user()],
                     'errors' => [
                         [422, 'Wrong credentials, inactive account, or too many attempts.'],
@@ -351,7 +351,7 @@ class ApiDocumentation
                         self::p('password', 'string', true, PasswordPolicy::description()),
                         self::p('password_confirmation', 'string', true, 'Must match password.'),
                     ],
-                    'request' => ['current_password' => 'password', 'password' => 'NewPassw0rd!2026', 'password_confirmation' => 'NewPassw0rd!2026'],
+                    'request' => ['current_password' => 'your-current-password', 'password' => 'NewPassw0rd!2026', 'password_confirmation' => 'NewPassw0rd!2026'],
                     'response' => ['message' => 'Password changed. Other devices have been signed out.'],
                     'errors' => [[422, 'Current password is wrong or the new password is too weak.']],
                 ]),
