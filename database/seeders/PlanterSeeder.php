@@ -11,7 +11,7 @@ class PlanterSeeder extends Seeder
 {
     public const PLANTER_COUNT = 200;
 
-    public const PLANTER_PASSWORD = 'Planter@12345';
+    public const PLANTER_PASSWORD = 'password';
 
     public const PENDING_ONLINE = 45;
 

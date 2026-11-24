@@ -1,102 +1,102 @@
 SPPNR Demo Login Reference
-Generated: 08/09/2026, 00:42 SLST
+Generated: 24/11/2026, 01:21 SLST
 ========================================
+
+ALL DEMO PASSWORDS = password
+(Admin, officers, auditors, and planters with passwords)
 
 SYSTEM USERS (Admin portal: /admin)
 ------------------------------------
 Administrator
   Email   : admin@rrisl.gov.lk
-  Password: Admin@12345
+  Password: password
+  Access  : Full system (both audit rounds + certificates)
 
-Primary staff officer
-  Email   : staff@rrisl.gov.lk
-  Password: Staff@12345
+RRISL Officer
+  Email   : rrisl@rrisl.gov.lk
+  Password: password
+  Alias   : staff@rrisl.gov.lk / password
 
-Inactive staff sample
-  Email   : inactive.staff@rrisl.gov.lk
-  Password: Staff@12345
-  Status  : Inactive — cannot sign in
+RDD Officer
+  Email   : rdd@rdd.gov.lk
+  Password: password
+
+Ministry Officer
+  Email   : ministry@plantation.gov.lk
+  Password: password
+  Access  : Read-only
+
+Field Officer
+  Email   : field@rrisl.gov.lk
+  Password: password
 
 First Auditor
   Email   : first.auditor@rrisl.gov.lk
-  Password: Staff@12345
-  Access  : First Audit checklist queue only
+  Password: password
+  Access  : Work First Audit checklists; view Second Audit status
 
-Final Auditor
-  Email   : final.auditor@rrisl.gov.lk
-  Password: Staff@12345
-  Access  : Final Audit checklist queue only
+Second Auditor
+  Email   : second.auditor@rrisl.gov.lk
+  Password: password
+  Access  : Work Second Audit checklists; view First Audit status
+  Alias   : final.auditor@rrisl.gov.lk / password
 
-Staff accounts (100 samples)
-  Email   : staff001@rrisl.gov.lk  to  staff100@rrisl.gov.lk
-  Password: Staff@12345  (same for all staff accounts)
+Inactive RRISL sample
+  Email   : inactive.staff@rrisl.gov.lk
+  Password: password
+  Status  : Inactive — cannot sign in
 
-Total system users seeded: 105
+Extra samples (password password)
+  rrisl001@sample.gov.lk … rrisl005@sample.gov.lk
+  rdd001@sample.gov.lk … rdd005@sample.gov.lk
+  field001@sample.gov.lk … field005@sample.gov.lk
+
+Total system users seeded: 25
 
 
 PLANTER USERS (Planter portal: /login)
 ---------------------------------------
-Total planter records seeded: 200
+Password for approved planters with login: password
 
-Pending online (45)
-  Email   : sunil.001@sample.lk  to  (planter records 001–045)
-  Status  : Pending approval — temporary submission reference only (no RUB/SUS number yet)
+Pending approval (lobby) : 70
+Ready for certificate    : 19  (Second Audit passed/conditional, no cert yet)
 
-Pending offline (25)
-  Email   : records 046–070
-  Status  : Pending approval — offline registration
-
-Approved with password (90)
-  Email   : records 071–160
-  Password: Planter@12345
-  Notes   : Registration number issued; many already have demo audits/certificates
-  Alt login: Registration ID RUB/SUS/{district}/{division}/{#####} (see admin planter list)
-
-Approved without password (20)
-  Email   : records 161–180
-  Action  : Use /set-password (registration ID + NIC)
-
+Approved with password (90) — e.g. sanjeewa.086@sample.lk / password
+Approved without password (20) — use /set-password
 Rejected (20)
-  Email   : records 181–200
-  Status  : Cannot sign in — registration number still issued on reject for reference
 
 
-SAMPLE AUDITS (from approved planters with password)
-----------------------------------------------------
+SAMPLE AUDITS
+-------------
 Ongoing audits (current) : 36
-First queued (sample)    : 10
-Passed/conditional rows  : 73
-Failed audit attempts    : 13
+First queued             : 8
+Second ongoing           : 18
+Passed/conditional rows  : 99
+Failed audit attempts    : 11
 
-Includes: First queued / in progress / failed, Final queued / in progress / failed,
-Final passed+certificate, Final conditional+certificate, revoked certificates.
+Dummy checklists included on in-progress First/Second audits.
+Admin can open and work both rounds.
 
 
 SAMPLE CERTIFICATES
 -------------------
-Issued  : 17
+Issued  : 15
 Revoked : 4
-Verify  : SPPNR/CERT/2026/00001  →  /verify  or  http://127.0.0.1:8000/verify/a5f067c4-1e0e-4d1f-a1c0-a08260613ba8
-Public form: /verify  (certificate No. or SPPNR ID)
+Verify  : SPPNR/CERT/2026/00001  →  /verify  or  http://127.0.0.1:8000/verify/e6babed5-9887-4752-bb6c-4639163fe2ba
+
+Resend step SMS: open any planter → “Resend step SMS” buttons.
 
 
-Coverage
-  • Kegalle, Kalutara, Galle, Ratnapura, Monaragala regions
-  • Full RDO division lists per region
-  • All business types (individual, partnership, company, limited, society, other)
-  • Audit path + certificates with public QR verify
-  • Online and offline registration types
-  • Registration IDs: RUB/SUS/{district_code}/{division_code}/00001+
-  • Farm map pins (latitude/longitude) on sample records
-
-
-QUICK TEST ACCOUNTS
--------------------
-Admin     : admin@rrisl.gov.lk / Admin@12345
-Staff     : staff001@rrisl.gov.lk / Staff@12345
-First auditor : first.auditor@rrisl.gov.lk / Staff@12345
-Final auditor : final.auditor@rrisl.gov.lk / Staff@12345
-Planter   : sanjeewa.086@sample.lk / Planter@12345
+QUICK TEST ACCOUNTS (password for all: password)
+---------------------------------------------
+Admin           : admin@rrisl.gov.lk
+RRISL Officer   : rrisl@rrisl.gov.lk
+RDD Officer     : rdd@rdd.gov.lk
+Ministry        : ministry@plantation.gov.lk
+Field Officer   : field@rrisl.gov.lk
+First Auditor   : first.auditor@rrisl.gov.lk
+Second Auditor  : second.auditor@rrisl.gov.lk
+Planter         : sanjeewa.086@sample.lk
 
 Refresh all demo data:
   php artisan db:seed

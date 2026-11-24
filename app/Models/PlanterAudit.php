@@ -40,6 +40,9 @@ class PlanterAudit extends Model
         'started_at',
         'completed_at',
         'outcome_notes',
+        'signature',
+        'signed_by_name',
+        'signed_at',
     ];
 
     /**
@@ -53,6 +56,7 @@ class PlanterAudit extends Model
             'sent_at' => 'datetime',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
+            'signed_at' => 'datetime',
         ];
     }
 
@@ -100,7 +104,7 @@ class PlanterAudit extends Model
     {
         return [
             self::ROUND_FIRST => 'First Audit',
-            self::ROUND_FINAL => 'Final Audit',
+            self::ROUND_FINAL => 'Second Audit',
         ];
     }
 
@@ -127,6 +131,11 @@ class PlanterAudit extends Model
     public function statusLabel(): string
     {
         return self::statuses()[$this->status] ?? $this->status;
+    }
+
+    public function isSigned(): bool
+    {
+        return filled($this->signature);
     }
 
     public function isOpen(): bool

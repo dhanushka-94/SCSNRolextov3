@@ -12,10 +12,19 @@
     @else
         <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Back to registry</a>
     @endif
-    <a href="{{ route('admin.planters.edit', $planter) }}" class="btn-primary">Edit</a>
+    @if (auth('web')->user()->canManagePlanterRecords())
+        <a href="{{ route('admin.planters.edit', $planter) }}" class="btn-primary">Edit</a>
+    @endif
 @endsection
 
 @section('content')
+    @if (session('success'))
+        <div class="mx-auto mb-4 max-w-4xl rounded-2xl border border-leaf/30 bg-leaf/10 px-4 py-3 text-sm text-forest-dark">{{ session('success') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="mx-auto mb-4 max-w-4xl rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{{ session('error') }}</div>
+    @endif
+
     <article class="card mx-auto max-w-4xl overflow-hidden">
         <div class="flex flex-col gap-4 border-b border-sand bg-cream px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <div>
@@ -26,7 +35,7 @@
                 <h2 class="mt-1 text-xl font-semibold text-forest-dark">{{ $planter->name }}</h2>
                 <p class="text-sm text-muted">{{ \App\Models\Planter::statuses()[$planter->status] }}</p>
             </div>
-            @if ($planter->isPending())
+            @if ($planter->isPending() && auth('web')->user()->canReviewRegistrations())
                 <div class="flex flex-wrap gap-2">
                     <form method="POST" action="{{ route('admin.planters.approve', $planter) }}">
                         @csrf
@@ -258,13 +267,19 @@
                 </dl>
             </section>
 
+            <x-planter-sms-resend
+                :planter="$planter"
+                :actions="$smsResendActions ?? []"
+                :enabled="$smsEnabled ?? false"
+            />
+
             @if ($planter->isApproved())
                 <x-planter-audit-controls :planter="$planter" />
                 <x-planter-certificate-controls :planter="$planter" />
             @endif
         </div>
 
-        @if ($planter->isPending() || $planter->isApproved())
+        @if (($planter->isPending() || $planter->isApproved()) && auth('web')->user()->canReviewRegistrations())
             <form method="POST" action="{{ route('admin.planters.reject', $planter) }}" class="border-t border-sand px-5 py-6 sm:px-8">
                 @csrf
                 <label for="rejection_reason" class="label-field">Reject with reason</label>

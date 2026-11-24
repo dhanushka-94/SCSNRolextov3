@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\ActivityLog;
 use App\Models\Planter;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -71,6 +72,8 @@ class PlanterLoginRequest extends FormRequest
         $authenticated = Auth::guard('planter')->user();
         $authenticated->forceFill(['last_login_at' => now()])->save();
 
+        ActivityLog::record('auth.planter_login', $authenticated, [], $authenticated);
+
         RateLimiter::clear($this->throttleKey());
     }
 
@@ -86,6 +89,7 @@ class PlanterLoginRequest extends FormRequest
     public function failAttempt(): never
     {
         RateLimiter::hit($this->throttleKey());
+        ActivityLog::record('auth.planter_login_failed', null, ['identifier' => mb_substr((string) $this->input('login'), 0, 190)]);
 
         throw ValidationException::withMessages([
             'login' => 'These credentials do not match our records.',

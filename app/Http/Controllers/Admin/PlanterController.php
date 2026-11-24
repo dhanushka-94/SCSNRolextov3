@@ -7,6 +7,7 @@ use App\Http\Requests\Planters\RejectPlanterRequest;
 use App\Http\Requests\Planters\StorePlanterRequest;
 use App\Http\Requests\Planters\UpdatePlanterRequest;
 use App\Models\Planter;
+use App\Services\NotifySmsService;
 use App\Services\PlanterIdentityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -109,12 +110,34 @@ class PlanterController extends Controller
             ->with('success', $message);
     }
 
-    public function show(Planter $planter, PlanterIdentityService $identity): View
+    public function show(Planter $planter, PlanterIdentityService $identity, NotifySmsService $sms): View
     {
         $planter = $identity->ensureIssued($planter);
         $planter->load(['approver', 'firstAudit', 'finalAudit', 'currentCertificate', 'latestCertificate']);
 
-        return view('planters.show', compact('planter'));
+        return view('planters.show', [
+            'planter' => $planter,
+            'smsResendActions' => $sms->availableResendActions($planter),
+            'smsEnabled' => $sms->enabled(),
+        ]);
+    }
+
+    public function resendSms(Request $request, Planter $planter, NotifySmsService $sms): RedirectResponse
+    {
+        abort_unless($request->user('web')?->canResendPlanterSms(), 403);
+
+        $validated = $request->validate([
+            'template' => ['required', 'string', 'max:80'],
+        ]);
+
+        $ok = $sms->resendStep($planter, $validated['template']);
+
+        return back()->with(
+            $ok ? 'success' : 'error',
+            $ok
+                ? 'SMS resent to '.$planter->phone.'.'
+                : 'Could not resend SMS. Check the planter phone number and Notify.lk settings.'
+        );
     }
 
     public function edit(Planter $planter): View
@@ -162,6 +185,8 @@ class PlanterController extends Controller
 
     public function destroy(Planter $planter): RedirectResponse
     {
+        abort_unless(request()->user('web')?->canDeletePlanters(), 403);
+
         $listRoute = $this->listRouteFor($planter);
 
         if ($planter->application_document) {
@@ -181,6 +206,8 @@ class PlanterController extends Controller
 
     public function approve(Request $request, Planter $planter, PlanterIdentityService $identity): RedirectResponse
     {
+        abort_unless($request->user('web')?->canReviewRegistrations(), 403);
+
         $planter = $identity->approve($planter, $request->user('web')->id);
 
         return back()->with('success', 'Registry entry approved. Registration number: '.$planter->identification_number);
@@ -199,6 +226,8 @@ class PlanterController extends Controller
 
     public function reject(RejectPlanterRequest $request, Planter $planter, PlanterIdentityService $identity): RedirectResponse
     {
+        abort_unless($request->user('web')?->canReviewRegistrations(), 403);
+
         $planter = $identity->reject(
             $planter,
             $request->user('web')->id,

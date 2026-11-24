@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\HasApiTokens;
 
 class Planter extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     public const STATUS_PENDING = 'pending';
 

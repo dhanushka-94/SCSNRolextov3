@@ -53,12 +53,12 @@
                     </div>
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Issued</dt>
-                        <dd class="mt-1">{{ $certificate->issued_at?->format('Y-m-d') ?? '—' }}</dd>
+                        <dd class="mt-1">{{ sl_date($certificate->issued_at) }}</dd>
                     </div>
                 </dl>
                 @if ($certificate->isRevoked())
                     <p class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
-                        REVOKED — {{ $certificate->revoked_at?->format('Y-m-d') }}
+                        REVOKED — {{ sl_date($certificate->revoked_at) }}
                     </p>
                 @endif
             </div>

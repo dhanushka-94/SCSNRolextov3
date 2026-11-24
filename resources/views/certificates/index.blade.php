@@ -40,7 +40,7 @@
         <section class="card px-5 py-16 text-center">
             <p class="text-lg font-semibold text-forest-dark">No {{ strtolower($heading) }}</p>
             <p class="mt-2 text-sm text-muted">
-                {{ $isRevoked ? 'Revoked certificates will appear here.' : 'Issue a certificate from an approved planter after Final Audit pass/conditional.' }}
+                {{ $isRevoked ? 'Revoked certificates will appear here.' : 'Issue a certificate from an approved planter after Second Audit pass/conditional.' }}
             </p>
         </section>
     @else

@@ -38,25 +38,27 @@
                 </div>
             </div>
 
-            <div class="px-5 py-6 sm:px-8">
-                <form method="POST" action="{{ route('admin.sms-templates.send-samples') }}" class="flex flex-col gap-3 sm:flex-row sm:items-end">
-                    @csrf
-                    <div class="flex-1">
-                        <label for="sample-phone" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted">Send all samples to</label>
-                        <input
-                            id="sample-phone"
-                            type="text"
-                            name="phone"
-                            value="{{ old('phone', '+94714245192') }}"
-                            class="w-full rounded-xl border border-sand bg-cream px-3 py-2.5 text-sm text-ink"
-                            placeholder="+9471XXXXXXX"
-                            required
-                        >
-                    </div>
-                    <button type="submit" class="btn-primary shrink-0">Send all samples</button>
-                </form>
-                <p class="mt-2 text-xs text-muted">Each sample is prefixed with <span class="font-mono">[SAMPLE …]</span> so it is easy to recognise on the phone.</p>
-            </div>
+            @if (auth('web')->user()->canSendSmsSamples())
+                <div class="px-5 py-6 sm:px-8">
+                    <form method="POST" action="{{ route('admin.sms-templates.send-samples') }}" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                        @csrf
+                        <div class="flex-1">
+                            <label for="sample-phone" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted">Send all samples to</label>
+                            <input
+                                id="sample-phone"
+                                type="text"
+                                name="phone"
+                                value="{{ old('phone', '+94714245192') }}"
+                                class="w-full rounded-xl border border-sand bg-cream px-3 py-2.5 text-sm text-ink"
+                                placeholder="+9471XXXXXXX"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="btn-primary shrink-0">Send all samples</button>
+                    </form>
+                    <p class="mt-2 text-xs text-muted">Each sample is prefixed with <span class="font-mono">[SAMPLE …]</span> so it is easy to recognise on the phone.</p>
+                </div>
+            @endif
         </section>
 
         <div class="space-y-4">
@@ -75,12 +77,14 @@
                             <p class="mt-1 text-sm text-muted">{{ $template['trigger'] }}</p>
                             <p class="mt-1 font-mono text-[11px] text-bark/70">{{ $template['key'] }} · {{ $template['length'] }} chars (template)</p>
                         </div>
-                        <form method="POST" action="{{ route('admin.sms-templates.send-samples') }}">
-                            @csrf
-                            <input type="hidden" name="phone" value="{{ old('phone', '+94714245192') }}">
-                            <input type="hidden" name="template" value="{{ $template['key'] }}">
-                            <button type="submit" class="btn-secondary text-sm">Send this sample</button>
-                        </form>
+                        @if (auth('web')->user()->canSendSmsSamples())
+                            <form method="POST" action="{{ route('admin.sms-templates.send-samples') }}">
+                                @csrf
+                                <input type="hidden" name="phone" value="{{ old('phone', '+94714245192') }}">
+                                <input type="hidden" name="template" value="{{ $template['key'] }}">
+                                <button type="submit" class="btn-secondary text-sm">Send this sample</button>
+                            </form>
+                        @endif
                     </div>
                     <div class="grid gap-4 px-5 py-5 sm:px-6 lg:grid-cols-2">
                         <div>

@@ -41,7 +41,7 @@
                             <p class="mt-1 font-semibold text-ink">{{ $release['title'] }}</p>
                         @endif
                     </div>
-                    <p class="text-sm text-muted">{{ \Illuminate\Support\Carbon::parse($release['date'])->format('d M Y') }}</p>
+                    <p class="text-sm text-muted">{{ sl_date(\Illuminate\Support\Carbon::parse($release['date'], \App\Support\SriLankanDate::timezone())) }}</p>
                 </div>
 
                 <ul class="space-y-3 px-5 py-5 sm:px-6">

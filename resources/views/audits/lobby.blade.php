@@ -28,7 +28,7 @@
         @if ($canDispatch || auth('web')->user()->canViewAuditRound(\App\Models\PlanterAudit::ROUND_FINAL))
             <a href="{{ route($listRoute, ['round' => 'final'] + request()->except('round', 'page')) }}"
                class="rounded-full px-4 py-2 text-sm font-semibold {{ $round === 'final' ? 'bg-forest text-white' : 'bg-sand text-bark hover:bg-line' }}">
-                Final Audit
+                Second Audit
             </a>
         @endif
     </div>

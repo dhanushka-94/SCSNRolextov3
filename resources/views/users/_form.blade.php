@@ -24,7 +24,7 @@
     <div>
         <label for="role" class="label-field">Role</label>
         <select id="role" name="role" class="input-field">
-            @foreach (\App\Models\User::roles() as $value => $label)
+            @foreach (\App\Models\User::assignableRoles(auth('web')->user()) as $value => $label)
                 <option value="{{ $value }}" @selected(old('role', $user->role) === $value)>{{ $label }}</option>
             @endforeach
         </select>

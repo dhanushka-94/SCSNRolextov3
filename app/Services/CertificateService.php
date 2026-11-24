@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Certificate;
 use App\Models\Planter;
 use App\Models\PlanterAudit;
@@ -58,7 +59,7 @@ class CertificateService
             ? Certificate::OUTCOME_CONDITIONAL
             : Certificate::OUTCOME_CERTIFIED;
 
-        return DB::transaction(function () use ($planter, $actor, $notes, $outcome) {
+        $certificate = DB::transaction(function () use ($planter, $actor, $notes, $outcome) {
             Certificate::query()
                 ->where('planter_id', $planter->id)
                 ->where('is_current', true)
@@ -76,6 +77,12 @@ class CertificateService
                 'notes' => filled($notes) ? trim($notes) : null,
             ]);
         });
+
+        ActivityLog::record('certificate.issued', $certificate, ['planter_id' => $planter->id, 'outcome' => $outcome]);
+
+        app(NotifySmsService::class)->sendCertificateIssued($planter->fresh(), $certificate);
+
+        return $certificate;
     }
 
     public function revoke(Certificate $certificate, User $actor, string $reason): Certificate
@@ -91,7 +98,12 @@ class CertificateService
             'is_current' => false,
         ]);
 
-        return $certificate->refresh();
+        $certificate = $certificate->refresh()->loadMissing('planter');
+        ActivityLog::record('certificate.revoked', $certificate, ['planter_id' => $certificate->planter_id, 'reason' => trim($reason)]);
+
+        app(NotifySmsService::class)->sendCertificateRevoked($certificate->planter, $certificate);
+
+        return $certificate;
     }
 
     private function nextCertificateNumber(): string

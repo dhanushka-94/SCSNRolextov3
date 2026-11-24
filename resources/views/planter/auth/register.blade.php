@@ -8,7 +8,7 @@
             <div class="overflow-hidden rounded-3xl border border-sand bg-paper shadow-[0_24px_60px_rgba(27,77,50,0.12)]">
                 <div class="border-b border-sand bg-forest-dark px-6 py-8 text-white sm:px-10">
                     <div class="flex items-center gap-4">
-                        <img src="{{ asset('SCSNR-logo.png') }}" alt="{{ config('app.short_name') }} logo" class="h-16 w-16 rounded-full bg-white object-contain p-1">
+                        <img src="{{ asset('SPPNR-logo.png') }}" alt="{{ config('app.short_name') }} logo" class="h-16 w-16 rounded-full bg-white object-contain p-1">
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-tan">Planter Portal</p>
                             <h1 class="mt-1 text-xl font-semibold sm:text-2xl">ස්වභාවික රබර් සඳහා තිරසාර සහතිකරණය අයදුම්පත</h1>

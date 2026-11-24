@@ -3,10 +3,19 @@
     'showNames' => false,
     'nameLayout' => 'below',
     'layout' => 'row',
+    'withSystem' => false,
 ])
 
 @php
     $bodies = config('app.governing_bodies', []);
+    if ($withSystem) {
+        $bodies[] = [
+            'name' => config('app.full_name'),
+            'short' => config('app.short_name'),
+            'logo' => 'SPPNR-logo.png',
+            'round' => true,
+        ];
+    }
     $logoClass = match ($size) {
         'sm' => 'h-8 w-8 sm:h-9 sm:w-9',
         'lg' => 'h-20 w-20 sm:h-24 sm:w-24',
@@ -31,7 +40,7 @@
                 src="{{ asset($body['logo']) }}"
                 alt="{{ $body['name'] }}"
                 title="{{ $body['name'] }}"
-                class="{{ $logoClass }} shrink-0 rounded-lg bg-white object-contain p-0.5 shadow-sm ring-1 ring-sand/80"
+                class="{{ $logoClass }} shrink-0 {{ ($body['round'] ?? false) ? 'rounded-full' : 'rounded-lg' }} bg-white object-contain p-0.5 shadow-sm ring-1 ring-sand/80"
             >
             @if ($showNames)
                 <span class="text-[11px] font-medium leading-snug text-bark sm:text-xs">

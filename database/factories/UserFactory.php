@@ -23,7 +23,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->numerify('07########'),
-            'role' => User::ROLE_STAFF,
+            'role' => User::ROLE_RRISL_OFFICER,
             'status' => User::STATUS_ACTIVE,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

@@ -230,6 +230,7 @@ class AuditController extends Controller
                 $request->user('web'),
                 $request->validated('status'),
                 $request->validated('outcome_notes') ?? null,
+                $request->validated('signature'),
             );
         } catch (\InvalidArgumentException $exception) {
             return back()->withErrors(['audit' => $exception->getMessage()]);
@@ -260,7 +261,7 @@ class AuditController extends Controller
             return $requested;
         }
 
-        if ($user->isFinalAuditor() && ! $user->isAdmin()) {
+        if ($user->isSecondAuditor() && ! $user->isAdmin()) {
             return PlanterAudit::ROUND_FINAL;
         }
 

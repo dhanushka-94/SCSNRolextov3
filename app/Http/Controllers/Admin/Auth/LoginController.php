@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AdminLoginRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,11 +22,15 @@ class LoginController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
+        ActivityLog::record('auth.admin_login', null);
+
         return redirect()->intended(route('admin.dashboard'));
     }
 
     public function destroy(Request $request): RedirectResponse
     {
+        ActivityLog::record('auth.admin_logout', null);
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

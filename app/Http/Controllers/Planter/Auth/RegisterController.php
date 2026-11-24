@@ -86,7 +86,7 @@ class RegisterController extends Controller
 
         // DomPDF loads local fonts/images from absolute filesystem paths (not file:// URLs).
         $pdf = Pdf::loadView('planter.pdf.registration-form', [
-            'logo' => str_replace('\\', '/', public_path('SCSNR-logo.png')),
+            'logo' => str_replace('\\', '/', public_path('SPPNR-logo.png')),
             'fontRegular' => str_replace('\\', '/', $regular),
             'fontBold' => str_replace('\\', '/', $bold),
             'governingBodies' => collect(config('app.governing_bodies'))->map(function (array $body) {

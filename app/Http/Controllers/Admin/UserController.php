@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $users = User::query()
+            ->when(! $request->user('web')->isDeveloper(), fn ($query) => $query->where('role', '!=', User::ROLE_DEVELOPER))
             ->when($request->filled('q'), function ($query) use ($request) {
                 $search = '%'.$request->string('q')->trim().'%';
 
@@ -39,26 +41,32 @@ class UserController extends Controller
     public function create(): View
     {
         return view('users.create', [
-            'user' => new User(['role' => User::ROLE_STAFF, 'status' => User::STATUS_ACTIVE]),
+            'user' => new User(['role' => User::ROLE_RRISL_OFFICER, 'status' => User::STATUS_ACTIVE]),
         ]);
     }
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        User::query()->create($request->validated());
+        $user = User::query()->create($request->validated());
+
+        ActivityLog::record('user.created', $user, ['role' => $user->role]);
 
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'User account created successfully.');
     }
 
-    public function show(User $user): View
+    public function show(Request $request, User $user): View
     {
+        abort_unless($user->canBeManagedBy($request->user('web')), 404);
+
         return view('users.show', compact('user'));
     }
 
-    public function edit(User $user): View
+    public function edit(Request $request, User $user): View
     {
+        abort_unless($user->canBeManagedBy($request->user('web')), 404);
+
         return view('users.edit', compact('user'));
     }
 
@@ -66,7 +74,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        if ($this->isLastAdmin($user) && ($data['role'] !== User::ROLE_ADMIN || $data['status'] !== User::STATUS_ACTIVE)) {
+        if ($this->isLastAdmin($user) && (! in_array($data['role'], User::adminRoles(), true) || $data['status'] !== User::STATUS_ACTIVE)) {
             return back()->withErrors([
                 'role' => 'The last active administrator cannot be demoted or deactivated.',
             ])->withInput();
@@ -84,6 +92,13 @@ class UserController extends Controller
 
         $user->update($data);
 
+        // A deactivated or demoted user must not keep using existing app tokens.
+        if ($user->status !== User::STATUS_ACTIVE) {
+            $user->tokens()->delete();
+        }
+
+        ActivityLog::record('user.updated', $user, ['changed' => array_keys($data), 'status' => $user->status, 'role' => $user->role]);
+
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'User account updated successfully.');
@@ -91,6 +106,8 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user): RedirectResponse
     {
+        abort_unless($user->canBeManagedBy($request->user('web')), 404);
+
         if ($user->is($request->user('web'))) {
             return back()->withErrors([
                 'user' => 'You cannot delete your own account.',
@@ -103,6 +120,9 @@ class UserController extends Controller
             ]);
         }
 
+        ActivityLog::record('user.deleted', $user, ['email' => $user->email, 'role' => $user->role]);
+
+        $user->tokens()->delete();
         $user->delete();
 
         return redirect()
@@ -117,7 +137,7 @@ class UserController extends Controller
         }
 
         return User::query()
-            ->where('role', User::ROLE_ADMIN)
+            ->whereIn('role', User::adminRoles())
             ->where('status', User::STATUS_ACTIVE)
             ->whereKeyNot($user->id)
             ->doesntExist();

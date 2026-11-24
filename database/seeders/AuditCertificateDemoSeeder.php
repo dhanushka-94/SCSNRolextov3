@@ -10,15 +10,23 @@ use App\Models\User;
 use App\Services\CertificateService;
 use App\Services\PlanterAuditService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Config;
 
 class AuditCertificateDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // Avoid flooding Notify.lk while building demo audits/certificates.
+        Config::set('services.notify.enabled', false);
+
         $admin = User::query()->where('email', UserSeeder::ADMIN_EMAIL)->firstOrFail();
         $firstAuditor = User::query()->where('email', 'first.auditor@rrisl.gov.lk')->firstOrFail();
-        $finalAuditor = User::query()->where('email', 'final.auditor@rrisl.gov.lk')->firstOrFail();
-        $staff = User::query()->where('email', 'staff@rrisl.gov.lk')->firstOrFail();
+        $secondAuditor = User::query()
+            ->whereIn('email', ['second.auditor@rrisl.gov.lk', 'final.auditor@rrisl.gov.lk'])
+            ->orderByRaw("email = 'second.auditor@rrisl.gov.lk' desc")
+            ->firstOrFail();
+        $staff = User::query()->where('email', 'rrisl@rrisl.gov.lk')->first()
+            ?? User::query()->where('email', 'staff@rrisl.gov.lk')->firstOrFail();
 
         $audits = app(PlanterAuditService::class);
         $certificates = app(CertificateService::class);
@@ -36,14 +44,16 @@ class AuditCertificateDemoSeeder extends Seeder
         }
 
         $chunks = [
-            'first_queued' => 10,
+            'first_queued' => 8,
             'first_in_progress' => 10,
-            'first_failed' => 8,
-            'first_passed_ready' => 10,
+            'first_failed' => 6,
+            'first_passed_ready' => 8,
             'final_queued' => 8,
-            'final_in_progress' => 8,
+            'final_in_progress' => 10,
             'final_failed' => 5,
-            'final_passed_cert' => 12,
+            // Ready for certificate issue (Second Audit passed, no cert yet)
+            'final_passed_ready_cert' => 15,
+            'final_passed_cert' => 10,
             'final_conditional_cert' => 5,
             'final_passed_revoked' => 4,
         ];
@@ -54,22 +64,30 @@ class AuditCertificateDemoSeeder extends Seeder
             $slice = $approved->slice($offset, $count)->values();
             $offset += $count;
 
-            foreach ($slice as $index => $planter) {
+            foreach ($slice as $planter) {
                 match ($scenario) {
                     'first_queued' => $this->seedFirstQueued($audits, $planter, $staff),
                     'first_in_progress' => $this->seedFirstInProgress($audits, $planter, $staff, $firstAuditor),
                     'first_failed' => $this->seedFirstFailed($audits, $planter, $staff, $firstAuditor),
                     'first_passed_ready' => $this->seedFirstPassed($audits, $planter, $staff, $firstAuditor),
                     'final_queued' => $this->seedFinalQueued($audits, $planter, $staff, $firstAuditor),
-                    'final_in_progress' => $this->seedFinalInProgress($audits, $planter, $staff, $firstAuditor, $finalAuditor),
-                    'final_failed' => $this->seedFinalFailed($audits, $planter, $staff, $firstAuditor, $finalAuditor),
+                    'final_in_progress' => $this->seedFinalInProgress($audits, $planter, $staff, $firstAuditor, $secondAuditor),
+                    'final_failed' => $this->seedFinalFailed($audits, $planter, $staff, $firstAuditor, $secondAuditor),
+                    'final_passed_ready_cert' => $this->seedFinalPassedReadyForCertificate(
+                        $audits,
+                        $planter,
+                        $staff,
+                        $firstAuditor,
+                        $secondAuditor,
+                        PlanterAudit::STATUS_PASSED,
+                    ),
                     'final_passed_cert' => $this->seedFinalPassedWithCertificate(
                         $audits,
                         $certificates,
                         $planter,
                         $staff,
                         $firstAuditor,
-                        $finalAuditor,
+                        $secondAuditor,
                         $admin,
                         Certificate::OUTCOME_CERTIFIED,
                     ),
@@ -79,7 +97,7 @@ class AuditCertificateDemoSeeder extends Seeder
                         $planter,
                         $staff,
                         $firstAuditor,
-                        $finalAuditor,
+                        $secondAuditor,
                         $admin,
                         Certificate::OUTCOME_CONDITIONAL,
                     ),
@@ -89,7 +107,7 @@ class AuditCertificateDemoSeeder extends Seeder
                         $planter,
                         $staff,
                         $firstAuditor,
-                        $finalAuditor,
+                        $secondAuditor,
                         $admin,
                     ),
                     default => null,
@@ -97,11 +115,48 @@ class AuditCertificateDemoSeeder extends Seeder
             }
         }
 
+        $this->signCompletedAudits();
+
+        $pending = Planter::query()->where('status', Planter::STATUS_PENDING)->count();
+        $readyForCert = Planter::query()
+            ->where('status', Planter::STATUS_APPROVED)
+            ->whereHas('finalAudit', function ($query) {
+                $query->where('is_current', true)
+                    ->whereIn('status', [PlanterAudit::STATUS_PASSED, PlanterAudit::STATUS_CONDITIONAL]);
+            })
+            ->whereDoesntHave('currentCertificate')
+            ->count();
+
         $this->command?->info(sprintf(
-            'Seeded audit/certificate samples for %d approved planters (%d left not started).',
+            'Seeded audit/certificate samples for %d approved planters (%d left not started). Pending approvals: %d. Ready for certificate: %d.',
             min($offset, $approved->count()),
-            max(0, $approved->count() - $offset)
+            max(0, $approved->count() - $offset),
+            $pending,
+            $readyForCert,
         ));
+    }
+
+    /**
+     * Give every completed demo audit a placeholder handwritten-style signature.
+     */
+    private function signCompletedAudits(): void
+    {
+        PlanterAudit::query()
+            ->whereNull('signature')
+            ->whereNotNull('completed_by')
+            ->with('completer')
+            ->each(function (PlanterAudit $audit) {
+                $name = $audit->completer?->name ?? 'Auditor';
+                $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="100" viewBox="0 0 320 100">'
+                    .'<path d="M12 70 C 40 10, 70 90, 100 40 S 150 20, 170 60 S 220 85, 250 35 S 290 55, 308 45" '
+                    .'fill="none" stroke="#14301f" stroke-width="3" stroke-linecap="round"/></svg>';
+
+                $audit->forceFill([
+                    'signature' => 'data:image/svg+xml;base64,'.base64_encode($svg),
+                    'signed_by_name' => $name,
+                    'signed_at' => $audit->completed_at,
+                ])->save();
+            });
     }
 
     private function seedFirstQueued(PlanterAuditService $audits, Planter $planter, User $staff): void
@@ -169,12 +224,12 @@ class AuditCertificateDemoSeeder extends Seeder
         Planter $planter,
         User $staff,
         User $firstAuditor,
-        User $finalAuditor,
+        User $secondAuditor,
     ): void {
         $this->seedFinalQueued($audits, $planter, $staff, $firstAuditor);
         $final = $planter->fresh(['finalAudit'])->finalAudit;
-        $audits->start($final, $finalAuditor);
-        $this->fillAnswers($final->fresh(['answers']), $finalAuditor, half: true);
+        $audits->start($final, $secondAuditor);
+        $this->fillAnswers($final->fresh(['answers']), $secondAuditor, half: true);
     }
 
     private function seedFinalFailed(
@@ -182,17 +237,39 @@ class AuditCertificateDemoSeeder extends Seeder
         Planter $planter,
         User $staff,
         User $firstAuditor,
-        User $finalAuditor,
+        User $secondAuditor,
     ): void {
         $this->seedFinalQueued($audits, $planter, $staff, $firstAuditor);
         $final = $planter->fresh(['finalAudit'])->finalAudit;
-        $audits->start($final, $finalAuditor);
-        $this->fillAnswers($final->fresh(['answers']), $finalAuditor, fail: true);
+        $audits->start($final, $secondAuditor);
+        $this->fillAnswers($final->fresh(['answers']), $secondAuditor, fail: true);
         $audits->completeRound(
             $final->fresh(['answers']),
-            $finalAuditor,
+            $secondAuditor,
             PlanterAudit::STATUS_FAILED,
-            'Demo: Final Audit failed.',
+            'Demo: Second Audit failed.',
+        );
+    }
+
+    private function seedFinalPassedReadyForCertificate(
+        PlanterAuditService $audits,
+        Planter $planter,
+        User $staff,
+        User $firstAuditor,
+        User $secondAuditor,
+        string $status = PlanterAudit::STATUS_PASSED,
+    ): void {
+        $this->seedFinalQueued($audits, $planter, $staff, $firstAuditor);
+        $final = $planter->fresh(['finalAudit'])->finalAudit;
+        $audits->start($final, $secondAuditor);
+        $this->fillAnswers($final->fresh(['answers']), $secondAuditor);
+        $audits->completeRound(
+            $final->fresh(['answers']),
+            $secondAuditor,
+            $status,
+            $status === PlanterAudit::STATUS_CONDITIONAL
+                ? 'Demo: Second Audit conditional — ready for certificate.'
+                : 'Demo: Second Audit passed — ready for certificate.',
         );
     }
 
@@ -202,25 +279,23 @@ class AuditCertificateDemoSeeder extends Seeder
         Planter $planter,
         User $staff,
         User $firstAuditor,
-        User $finalAuditor,
+        User $secondAuditor,
         User $admin,
         string $outcome,
     ): void {
-        $this->seedFinalQueued($audits, $planter, $staff, $firstAuditor);
-        $final = $planter->fresh(['finalAudit'])->finalAudit;
-        $audits->start($final, $finalAuditor);
-        $this->fillAnswers($final->fresh(['answers']), $finalAuditor);
         $status = $outcome === Certificate::OUTCOME_CONDITIONAL
             ? PlanterAudit::STATUS_CONDITIONAL
             : PlanterAudit::STATUS_PASSED;
-        $audits->completeRound(
-            $final->fresh(['answers']),
-            $finalAuditor,
+
+        $this->seedFinalPassedReadyForCertificate(
+            $audits,
+            $planter,
+            $staff,
+            $firstAuditor,
+            $secondAuditor,
             $status,
-            $outcome === Certificate::OUTCOME_CONDITIONAL
-                ? 'Demo: Final Audit conditional pass.'
-                : 'Demo: Final Audit passed.',
         );
+
         $certificates->issue($planter->fresh(['finalAudit', 'currentCertificate']), $admin, 'Demo certificate');
     }
 
@@ -230,7 +305,7 @@ class AuditCertificateDemoSeeder extends Seeder
         Planter $planter,
         User $staff,
         User $firstAuditor,
-        User $finalAuditor,
+        User $secondAuditor,
         User $admin,
     ): void {
         $this->seedFinalPassedWithCertificate(
@@ -239,7 +314,7 @@ class AuditCertificateDemoSeeder extends Seeder
             $planter,
             $staff,
             $firstAuditor,
-            $finalAuditor,
+            $secondAuditor,
             $admin,
             Certificate::OUTCOME_CERTIFIED,
         );
@@ -277,7 +352,7 @@ class AuditCertificateDemoSeeder extends Seeder
                 'result' => $result,
                 'comment' => $result === PlanterAuditChecklistAnswer::RESULT_FAIL
                     ? 'Demo finding — needs follow-up.'
-                    : null,
+                    : ($half ? 'Demo in-progress checklist note.' : null),
                 'answered_by' => $actor->id,
                 'answered_at' => now()->subDays(max(1, 10 - $index)),
             ]);

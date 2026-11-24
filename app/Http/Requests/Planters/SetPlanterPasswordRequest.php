@@ -4,7 +4,7 @@ namespace App\Http\Requests\Planters;
 
 use App\Models\Planter;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
+use App\Support\PasswordPolicy;
 use Illuminate\Validation\ValidationException;
 
 class SetPlanterPasswordRequest extends FormRequest
@@ -22,7 +22,7 @@ class SetPlanterPasswordRequest extends FormRequest
         return [
             'identification_number' => ['required', 'string'],
             'nic' => ['required', 'string'],
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'password' => ['required', 'confirmed', PasswordPolicy::rule()],
         ];
     }
 

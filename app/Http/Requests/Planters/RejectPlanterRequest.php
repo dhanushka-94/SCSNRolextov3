@@ -8,7 +8,7 @@ class RejectPlanterRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('web') !== null;
+        return $this->user('web')?->canReviewRegistrations() === true;
     }
 
     /**

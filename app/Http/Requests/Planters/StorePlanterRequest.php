@@ -5,7 +5,7 @@ namespace App\Http\Requests\Planters;
 use App\Models\Planter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use App\Support\PasswordPolicy;
 
 class StorePlanterRequest extends FormRequest
 {
@@ -13,7 +13,7 @@ class StorePlanterRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user('web') !== null;
+        return $this->user('web')?->canManagePlanterRecords() === true;
     }
 
     protected function prepareForValidation(): void
@@ -36,7 +36,7 @@ class StorePlanterRequest extends FormRequest
             'address' => ['required', 'string', 'max:500'],
             'status' => ['required', Rule::in(array_keys(Planter::statuses()))],
             'rejection_reason' => ['nullable', 'required_if:status,rejected', 'string', 'max:500'],
-            'password' => ['nullable', 'confirmed', Password::min(8)],
+            'password' => ['nullable', 'confirmed', PasswordPolicy::rule()],
         ], $this->applicationFieldRules(requireCoreApplication: false));
     }
 

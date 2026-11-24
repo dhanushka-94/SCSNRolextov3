@@ -5,7 +5,7 @@
         <header class="partner-nav" data-partner-nav>
             <div class="partner-nav-inner">
                 <a href="{{ route('partner.home') }}" class="partner-brand">
-                    <img src="{{ asset('SCSNR-logo.png') }}" alt="{{ config('app.short_name') }}" class="h-10 w-10 shrink-0 rounded-full bg-white object-contain p-1 shadow-sm sm:h-11 sm:w-11">
+                    <img src="{{ asset('SPPNR-logo.png') }}" alt="{{ config('app.short_name') }}" class="h-10 w-10 shrink-0 rounded-full bg-white object-contain p-1 shadow-sm sm:h-11 sm:w-11">
                     <span class="min-w-0">
                         <span class="block text-sm font-semibold tracking-wide text-white">{{ config('app.short_name') }}</span>
                         <span class="hidden text-[11px] text-sand/80 sm:block">Partner Portal</span>

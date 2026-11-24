@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone', 30)->nullable();
-            $table->string('role', 20)->default('staff');
+            $table->string('role', 32)->default('rrisl_officer');
             $table->string('status', 20)->default('active');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

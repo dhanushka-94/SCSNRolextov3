@@ -11,6 +11,13 @@ class RegistrationSpamGuard
     public function assertNotSpam(Request $request): void
     {
         $this->rejectHoneypot($request);
+
+        // The mobile API has no browser session or reCAPTCHA widget, so it relies on the
+        // honeypot plus per-IP rate limiting on the registration routes.
+        if ($request->is('api/*')) {
+            return;
+        }
+
         $this->ensureFormTiming($request);
         $this->verifyRecaptcha($request);
     }

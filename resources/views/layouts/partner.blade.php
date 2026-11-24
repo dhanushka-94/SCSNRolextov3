@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.short_name') }} Partner Portal · {{ config('app.full_name') }}</title>
-    <link rel="icon" href="{{ asset('SCSNR-logo.png') }}">
+    <link rel="icon" href="{{ asset('SPPNR-logo.png') }}">
     <x-app-fonts :display="true" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\AboutSystemController;
+use App\Http\Controllers\Admin\ApiDocsController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\ChangelogController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DistrictController;
@@ -73,6 +75,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('planters', PlanterController::class);
         Route::post('planters/{planter}/approve', [PlanterController::class, 'approve'])->name('planters.approve');
         Route::post('planters/{planter}/reject', [PlanterController::class, 'reject'])->name('planters.reject');
+        Route::post('planters/{planter}/sms/resend', [PlanterController::class, 'resendSms'])->name('planters.sms.resend');
         Route::post('planters/{planter}/audits/first', [AuditController::class, 'sendFirst'])->name('planters.audits.send-first');
         Route::post('planters/{planter}/audits/final', [AuditController::class, 'sendFinal'])->name('planters.audits.send-final');
         Route::post('planters/{planter}/certificates', [AdminCertificateController::class, 'issue'])->name('planters.certificates.issue');
@@ -97,6 +100,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('certificates/{certificate}/print', [AdminCertificateController::class, 'print'])->name('certificates.print');
         Route::get('certificates/{certificate}/qr.png', [AdminCertificateController::class, 'qr'])->name('certificates.qr');
         Route::post('certificates/{certificate}/revoke', [AdminCertificateController::class, 'revoke'])->name('certificates.revoke');
+
+        // Super Admin (Developer) only: Settings and the API documentation.
+        Route::middleware('developer')->group(function () {
+            Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+            Route::put('settings/maintenance', [SettingsController::class, 'updateMaintenance'])->name('settings.maintenance');
+            Route::get('settings/api-docs', ApiDocsController::class)->name('settings.api-docs');
+        });
 
         Route::middleware('admin')->group(function () {
             Route::resource('users', UserController::class);

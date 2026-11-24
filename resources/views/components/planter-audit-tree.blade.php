@@ -7,7 +7,7 @@
 <article {{ $attributes->merge(['class' => 'card overflow-hidden']) }}>
     <div class="border-b border-sand bg-cream px-5 py-5 sm:px-8">
         <h2 class="text-lg font-semibold text-forest-dark">Sustainability audit status</h2>
-        <p class="mt-1 text-sm text-muted">Track First Audit and Final Audit from opening through to the final result.</p>
+        <p class="mt-1 text-sm text-muted">Track First Audit and Second Audit from opening through to the final result.</p>
     </div>
 
     <div class="p-5 sm:p-8">

@@ -64,6 +64,20 @@
             @if ($audit->outcome_notes)
                 <p class="mt-4 rounded-xl bg-cream px-4 py-3 text-sm text-ink">{{ $audit->outcome_notes }}</p>
             @endif
+            @if ($audit->isComplete())
+                <div class="mt-4 rounded-xl border border-sand bg-paper px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-muted">Digital signature</p>
+                    @if ($audit->isSigned())
+                        <img src="{{ $audit->signature }}" alt="Signature of {{ $audit->signed_by_name }}" class="mt-2 h-24 max-w-full rounded-lg border border-sand bg-white object-contain p-1">
+                        <p class="mt-2 text-xs text-muted">
+                            Signed by {{ $audit->signed_by_name }}
+                            @if ($audit->signed_at) · {{ sl_datetime($audit->signed_at) }} @endif
+                        </p>
+                    @else
+                        <p class="mt-1 text-sm text-muted">No signature recorded for this attempt.</p>
+                    @endif
+                </div>
+            @endif
         </section>
 
         @if ($attemptHistory->count() > 1)
@@ -85,7 +99,7 @@
                                 <p class="mt-1 text-sm text-muted">
                                     {{ $attempt->statusLabel() }}
                                     @if ($attempt->completed_at)
-                                        · {{ $attempt->completed_at->format('Y-m-d H:i') }}
+                                        · {{ sl_datetime($attempt->completed_at) }}
                                     @endif
                                     @if ($attempt->completer)
                                         · {{ $attempt->completer->name }}
@@ -173,6 +187,17 @@
                 <div>
                     <label for="outcome_notes" class="label-field">Outcome notes</label>
                     <textarea id="outcome_notes" name="outcome_notes" rows="3" class="input-field">{{ old('outcome_notes') }}</textarea>
+                </div>
+                <div data-signature-pad>
+                    <div class="flex items-center justify-between">
+                        <label class="label-field mb-0">Digital signature <span class="text-red-700">*</span></label>
+                        <button type="button" data-signature-clear class="text-xs font-semibold text-leaf hover:text-forest">Clear</button>
+                    </div>
+                    <p class="mt-1 text-xs text-muted">Sign inside the box with your mouse, finger or stylus. Signing as {{ auth('web')->user()->name }}.</p>
+                    <canvas data-signature-canvas class="mt-2 h-40 w-full touch-none cursor-crosshair rounded-xl border border-dashed border-line bg-white"></canvas>
+                    <input type="hidden" name="signature" data-signature-input>
+                    <p data-signature-error class="mt-1 hidden text-sm text-red-700">Please sign before completing the audit.</p>
+                    @error('signature')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
                 </div>
                 <button type="submit" class="btn-primary">Complete audit</button>
             </form>

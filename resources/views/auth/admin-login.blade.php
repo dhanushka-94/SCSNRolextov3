@@ -8,7 +8,7 @@
             <div class="relative bg-forest-dark px-8 py-10 text-white sm:px-12 sm:py-12 lg:flex lg:flex-col lg:justify-between">
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(76,175,103,0.22),transparent_42%)]"></div>
                 <div class="relative">
-                    <img src="{{ asset('SCSNR-logo.png') }}" alt="{{ config('app.short_name') }} logo" class="h-20 w-20 rounded-full bg-white object-contain p-1 shadow-lg sm:h-24 sm:w-24">
+                    <img src="{{ asset('SPPNR-logo.png') }}" alt="{{ config('app.short_name') }} logo" class="h-20 w-20 rounded-full bg-white object-contain p-1 shadow-lg sm:h-24 sm:w-24">
                     <p class="mt-8 inline-flex items-center rounded-full border border-tan/40 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-tan">
                         Administrator Portal
                     </p>

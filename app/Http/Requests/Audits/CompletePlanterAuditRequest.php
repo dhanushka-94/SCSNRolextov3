@@ -36,6 +36,19 @@ class CompletePlanterAuditRequest extends FormRequest
                 PlanterAudit::STATUS_FAILED,
             ])],
             'outcome_notes' => ['nullable', 'string', 'max:2000'],
+            'signature' => [
+                'required',
+                'string',
+                'max:600000',
+                'regex:/^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $binary = base64_decode(substr((string) $value, strlen('data:image/png;base64,')), true);
+
+                    if ($binary === false || @getimagesizefromstring($binary) === false) {
+                        $fail('The digital signature is not a valid image. Please sign again.');
+                    }
+                },
+            ],
         ];
     }
 
@@ -47,6 +60,7 @@ class CompletePlanterAuditRequest extends FormRequest
         return [
             'status' => 'audit outcome',
             'outcome_notes' => 'outcome notes',
+            'signature' => 'digital signature',
         ];
     }
 }

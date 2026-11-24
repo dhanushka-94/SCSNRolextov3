@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\District;
 use App\Models\Planter;
 use App\Models\RdoDivision;
@@ -21,7 +22,7 @@ class PlanterIdentityService
 
     public function approve(Planter $planter, int $approvedBy): Planter
     {
-        return DB::transaction(function () use ($planter, $approvedBy) {
+        $planter = DB::transaction(function () use ($planter, $approvedBy) {
             $planter = Planter::query()->lockForUpdate()->findOrFail($planter->id);
 
             $this->issueRegistrationNumberLocked($planter);
@@ -41,11 +42,17 @@ class PlanterIdentityService
 
             return $planter->refresh();
         });
+
+        ActivityLog::record('planter.approved', $planter, ['sppnr_id' => $planter->identification_number]);
+
+        app(NotifySmsService::class)->sendRegistrationApproved($planter);
+
+        return $planter;
     }
 
     public function reject(Planter $planter, int $rejectedBy, string $reason): Planter
     {
-        return DB::transaction(function () use ($planter, $rejectedBy, $reason) {
+        $planter = DB::transaction(function () use ($planter, $rejectedBy, $reason) {
             $planter = Planter::query()->lockForUpdate()->findOrFail($planter->id);
 
             $this->issueRegistrationNumberLocked($planter);
@@ -65,6 +72,12 @@ class PlanterIdentityService
 
             return $planter->refresh();
         });
+
+        ActivityLog::record('planter.rejected', $planter, ['reason' => $reason]);
+
+        app(NotifySmsService::class)->sendRegistrationRejected($planter);
+
+        return $planter;
     }
 
     public function ensureIssued(Planter $planter): Planter
@@ -141,7 +154,7 @@ class PlanterIdentityService
     public function png(Planter $planter, int $size = 480): string
     {
         return (new Builder(
-            writer: new PngWriter(),
+            writer: new PngWriter,
             data: $this->qrPayload($planter),
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
@@ -153,7 +166,7 @@ class PlanterIdentityService
     public function svg(Planter $planter, int $size = 1200): string
     {
         return (new Builder(
-            writer: new SvgWriter(),
+            writer: new SvgWriter,
             data: $this->qrPayload($planter),
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,

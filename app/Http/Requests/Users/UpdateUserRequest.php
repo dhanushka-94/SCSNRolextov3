@@ -5,13 +5,17 @@ namespace App\Http\Requests\Users;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use App\Support\PasswordPolicy;
 
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('web')?->isAdmin() ?? false;
+        $actor = $this->user('web');
+        $target = $this->route('user');
+
+        return $actor?->isAdmin() === true
+            && ($target === null || $target->canBeManagedBy($actor));
     }
 
     /**
@@ -26,9 +30,10 @@ class UpdateUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'string', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:30'],
-            'role' => ['required', Rule::in(array_keys(User::roles()))],
+            // A Developer keeps the Developer role on their own account; others cannot assign it.
+            'role' => ['required', Rule::in(array_keys(User::assignableRoles($this->user('web'))))],
             'status' => ['required', Rule::in(array_keys(User::statuses()))],
-            'password' => ['nullable', 'confirmed', Password::min(8)],
+            'password' => ['nullable', 'confirmed', PasswordPolicy::rule()],
         ];
     }
 }

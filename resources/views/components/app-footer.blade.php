@@ -1,5 +1,5 @@
 <footer {{ $attributes->merge(['class' => 'text-center text-xs leading-5 text-muted']) }}>
-    <x-governing-logos class="mb-4" size="sm" show-names name-layout="inline" />
+    <x-governing-logos class="mb-4" size="sm" with-system show-names name-layout="inline" />
 
     <p class="mt-4">
         &copy; {{ now()->year }} {{ config('app.copyright') }}. All rights reserved.

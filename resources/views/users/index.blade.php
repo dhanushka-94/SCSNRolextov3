@@ -16,7 +16,7 @@
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search name, email, or phone" class="input-field sm:col-span-2">
         <select name="role" class="input-field">
             <option value="">All roles</option>
-            @foreach (\App\Models\User::roles() as $value => $label)
+            @foreach (\App\Models\User::assignableRoles(auth('web')->user()) as $value => $label)
                 <option value="{{ $value }}" @selected(($filters['role'] ?? '') === $value)>{{ $label }}</option>
             @endforeach
         </select>

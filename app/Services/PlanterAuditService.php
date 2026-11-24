@@ -21,7 +21,7 @@ class PlanterAuditService
             throw new InvalidArgumentException('This entry is already in First Audit.');
         }
 
-        return DB::transaction(function () use ($planter, $actor) {
+        $audit = DB::transaction(function () use ($planter, $actor) {
             $audit = PlanterAudit::query()->create([
                 'planter_id' => $planter->id,
                 'round' => PlanterAudit::ROUND_FIRST,
@@ -37,6 +37,10 @@ class PlanterAuditService
 
             return $audit->fresh(['answers']);
         });
+
+        app(NotifySmsService::class)->sendAuditQueued($planter->fresh(), PlanterAudit::ROUND_FIRST);
+
+        return $audit;
     }
 
     public function sendToFinalAudit(Planter $planter, User $actor): PlanterAudit
@@ -47,14 +51,14 @@ class PlanterAuditService
         $planter->loadMissing('firstAudit');
 
         if (! $planter->firstAudit?->canProceedToFinal()) {
-            throw new InvalidArgumentException('First Audit must pass or be conditional before Final Audit.');
+            throw new InvalidArgumentException('First Audit must pass or be conditional before Second Audit.');
         }
 
         if ($planter->audits()->where('round', PlanterAudit::ROUND_FINAL)->exists()) {
-            throw new InvalidArgumentException('This entry is already in Final Audit.');
+            throw new InvalidArgumentException('This entry is already in Second Audit.');
         }
 
-        return DB::transaction(function () use ($planter, $actor) {
+        $audit = DB::transaction(function () use ($planter, $actor) {
             $audit = PlanterAudit::query()->create([
                 'planter_id' => $planter->id,
                 'round' => PlanterAudit::ROUND_FINAL,
@@ -70,6 +74,10 @@ class PlanterAuditService
 
             return $audit->fresh(['answers']);
         });
+
+        app(NotifySmsService::class)->sendAuditQueued($planter->fresh(), PlanterAudit::ROUND_FINAL);
+
+        return $audit;
     }
 
     public function start(PlanterAudit $audit, User $actor): PlanterAudit
@@ -171,6 +179,7 @@ class PlanterAuditService
         User $actor,
         string $status,
         ?string $notes = null,
+        ?string $signature = null,
     ): PlanterAudit {
         abort_unless($actor->canWorkAuditRound($audit->round), 403);
         abort_unless($audit->is_current, 422, 'Only the current audit attempt can be completed.');
@@ -195,12 +204,18 @@ class PlanterAuditService
             'outcome_notes' => filled($notes) ? $notes : null,
             'completed_by' => $actor->id,
             'completed_at' => now(),
+            'signature' => filled($signature) ? $signature : null,
+            'signed_by_name' => filled($signature) ? $actor->name : null,
+            'signed_at' => filled($signature) ? now() : null,
             'assigned_to' => $audit->assigned_to ?: $actor->id,
         ]);
 
-        $this->syncPlanterSummary($audit->planter->fresh(['firstAudit', 'finalAudit']));
+        $audit = $audit->refresh();
+        $freshPlanter = $audit->planter->fresh(['firstAudit', 'finalAudit']);
+        $this->syncPlanterSummary($freshPlanter);
+        app(NotifySmsService::class)->sendAuditResult($freshPlanter, $audit);
 
-        return $audit->refresh();
+        return $audit;
     }
 
     public function reopen(PlanterAudit $audit, User $actor): PlanterAudit

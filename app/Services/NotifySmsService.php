@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Certificate;
 use App\Models\Planter;
+use App\Models\PlanterAudit;
 use Illuminate\Support\Facades\Log;
 use NotifyLk\Api\SmsApi;
 use Throwable;
@@ -72,9 +74,6 @@ class NotifySmsService
         return $this->render($key, $sample);
     }
 
-    /**
-     * Normalize Sri Lankan mobiles to 94XXXXXXXXX (Notify.lk preferred format).
-     */
     public function normalizePhone(?string $phone): ?string
     {
         if (blank($phone)) {
@@ -121,7 +120,9 @@ class NotifySmsService
         $message = trim($message);
 
         if ($message === '' || mb_strlen($message) > 320) {
-            Log::warning('Notify SMS skipped: empty or over 320 characters.');
+            Log::warning('Notify SMS skipped: empty or over 320 characters.', [
+                'length' => mb_strlen($message),
+            ]);
 
             return false;
         }
@@ -149,6 +150,9 @@ class NotifySmsService
         }
     }
 
+    /**
+     * @param  array<string, string|int|null>  $replacements
+     */
     public function sendTemplate(string $key, string $to, array $replacements = []): bool
     {
         $message = $this->render($key, $replacements);
@@ -157,6 +161,10 @@ class NotifySmsService
             Log::warning('Notify SMS skipped: unknown template.', ['key' => $key]);
 
             return false;
+        }
+
+        if (mb_strlen($message) > 320) {
+            $message = mb_substr($message, 0, 317).'...';
         }
 
         return $this->send($to, $message);
@@ -199,10 +207,204 @@ class NotifySmsService
         return compact('sent', 'failed');
     }
 
+    public function notifyPlanter(Planter $planter, string $templateKey, array $replacements = []): bool
+    {
+        return $this->sendTemplate($templateKey, (string) $planter->phone, $replacements);
+    }
+
     public function sendRegistrationSubmitted(Planter $planter): bool
     {
-        return $this->sendTemplate('registration_submitted', (string) $planter->phone, [
+        return $this->notifyPlanter($planter, 'registration_submitted', [
             'reference' => $planter->temporary_id ?: 'pending',
         ]);
+    }
+
+    public function sendRegistrationApproved(Planter $planter): bool
+    {
+        return $this->notifyPlanter($planter, 'registration_approved', [
+            'registration_number' => $planter->identification_number ?: 'N/A',
+        ]);
+    }
+
+    public function sendRegistrationRejected(Planter $planter): bool
+    {
+        $reason = trim((string) ($planter->rejection_reason ?: 'See RRISL'));
+
+        if (mb_strlen($reason) > 80) {
+            $reason = mb_substr($reason, 0, 77).'...';
+        }
+
+        return $this->notifyPlanter($planter, 'registration_rejected', [
+            'registration_number' => $planter->identification_number ?: ($planter->temporary_id ?: 'N/A'),
+            'reason' => $reason,
+        ]);
+    }
+
+    public function sendAuditQueued(Planter $planter, string $round): bool
+    {
+        $key = $round === PlanterAudit::ROUND_FINAL
+            ? 'second_audit_queued'
+            : 'first_audit_queued';
+
+        return $this->notifyPlanter($planter, $key, [
+            'registration_number' => $planter->identification_number ?: 'N/A',
+        ]);
+    }
+
+    public function sendAuditResult(Planter $planter, PlanterAudit $audit): bool
+    {
+        $key = $audit->round === PlanterAudit::ROUND_FINAL
+            ? 'second_audit_result'
+            : 'first_audit_result';
+
+        $outcome = strtoupper(str_replace('_', ' ', (string) $audit->status));
+        $notes = trim((string) ($audit->outcome_notes ?: ''));
+
+        if ($notes === '') {
+            $notes = $audit->round === PlanterAudit::ROUND_FINAL
+                ? ($audit->status === PlanterAudit::STATUS_FAILED ? 'Contact RRISL for next steps.' : 'Certificate may follow.')
+                : ($audit->status === PlanterAudit::STATUS_FAILED ? 'Contact RRISL for next steps.' : 'Second Audit may follow.');
+        }
+
+        if (mb_strlen($notes) > 60) {
+            $notes = mb_substr($notes, 0, 57).'...';
+        }
+
+        return $this->notifyPlanter($planter, $key, [
+            'registration_number' => $planter->identification_number ?: 'N/A',
+            'outcome' => $outcome,
+            'notes' => $notes,
+        ]);
+    }
+
+    public function sendCertificateIssued(Planter $planter, Certificate $certificate): bool
+    {
+        return $this->notifyPlanter($planter, 'certificate_issued', [
+            'certificate_number' => $certificate->certificate_number,
+            'verify_url' => $certificate->verifyUrl(),
+        ]);
+    }
+
+    public function sendCertificateRevoked(Planter $planter, Certificate $certificate): bool
+    {
+        $reason = trim((string) ($certificate->revoke_reason ?: 'See RRISL'));
+
+        if (mb_strlen($reason) > 80) {
+            $reason = mb_substr($reason, 0, 77).'...';
+        }
+
+        return $this->notifyPlanter($planter, 'certificate_revoked', [
+            'certificate_number' => $certificate->certificate_number,
+            'reason' => $reason,
+        ]);
+    }
+
+    /**
+     * Step SMS actions available to resend for this planter's current history.
+     *
+     * @return list<array{key: string, label: string}>
+     */
+    public function availableResendActions(Planter $planter): array
+    {
+        $planter->loadMissing(['firstAudit', 'finalAudit', 'currentCertificate', 'latestCertificate']);
+
+        $actions = [
+            [
+                'key' => 'registration_submitted',
+                'label' => 'Registration submitted',
+            ],
+        ];
+
+        if ($planter->isApproved()) {
+            $actions[] = [
+                'key' => 'registration_approved',
+                'label' => 'Registration approved',
+            ];
+        }
+
+        if ($planter->isRejected()) {
+            $actions[] = [
+                'key' => 'registration_rejected',
+                'label' => 'Registration rejected',
+            ];
+        }
+
+        if ($planter->firstAudit) {
+            $actions[] = [
+                'key' => 'first_audit_queued',
+                'label' => 'First Audit queued',
+            ];
+
+            if ($planter->firstAudit->isComplete()) {
+                $actions[] = [
+                    'key' => 'first_audit_result',
+                    'label' => 'First Audit result',
+                ];
+            }
+        }
+
+        if ($planter->finalAudit) {
+            $actions[] = [
+                'key' => 'second_audit_queued',
+                'label' => 'Second Audit queued',
+            ];
+
+            if ($planter->finalAudit->isComplete()) {
+                $actions[] = [
+                    'key' => 'second_audit_result',
+                    'label' => 'Second Audit result',
+                ];
+            }
+        }
+
+        $certificate = $planter->latestCertificate ?? $planter->currentCertificate;
+
+        if ($certificate?->isIssued() || $certificate?->isRevoked()) {
+            $actions[] = [
+                'key' => 'certificate_issued',
+                'label' => 'Certificate issued',
+            ];
+        }
+
+        if ($certificate?->isRevoked()) {
+            $actions[] = [
+                'key' => 'certificate_revoked',
+                'label' => 'Certificate revoked',
+            ];
+        }
+
+        return $actions;
+    }
+
+    public function resendStep(Planter $planter, string $key): bool
+    {
+        $allowed = collect($this->availableResendActions($planter))->pluck('key')->all();
+
+        if (! in_array($key, $allowed, true)) {
+            return false;
+        }
+
+        $planter->loadMissing(['firstAudit', 'finalAudit', 'currentCertificate', 'latestCertificate']);
+
+        return match ($key) {
+            'registration_submitted' => $this->sendRegistrationSubmitted($planter),
+            'registration_approved' => $this->sendRegistrationApproved($planter),
+            'registration_rejected' => $this->sendRegistrationRejected($planter),
+            'first_audit_queued' => $this->sendAuditQueued($planter, PlanterAudit::ROUND_FIRST),
+            'first_audit_result' => $planter->firstAudit
+                ? $this->sendAuditResult($planter, $planter->firstAudit)
+                : false,
+            'second_audit_queued' => $this->sendAuditQueued($planter, PlanterAudit::ROUND_FINAL),
+            'second_audit_result' => $planter->finalAudit
+                ? $this->sendAuditResult($planter, $planter->finalAudit)
+                : false,
+            'certificate_issued' => ($cert = $planter->latestCertificate ?? $planter->currentCertificate)
+                ? $this->sendCertificateIssued($planter, $cert)
+                : false,
+            'certificate_revoked' => ($cert = $planter->latestCertificate ?? $planter->currentCertificate)
+                ? $this->sendCertificateRevoked($planter, $cert)
+                : false,
+            default => false,
+        };
     }
 }

@@ -16,6 +16,53 @@ return [
     'releases' => [
 
         [
+            'version' => '0.8.0',
+            'date' => '2026-11-24',
+            'title' => 'Mobile API, API documentation & Super Admin (Developer) role',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Mobile app API (v1) for planters and every staff role: sign-in with tokens, registration, planter portal, registry, audits with digital signature, certificates, SMS templates, user management and an offline sync upload.'],
+                ['type' => 'added', 'text' => 'New role: Super Admin (Developer). It has every administrator permission, and is the only role that can open Settings and the new API documentation page.'],
+                ['type' => 'added', 'text' => 'API documentation page under Settings: every endpoint with requests, example responses, errors, roles and offline sync rules.'],
+                ['type' => 'changed', 'text' => 'Settings (maintenance mode) is now limited to the Super Admin (Developer). Administrators can no longer open it, and cannot see or change Developer accounts.'],
+                ['type' => 'changed', 'text' => 'Sri Lanka date and time everywhere: a live "Sri Lanka time" clock in the header, dd/mm/yyyy, HH:mm (SLST) on all pages, and API timestamps in +05:30.'],
+            ],
+        ],
+
+        [
+            'version' => '0.7.0',
+            'date' => '2026-11-24',
+            'title' => 'Audit digital signature & maintenance mode',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Digital signature (drawn on screen) is now required to complete a First or Second Audit; shown with signer name and time on the audit page.'],
+                ['type' => 'added', 'text' => 'Settings page with a Maintenance mode switch, visible to Administrators only. While on, everyone except administrators sees a maintenance page.'],
+            ],
+        ],
+
+        [
+            'version' => '0.6.1',
+            'date' => '2026-11-24',
+            'title' => 'Easy demo logins, SMS resend, cert-ready samples',
+            'changes' => [
+                ['type' => 'changed', 'text' => 'All demo accounts use password “password” (admin, officers, auditors, planters).'],
+                ['type' => 'added', 'text' => 'Resend step SMS buttons on planter detail for every reached lifecycle step.'],
+                ['type' => 'added', 'text' => 'Demo seeds include First/Second auditor checklists in progress; both auditor roles can view each other’s status; Admin can work both.'],
+                ['type' => 'added', 'text' => 'Demo seeds include pending approvals and Second-Audit-passed planters ready for certificate issue.'],
+            ],
+        ],
+
+        [
+            'version' => '0.6.0',
+            'date' => '2026-11-24',
+            'title' => 'Officer roles & step SMS notifications',
+            'changes' => [
+                ['type' => 'added', 'text' => 'System roles: Administrator, RRISL Officer, RDD Officer, Ministry Officer, Field Officer, First Auditor, Second Auditor (+ Planter portal).'],
+                ['type' => 'changed', 'text' => 'Former Staff maps to RRISL Officer; Final Auditor renamed Second Auditor (audit round still stored as final).'],
+                ['type' => 'added', 'text' => 'Notify.lk SMS on registration submit/approve/reject, First/Second audit queue & result, certificate issue/revoke.'],
+                ['type' => 'added', 'text' => 'Permission matrix: Ministry read-only; Field can edit records; RDD reviews & dispatches; RRISL also manages certificates.'],
+            ],
+        ],
+
+        [
             'version' => '0.5.3',
             'date' => '2026-11-05',
             'title' => 'Admin SMS template catalogue',

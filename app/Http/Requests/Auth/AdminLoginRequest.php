@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\ActivityLog;
+use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -35,6 +37,7 @@ class AdminLoginRequest extends FormRequest
 
         if (! Auth::guard('web')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+            ActivityLog::record('auth.admin_login_failed', null, ['identifier' => mb_substr($this->string('email')->toString(), 0, 190)]);
 
             throw ValidationException::withMessages([
                 'email' => 'These credentials do not match our records.',
@@ -49,6 +52,14 @@ class AdminLoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 'email' => 'This account is inactive. Please contact an administrator.',
+            ]);
+        }
+
+        if (! $user->isAdmin() && SystemSetting::maintenanceEnabled()) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'The system is under maintenance. Only administrators can sign in right now.',
             ]);
         }
 

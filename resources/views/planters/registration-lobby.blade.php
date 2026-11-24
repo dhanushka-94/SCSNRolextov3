@@ -105,17 +105,21 @@
                     <div class="flex flex-col gap-4 border-t border-sand bg-paper px-5 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-6">
                         <div class="flex flex-wrap gap-2">
                             <a href="{{ route('admin.planters.show', $planter) }}" class="btn-secondary">View full application</a>
-                            <form method="POST" action="{{ route('admin.planters.approve', $planter) }}">
-                                @csrf
-                                <button type="submit" class="btn-primary">Approve</button>
-                            </form>
+                            @if (auth('web')->user()->canReviewRegistrations())
+                                <form method="POST" action="{{ route('admin.planters.approve', $planter) }}">
+                                    @csrf
+                                    <button type="submit" class="btn-primary">Approve</button>
+                                </form>
+                            @endif
                         </div>
 
-                        <form method="POST" action="{{ route('admin.planters.reject', $planter) }}" class="flex w-full flex-col gap-2 sm:max-w-xl sm:flex-row">
-                            @csrf
-                            <input name="rejection_reason" type="text" required class="input-field" placeholder="Rejection reason (required to reject)">
-                            <button type="submit" class="btn-danger shrink-0">Reject</button>
-                        </form>
+                        @if (auth('web')->user()->canReviewRegistrations())
+                            <form method="POST" action="{{ route('admin.planters.reject', $planter) }}" class="flex w-full flex-col gap-2 sm:max-w-xl sm:flex-row">
+                                @csrf
+                                <input name="rejection_reason" type="text" required class="input-field" placeholder="Rejection reason (required to reject)">
+                                <button type="submit" class="btn-danger shrink-0">Reject</button>
+                            </form>
+                        @endif
                     </div>
                 </article>
             @endforeach

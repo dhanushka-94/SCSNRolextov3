@@ -6,15 +6,23 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Planter Portal') · {{ config('app.short_name') }}</title>
-    <link rel="icon" href="{{ asset('SCSNR-logo.png') }}">
+    <link rel="icon" href="{{ asset('SPPNR-logo.png') }}">
     <x-app-fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-screen flex-col bg-cream">
     <header class="sticky top-0 z-20 shrink-0 border-b border-sand bg-paper/90 backdrop-blur">
+        @auth('planter')
+            <div class="border-b border-sand/60 bg-forest-dark/5 px-4 py-1.5 text-xs text-bark sm:px-6">
+                <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                    <span>Hello! <span class="font-semibold text-forest-dark">{{ auth('planter')->user()->name }}</span> - as <span class="font-semibold text-forest-dark">Planter</span></span>
+                    <span class="text-muted">Sri Lanka time: <x-sl-clock class="font-semibold text-forest-dark" /></span>
+                </div>
+            </div>
+        @endauth
         <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('SCSNR-logo.png') }}" alt="{{ config('app.short_name') }}" class="h-11 w-11 rounded-full bg-white object-contain p-1 shadow-sm">
+                <img src="{{ asset('SPPNR-logo.png') }}" alt="{{ config('app.short_name') }}" class="h-11 w-11 rounded-full bg-white object-contain p-1 shadow-sm">
                 <div>
                     <p class="text-sm font-semibold text-forest-dark">{{ config('app.short_name') }} Planter Portal</p>
                     <p class="text-xs text-muted">@yield('heading', 'Rubber Planter Registration')</p>

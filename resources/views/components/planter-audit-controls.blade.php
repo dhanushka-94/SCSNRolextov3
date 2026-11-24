@@ -9,7 +9,7 @@
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
             <h3 class="text-sm font-semibold text-forest-dark">Audit workflow</h3>
-            <p class="mt-1 text-sm text-muted">First Audit and Final Audit are handled by separate auditor teams with module checklists.</p>
+            <p class="mt-1 text-sm text-muted">First Audit and Second Audit are handled by separate auditor teams with module checklists.</p>
         </div>
         <a href="{{ route('admin.audits.ongoing') }}" class="text-sm font-semibold text-leaf hover:text-forest">Open Ongoing audits</a>
     </div>
@@ -39,7 +39,7 @@
         </article>
 
         <article class="rounded-xl border border-sand bg-paper p-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-muted">Final Audit</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-muted">Second Audit</p>
             @if ($planter->finalAudit)
                 <p class="mt-2 font-semibold text-forest-dark">{{ $planter->finalAudit->statusLabel() }}</p>
                 <p class="mt-1 text-xs text-muted">Attempt #{{ $planter->finalAudit->attempt_number }}</p>
@@ -57,7 +57,7 @@
                 @if ($canDispatch && $planter->canSendToFinalAudit())
                     <form method="POST" action="{{ route('admin.planters.audits.send-final', $planter) }}" class="mt-3">
                         @csrf
-                        <button type="submit" class="btn-primary">Send to Final Audit</button>
+                        <button type="submit" class="btn-primary">Send to Second Audit</button>
                     </form>
                 @endif
             @endif

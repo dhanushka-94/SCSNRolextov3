@@ -16,10 +16,12 @@
         <a href="{{ route('admin.planters.index') }}" class="btn-secondary">Registry</a>
     @else
         <a href="{{ route('admin.planters.rejected') }}" class="btn-secondary">Rejected</a>
-        <a href="{{ route('admin.planters.create') }}" class="btn-primary">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
-            <span class="hidden sm:inline">Add entry</span>
-        </a>
+        @if (auth('web')->user()->canManagePlanterRecords())
+            <a href="{{ route('admin.planters.create') }}" class="btn-primary">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
+                <span class="hidden sm:inline">Add entry</span>
+            </a>
+        @endif
     @endif
 @endsection
 
@@ -79,12 +81,16 @@
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('admin.planters.show', $planter) }}" class="btn-secondary px-3 py-1.5">View</a>
-                                    <a href="{{ route('admin.planters.edit', $planter) }}" class="btn-secondary px-3 py-1.5">Edit</a>
-                                    <form method="POST" action="{{ route('admin.planters.destroy', $planter) }}" data-delete-form data-delete-name="{{ $planter->name }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-danger px-3 py-1.5">Delete</button>
-                                    </form>
+                                    @if (auth('web')->user()->canManagePlanterRecords())
+                                        <a href="{{ route('admin.planters.edit', $planter) }}" class="btn-secondary px-3 py-1.5">Edit</a>
+                                    @endif
+                                    @if (auth('web')->user()->canDeletePlanters())
+                                        <form method="POST" action="{{ route('admin.planters.destroy', $planter) }}" data-delete-form data-delete-name="{{ $planter->name }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-danger px-3 py-1.5">Delete</button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

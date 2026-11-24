@@ -34,6 +34,8 @@ class SmsTemplateController extends Controller
 
     public function sendSamples(Request $request, NotifySmsService $sms): RedirectResponse
     {
+        abort_unless($request->user('web')?->canSendSmsSamples(), 403);
+
         $validated = $request->validate([
             'phone' => ['required', 'string', 'max:30'],
             'template' => ['nullable', 'string', 'max:80'],

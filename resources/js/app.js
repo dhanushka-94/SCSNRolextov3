@@ -594,3 +594,103 @@ const initMapPin = (root) => {
 };
 
 document.querySelectorAll('[data-map-pin]').forEach((root) => initMapPin(root));
+
+document.querySelectorAll('[data-signature-pad]').forEach((root) => {
+    const canvas = root.querySelector('[data-signature-canvas]');
+    const input = root.querySelector('[data-signature-input]');
+    const error = root.querySelector('[data-signature-error]');
+    const form = root.closest('form');
+
+    if (!canvas || !input) {
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let hasInk = false;
+    let last = null;
+
+    const resize = () => {
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        const saved = hasInk ? canvas.toDataURL() : null;
+
+        canvas.width = Math.max(1, Math.round(rect.width * ratio));
+        canvas.height = Math.max(1, Math.round(rect.height * ratio));
+        ctx.scale(ratio, ratio);
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#14301f';
+
+        if (saved) {
+            const image = new Image();
+            image.onload = () => ctx.drawImage(image, 0, 0, rect.width, rect.height);
+            image.src = saved;
+        }
+    };
+
+    const point = (event) => {
+        const rect = canvas.getBoundingClientRect();
+
+        return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    };
+
+    canvas.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        canvas.setPointerCapture(event.pointerId);
+        drawing = true;
+        last = point(event);
+        ctx.beginPath();
+        ctx.arc(last.x, last.y, 0.6, 0, Math.PI * 2);
+        ctx.stroke();
+        hasInk = true;
+        error?.classList.add('hidden');
+    });
+
+    canvas.addEventListener('pointermove', (event) => {
+        if (!drawing) {
+            return;
+        }
+
+        const next = point(event);
+        ctx.beginPath();
+        ctx.moveTo(last.x, last.y);
+        ctx.lineTo(next.x, next.y);
+        ctx.stroke();
+        last = next;
+    });
+
+    const stop = () => {
+        drawing = false;
+        last = null;
+    };
+
+    canvas.addEventListener('pointerup', stop);
+    canvas.addEventListener('pointercancel', stop);
+
+    root.querySelector('[data-signature-clear]')?.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasInk = false;
+        input.value = '';
+    });
+
+    form?.addEventListener('submit', (event) => {
+        if (!hasInk) {
+            event.preventDefault();
+            error?.classList.remove('hidden');
+            canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            return;
+        }
+
+        input.value = canvas.toDataURL('image/png');
+    });
+
+    resize();
+    window.addEventListener('resize', () => {
+        if (!drawing) {
+            resize();
+        }
+    });
+});
