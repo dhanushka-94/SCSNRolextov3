@@ -89,9 +89,6 @@ Route::prefix('v1')->group(function () {
             Route::post('planters/{planter}/certificates', [CertificateController::class, 'issue']);
             Route::post('certificates/{certificate}/revoke', [CertificateController::class, 'revoke']);
 
-            Route::get('sms-templates', [AdminSmsTemplateController::class, 'index']);
-            Route::post('sms-templates/send-samples', [AdminSmsTemplateController::class, 'sendSamples']);
-
             // Offline queue upload from the app.
             Route::post('sync', [SyncController::class, 'store']);
         });
@@ -108,6 +105,11 @@ Route::prefix('v1')->group(function () {
         Route::middleware('api.staff:developer')->prefix('admin')->group(function () {
             Route::get('maintenance', [AdminMaintenanceController::class, 'show']);
             Route::put('maintenance', [AdminMaintenanceController::class, 'update']);
+        });
+
+        // SMS template text: Super Admin (Developer) only. The path stays under /staff so existing clients keep working.
+        Route::middleware('api.staff:developer')->prefix('staff')->group(function () {
+            Route::get('sms-templates', [AdminSmsTemplateController::class, 'index']);
         });
     });
 });

@@ -771,25 +771,15 @@ class ApiDocumentation
         return [
             'id' => 'staff-sms',
             'title' => 'Staff: SMS templates',
-            'description' => 'Read-only template catalogue and sample sending.',
+            'description' => 'Read-only template catalogue for the Super Admin (Developer). Sample SMS is sent from the web Settings page only.',
             'endpoints' => [
-                self::ep('GET', 'staff/sms-templates', 'List SMS templates', 'staff', [
+                self::ep('GET', 'staff/sms-templates', 'List SMS templates', 'developer', [
+                    'note' => 'Needs: Super Admin (Developer). Other staff roles get 403.',
                     'response' => [
                         'templates' => [['key' => 'registration_approved', 'name' => 'Registration approved', 'trigger' => 'When a registration is approved', 'status' => 'active', 'body' => 'Your SPPNR registration is approved...', 'sample' => '...', 'placeholders' => ['name', 'identification_number'], 'length' => 120]],
                         'gateway_enabled' => true,
                         'sender_id' => 'RRISL',
                     ],
-                ]),
-                self::ep('POST', 'staff/sms-templates/send-samples', 'Send sample SMS', 'staff', [
-                    'note' => 'Needs: Administrator or RRISL Officer.',
-                    'description' => 'Sends one template (template given) or every template (omitted) to a phone number, filled with sample data.',
-                    'body' => [
-                        self::p('phone', 'string', true, ''),
-                        self::p('template', 'string', false, 'A template key. Omit to send all.'),
-                    ],
-                    'request' => ['phone' => '0771234567', 'template' => 'registration_approved'],
-                    'response' => ['message' => 'Sample SMS sent.'],
-                    'errors' => [[422, 'The gateway rejected the message.']],
                 ]),
             ],
         ];

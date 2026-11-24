@@ -60,6 +60,26 @@ class ApiAccessControlTest extends TestCase
             ->assertOk();
     }
 
+    public function test_only_the_developer_can_read_sms_templates(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $officer = User::factory()->create(['role' => User::ROLE_RRISL_OFFICER]);
+        $developer = User::factory()->create(['role' => User::ROLE_DEVELOPER]);
+
+        $this->apiAs($admin->createToken('phone', ['staff'])->plainTextToken)
+            ->getJson('/api/v1/staff/sms-templates')
+            ->assertForbidden();
+
+        $this->apiAs($officer->createToken('phone', ['staff'])->plainTextToken)
+            ->getJson('/api/v1/staff/sms-templates')
+            ->assertForbidden();
+
+        $this->apiAs($developer->createToken('phone', ['staff'])->plainTextToken)
+            ->getJson('/api/v1/staff/sms-templates')
+            ->assertOk()
+            ->assertJsonStructure(['templates']);
+    }
+
     public function test_a_planter_only_sees_their_own_profile(): void
     {
         $alpha = Planter::query()->create($this->planterAttributes(['name' => 'Planter Alpha Test']));
@@ -95,6 +115,26 @@ class ApiAccessControlTest extends TestCase
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    }
+
+    public function test_error_responses_carry_security_headers_and_hide_the_php_version(): void
+    {
+        $this->getJson('/api/v1/auth/me')
+            ->assertUnauthorized()
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
+            ->assertHeaderMissing('X-Powered-By');
+
+        $this->getJson('/api/v1/planter/profile', ['Accept' => 'application/json'])
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+    }
+
+    public function test_api_does_not_allow_any_browser_origin_by_default(): void
+    {
+        $this->withHeaders(['Origin' => 'https://evil.example'])
+            ->getJson('/api/v1/reference/options')
+            ->assertOk()
+            ->assertHeaderMissing('Access-Control-Allow-Origin');
     }
 
     /**

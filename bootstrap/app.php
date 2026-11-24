@@ -13,6 +13,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -62,6 +63,11 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Error responses (401, 403, 404, 500 ...) get the same security headers as normal responses.
+        $exceptions->respond(function (Response $response, Throwable $e, Request $request) {
+            return SecurityHeaders::apply($response, $request);
+        });
+
         // Every /api response is JSON, including errors.
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request, Throwable $e) => $request->is('api/*') || $request->expectsJson()

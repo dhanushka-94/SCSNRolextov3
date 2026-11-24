@@ -232,9 +232,13 @@ class User extends Authenticatable
         return $this->isAdmin();
     }
 
+    /**
+     * Sample SMS is only sent from the web Settings page (developer only).
+     * The API no longer offers sample sending, so the flag stays false for every account.
+     */
     public function canSendSmsSamples(): bool
     {
-        return $this->isAdmin() || $this->isRrislOfficer();
+        return false;
     }
 
     public function canViewRegistry(): bool
