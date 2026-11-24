@@ -14,6 +14,10 @@ class DemoResetSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo reset is blocked in production: it deletes all planters, users and certificates.');
+        }
+
         Planter::query()->each(function (Planter $planter) {
             foreach (['application_document', 'prior_certificate_document'] as $field) {
                 $path = $planter->{$field};

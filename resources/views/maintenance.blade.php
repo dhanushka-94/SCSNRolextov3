@@ -17,8 +17,6 @@
                     @csrf
                     <button type="submit" class="btn-secondary">Sign out</button>
                 </form>
-            @else
-                <a href="{{ route('admin.login') }}" class="mt-6 inline-block text-xs font-semibold text-leaf hover:text-forest">Administrator sign in</a>
             @endif
         </div>
         <x-app-footer class="relative mt-6 w-full max-w-lg" />

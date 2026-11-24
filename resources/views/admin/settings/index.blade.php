@@ -85,7 +85,7 @@
                 <div class="flex flex-col gap-3 border-b border-sand px-5 py-4 sm:flex-row sm:items-end sm:px-6">
                     <div class="min-w-0 flex-1">
                         <label for="sample-phone" class="label-field">Send a test to</label>
-                        <input id="sample-phone" type="text" name="phone" value="{{ old('phone', '+94714245192') }}" class="input-field" placeholder="+9471XXXXXXX" required>
+                        <input id="sample-phone" type="text" name="phone" value="{{ old('phone') }}" class="input-field" placeholder="+9471XXXXXXX" required>
                     </div>
                     <div class="sm:w-44">
                         <label for="sample-language" class="label-field">Language</label>
