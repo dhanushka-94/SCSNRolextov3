@@ -6,21 +6,21 @@ use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\ChangelogController;
-use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\PlanterController;
 use App\Http\Controllers\Admin\RdoDivisionController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CertificateVerifyController;
+use App\Http\Controllers\PartnerHomeController;
 use App\Http\Controllers\Planter\Auth\LoginController as PlanterLoginController;
 use App\Http\Controllers\Planter\Auth\RegisterController;
 use App\Http\Controllers\Planter\Auth\SetPasswordController;
 use App\Http\Controllers\Planter\CertificateController as PlanterCertificateController;
 use App\Http\Controllers\Planter\DashboardController as PlanterDashboardController;
 use App\Http\Controllers\Planter\ProfileController;
-use App\Http\Controllers\PartnerHomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', PartnerHomeController::class)->name('partner.home');
@@ -36,6 +36,9 @@ Route::middleware('guest:planter')->group(function () {
     Route::get('login', [PlanterLoginController::class, 'create'])->name('planter.login');
     Route::post('login', [PlanterLoginController::class, 'store'])->name('planter.login.store');
     Route::get('register', [RegisterController::class, 'create'])->name('planter.register');
+    Route::get('register/apply/{category}', [RegisterController::class, 'apply'])
+        ->whereIn('category', ['solo', 'group', 'company'])
+        ->name('planter.register.apply');
     Route::post('register', [RegisterController::class, 'store'])->name('planter.register.store');
     Route::post('register/offline', [RegisterController::class, 'storeOffline'])->name('planter.register.offline');
     Route::get('register/submitted', [RegisterController::class, 'submitted'])->name('planter.register.submitted');
@@ -54,6 +57,10 @@ Route::middleware('auth:planter')->group(function () {
         ->name('planter.profile.qr.download');
     Route::get('certificate', [PlanterCertificateController::class, 'show'])->name('planter.certificate');
     Route::get('certificate/print', [PlanterCertificateController::class, 'print'])->name('planter.certificate.print');
+    Route::get('certificate/qr.png', [PlanterCertificateController::class, 'qr'])->name('planter.certificate.qr');
+    Route::get('certificate/qr/download.{format}', [PlanterCertificateController::class, 'downloadQr'])
+        ->whereIn('format', ['png', 'svg'])
+        ->name('planter.certificate.qr.download');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -66,7 +73,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('about-system', AboutSystemController::class)->name('about-system');
-        Route::get('changelog', ChangelogController::class)->name('changelog');
+        if (config('changelog.enabled')) {
+            Route::get('changelog', ChangelogController::class)->name('changelog');
+        }
         Route::get('sms-templates', [SmsTemplateController::class, 'index'])->name('sms-templates.index');
         Route::post('sms-templates/send-samples', [SmsTemplateController::class, 'sendSamples'])->name('sms-templates.send-samples');
         Route::redirect('planters/approval-lobby', '/admin/planters/registration-lobby');

@@ -8,16 +8,16 @@
         <article class="card mb-5 overflow-hidden">
             <div class="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:p-8">
                 <div class="rounded-2xl border border-sand bg-white p-3">
-                    <img src="{{ route('planter.profile.qr') }}" alt="Planter QR code" class="h-40 w-40">
+                    <img src="{{ route('planter.profile.qr') }}" alt="Tracking QR code" class="h-40 w-40">
                 </div>
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">SPPNR identification number</p>
-                    <p class="mt-2 font-mono text-xl font-semibold tracking-wide text-forest-dark sm:text-2xl">{{ $planter->identification_number }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Reference number</p>
+                    <p class="mt-2 font-mono text-xl font-semibold tracking-wide text-forest-dark sm:text-2xl">{{ $planter->temporary_id }}</p>
+                    <p class="mt-1 text-sm text-muted">SPPNR identification number: <span class="font-mono">{{ $planter->identification_number }}</span></p>
                     <p class="mt-2 text-sm text-muted">
+                        This is your tracking QR code. It never changes, and officers and auditors scan it to find your application.
                         @if ($planter->currentCertificate)
-                            Your QR code opens the public certificate verification page.
-                        @else
-                            This unique ID is encoded in your QR code. Keep a printed copy with plantation records.
+                            Your certificate has its own separate QR code for public verification.
                         @endif
                     </p>
                     <div class="mt-5 flex flex-wrap gap-2">

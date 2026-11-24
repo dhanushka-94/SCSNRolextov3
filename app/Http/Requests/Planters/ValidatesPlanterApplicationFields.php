@@ -15,6 +15,7 @@ trait ValidatesPlanterApplicationFields
         $presence = $requireCoreApplication ? 'required' : 'nullable';
 
         return array_merge([
+            'registration_category' => ['nullable', Rule::in(array_keys(Planter::registrationCategories()))],
             'farm_name' => [$presence, 'string', 'max:160'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
             'fax' => ['nullable', 'string', 'max:30'],
@@ -70,6 +71,13 @@ trait ValidatesPlanterApplicationFields
                 $this->input('longitude'),
             ),
         ]);
+
+        // The registration type decides the nature of business, same as on the public form.
+        $businessType = Planter::businessTypeForCategory((string) $this->input('registration_category', ''));
+
+        if ($businessType !== null) {
+            $this->merge(['business_type' => $businessType]);
+        }
     }
 
     /**

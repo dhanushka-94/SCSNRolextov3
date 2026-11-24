@@ -67,20 +67,32 @@
         </div>
 
         <div>
-            <p class="label-field">Nature of business</p>
-            <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach (\App\Models\Planter::businessTypes() as $value => $label)
-                    <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-cream/60 px-3 py-2.5 text-sm">
+            <p class="label-field">Registration type</p>
+            <div class="mt-2 grid gap-2 sm:grid-cols-3">
+                @foreach (\App\Models\Planter::registrationCategories() as $value => $category)
+                    <label class="flex cursor-pointer items-start gap-2 rounded-xl border border-l-4 border-line bg-cream/60 px-3 py-2.5 text-sm {{ \App\Models\Planter::categoryStyles()[$value]['bar'] }}">
                         <input
                             type="radio"
-                            name="business_type"
+                            name="registration_category"
                             value="{{ $value }}"
-                            @checked(old('business_type', $planter->business_type) === $value)
+                            class="mt-1"
+                            @checked(old('registration_category', $planter->registration_category) === $value)
+                            @required(! $planter->exists)
                         >
-                        <span class="font-medium text-bark-dark">{{ $label['en'] }}</span>
+                        <span>
+                            <span class="block font-medium text-bark-dark">{{ $category['en'] }}</span>
+                            <span class="block text-xs text-muted">{{ $category['description_en'] }}</span>
+                        </span>
                     </label>
                 @endforeach
             </div>
+            <p class="mt-1 text-xs text-muted">
+                Sets the nature of business automatically (solo = individual, group = society, company = company).
+                @if ($planter->exists && $planter->business_type)
+                    Current: {{ $planter->businessTypeLabel() }}.
+                @endif
+            </p>
+            @error('registration_category')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
             @error('business_type')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
         </div>
     </section>

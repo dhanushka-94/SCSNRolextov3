@@ -46,10 +46,13 @@
     @else
         <div class="space-y-4">
             @foreach ($certificates as $certificate)
-                <article class="card overflow-hidden">
+                <article class="card overflow-hidden border-l-4 {{ $certificate->planter->categoryStyle()['bar'] }}">
                     <div class="flex flex-col gap-3 border-b border-sand bg-cream px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div>
-                            <p class="font-mono text-xs font-semibold text-forest">{{ $certificate->certificate_number }}</p>
+                            <p class="flex flex-wrap items-center gap-2 font-mono text-xs font-semibold text-forest">
+                                {{ $certificate->certificate_number }}
+                                <x-category-badge :planter="$certificate->planter" />
+                            </p>
                             <h2 class="mt-1 text-lg font-semibold text-forest-dark">{{ $certificate->planter->name }}</h2>
                             <p class="mt-1 text-sm text-muted">
                                 {{ $certificate->planter->identification_number }}

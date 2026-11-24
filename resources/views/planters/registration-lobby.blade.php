@@ -25,7 +25,10 @@
         </article>
     </div>
 
-    <form method="GET" action="{{ route('admin.planters.registration-lobby') }}" class="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
+    <form method="GET" action="{{ route('admin.planters.registration-lobby') }}" class="card mb-3 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
+        @if (filled($filters['category'] ?? null))
+            <input type="hidden" name="category" value="{{ $filters['category'] }}">
+        @endif
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search name, NIC, phone, or reference" class="input-field sm:col-span-2">
         <select name="district" class="input-field">
             <option value="">All districts</option>
@@ -44,6 +47,8 @@
         </div>
     </form>
 
+    <x-category-filter route="admin.planters.registration-lobby" :current="$filters['category'] ?? null" :counts="$categoryCounts ?? []" />
+
     @if ($planters->isEmpty())
         <section class="card px-5 py-16 text-center">
             <p class="text-lg font-semibold text-forest-dark">No pending applications</p>
@@ -52,13 +57,14 @@
     @else
         <div class="space-y-4">
             @foreach ($planters as $planter)
-                <article class="card overflow-hidden">
+                <article class="card overflow-hidden border-l-4 {{ $planter->categoryStyle()['bar'] }}">
                     <div class="flex flex-col gap-3 border-b border-sand bg-cream px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div>
                             <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number ?: $planter->temporary_id }}</p>
                             <h2 class="mt-1 text-lg font-semibold text-forest-dark">{{ $planter->name }}</h2>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
+                            <x-category-badge :planter="$planter" />
                             <span class="rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-bark">
                                 {{ \App\Models\Planter::registrationTypes()[$planter->registration_type] ?? 'Online' }}
                             </span>

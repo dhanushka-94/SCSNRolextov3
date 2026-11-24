@@ -161,11 +161,13 @@
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75h6.75M8.625 12.75h4.5m-7.5 6.75 1.886-3.772A4.5 4.5 0 0 1 11.014 14.25h1.972a4.5 4.5 0 0 1 4.003 2.478L19.5 19.5M6.75 19.5h10.5A2.25 2.25 0 0 0 19.5 17.25V6.75A2.25 2.25 0 0 0 17.25 4.5H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5A2.25 2.25 0 0 0 6.75 19.5z"/></svg>
                 SMS templates
             </a>
+            @if (config('changelog.enabled'))
             <a href="{{ route('admin.changelog') }}" class="nav-link {{ request()->routeIs('admin.changelog') ? 'nav-link-active' : '' }}">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>
                 Changelog
                 <span class="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-bold text-sand">v{{ config('app.version') }}</span>
             </a>
+            @endif
         </nav>
 
         <div class="border-t border-white/10 p-4">
@@ -194,17 +196,17 @@
                 <span>Hello! <span class="font-semibold text-forest-dark">{{ auth('web')->user()->name }}</span> - as <span class="font-semibold text-forest-dark">{{ \App\Models\User::roles()[auth('web')->user()->role] ?? auth('web')->user()->role }}</span></span>
                 <span class="text-muted">Sri Lanka time: <x-sl-clock class="font-semibold text-forest-dark" /></span>
             </div>
-            <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-                <div class="flex items-center gap-3">
-                    <button type="button" data-sidebar-toggle class="rounded-xl border border-line p-2 text-bark lg:hidden" aria-label="Open menu">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+                <div class="flex min-w-0 items-center gap-3">
+                    <button type="button" data-sidebar-toggle class="shrink-0 rounded-xl border border-line p-2 text-bark lg:hidden" aria-label="Open menu">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
                     </button>
-                    <div>
+                    <div class="min-w-0">
                         <h1 class="text-lg font-semibold text-forest-dark">@yield('heading')</h1>
-                        <p class="text-xs text-muted">@yield('subheading', config('app.full_name'))</p>
+                        <p class="break-words text-xs text-muted">@yield('subheading', config('app.full_name'))</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     @yield('actions')
                 </div>
             </div>

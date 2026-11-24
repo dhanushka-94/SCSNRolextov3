@@ -2,7 +2,7 @@
 
 @section('title', 'Edit entry')
 @section('heading', 'Edit entry')
-@section('subheading', $planter->identification_number)
+@section('subheading', $planter->identification_number ?: $planter->temporary_id ?: '')
 
 @section('actions')
     <a href="{{ route('admin.planters.show', $planter) }}" class="btn-secondary">View</a>

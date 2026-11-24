@@ -20,6 +20,13 @@ class RegisterPlanterRequest extends FormRequest
     {
         $this->prepareSpamProtection();
 
+        // The registration category decides the nature of business on the server, so it cannot be changed from the form.
+        // Solo applicants have no group, so any group details they send are dropped.
+        $this->merge([
+            'business_type' => Planter::businessTypeForCategory((string) $this->input('registration_category', ''))
+                ?? $this->input('business_type'),
+        ]);
+
         $crops = collect($this->input('crops_products', []))
             ->map(fn ($item) => is_string($item) ? trim($item) : '')
             ->filter()
@@ -40,6 +47,12 @@ class RegisterPlanterRequest extends FormRequest
                 $this->input('longitude'),
             ),
         ]);
+
+        // Solo applicants have no group, so any group details they send are dropped.
+        // This runs last so it wins over the merge above.
+        if ($this->input('registration_category') === Planter::CATEGORY_SOLO) {
+            $this->merge(['group_name' => null, 'group_address' => null]);
+        }
     }
 
     /**
@@ -48,6 +61,7 @@ class RegisterPlanterRequest extends FormRequest
     public function rules(): array
     {
         return array_merge([
+            'registration_category' => ['required', Rule::in(array_keys(Planter::registrationCategories()))],
             'name' => ['required', 'string', 'max:120'],
             'nic' => ['required', 'string', 'max:20', 'unique:planters,nic'],
             'district_id' => \App\Support\PlanterLocation::districtIdRules(),
@@ -74,7 +88,11 @@ class RegisterPlanterRequest extends FormRequest
                 Rule::requiredIf(fn () => (string) $this->input('processes_rubber_on_farm') === '1'),
                 Rule::in(array_keys(Planter::processPlanOptions())),
             ],
-            'group_name' => ['nullable', 'string', 'max:160'],
+            'group_name' => Rule::when(
+                in_array($this->input('registration_category'), [Planter::CATEGORY_GROUP, Planter::CATEGORY_COMPANY], true),
+                ['required', 'string', 'max:160'],
+                ['nullable'],
+            ),
             'group_address' => ['nullable', 'string', 'max:500'],
         ], \App\Support\FarmCoordinates::rules(required: true));
     }
@@ -85,6 +103,7 @@ class RegisterPlanterRequest extends FormRequest
     public function attributes(): array
     {
         return array_merge([
+            'registration_category' => 'registration type',
             'name' => 'applicant name',
             'district_id' => 'district',
             'rdo_division_id' => 'Rubber Development Officer division',

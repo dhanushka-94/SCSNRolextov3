@@ -67,13 +67,11 @@
         <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <article class="card overflow-hidden">
                 <div class="border-b border-sand bg-cream px-5 py-5 sm:px-8">
-                    <h2 class="text-lg font-semibold text-forest-dark">Your QR code</h2>
-                    <p class="mt-1 text-sm text-muted">Share or print this code with your SPPNR identification number.</p>
+                    <h2 class="text-lg font-semibold text-forest-dark">Your tracking QR code</h2>
+                    <p class="mt-1 text-sm text-muted">Reference {{ $planter->temporary_id }}. This code stays the same from registration to the end.</p>
                 </div>
                 <div class="flex flex-col items-center gap-4 p-6 sm:p-8">
-                    @if ($planter->identification_number)
-                        <img src="{{ route('planter.profile.qr') }}" alt="Planter QR code" class="h-36 w-36 rounded-xl bg-white p-2 shadow-sm ring-1 ring-sand">
-                    @endif
+                    <img src="{{ route('planter.profile.qr') }}" alt="Tracking QR code" class="h-36 w-36 rounded-xl bg-white p-2 shadow-sm ring-1 ring-sand">
                     <div class="flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
                         <a href="{{ route('planter.profile') }}" class="btn-primary">Open profile</a>
                         <a href="{{ route('planter.profile.qr.download', 'png') }}" class="btn-secondary">Download QR</a>

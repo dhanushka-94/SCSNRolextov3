@@ -8,7 +8,9 @@ use App\Http\Requests\Planters\RegisterPlanterRequest;
 use App\Models\Planter;
 use App\Services\NotifySmsService;
 use App\Services\PlanterIdentityService;
+use App\Services\RegistrationFormPdf;
 use App\Services\RegistrationSpamGuard;
+use App\Support\PlanterLocation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +19,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
-    public function create(RegistrationSpamGuard $spamGuard): View
+    /** Step 1: choose the registration type (sole proprietor, group or company). */
+    public function create(): View
     {
+        return view('planter.auth.categories', [
+            'categories' => Planter::registrationCategories(),
+        ]);
+    }
+
+    /** Step 2: the application form for the chosen registration type. */
+    public function apply(string $category, RegistrationSpamGuard $spamGuard): View
+    {
+        $categories = Planter::registrationCategories();
+
+        abort_unless(array_key_exists($category, $categories), 404);
+
         $spamGuard->markFormStarted();
 
         return view('planter.auth.register', [
+            'category' => $category,
+            'categoryLabel' => $categories[$category],
             'recaptchaSiteKey' => $spamGuard->captchaEnabled()
                 ? config('registration.recaptcha.site_key')
                 : null,
@@ -77,30 +94,21 @@ class RegisterController extends Controller
 
     public function formPdf(): Response
     {
-        $regular = storage_path('fonts/NotoSansSinhala-Regular.ttf');
-        $bold = storage_path('fonts/NotoSansSinhala-Bold.ttf');
-
-        if (! is_file($bold)) {
-            $bold = $regular;
+        // Preferred: the pre-built file (correct Sinhala and Tamil shaping), see `php artisan sppnr:build-registration-form`.
+        if (RegistrationFormPdf::isBuilt()) {
+            return response()->download(RegistrationFormPdf::builtPath(), RegistrationFormPdf::DOWNLOAD_NAME, [
+                'Content-Type' => 'application/pdf',
+            ]);
         }
 
-        // DomPDF loads local fonts/images from absolute filesystem paths (not file:// URLs).
-        $pdf = Pdf::loadView('planter.pdf.registration-form', [
-            'logo' => str_replace('\\', '/', public_path('SPPNR-logo.png')),
-            'fontRegular' => str_replace('\\', '/', $regular),
-            'fontBold' => str_replace('\\', '/', $bold),
-            'governingBodies' => collect(config('app.governing_bodies'))->map(function (array $body) {
-                $body['logo_path'] = str_replace('\\', '/', public_path($body['logo']));
-
-                return $body;
-            })->all(),
-        ])->setPaper('a4');
+        // Fallback: DomPDF cannot shape complex scripts, so vowel signs may be misplaced.
+        $pdf = Pdf::loadView('planter.pdf.registration-form', RegistrationFormPdf::viewData())->setPaper('a4');
 
         $pdf->setOption('isRemoteEnabled', true);
         $pdf->setOption('isHtml5ParserEnabled', true);
         $pdf->setOption('defaultFont', 'NotoSinhala');
 
-        return $pdf->download('SPPNR-planter-registration-form.pdf');
+        return $pdf->download(RegistrationFormPdf::DOWNLOAD_NAME);
     }
 
     /**
@@ -112,7 +120,7 @@ class RegisterController extends Controller
             unset($data['password']);
             $data['status'] = Planter::STATUS_PENDING;
             $data['registration_type'] = $type;
-            $data = \App\Support\PlanterLocation::hydrateNames($data);
+            $data = PlanterLocation::hydrateNames($data);
 
             $data = app(PlanterIdentityService::class)->assignTemporaryId($data);
 

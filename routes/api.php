@@ -64,6 +64,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('planters', [StaffPlanterController::class, 'index']);
             Route::post('planters', [StaffPlanterController::class, 'store']);
+            Route::get('scan/{reference}', [StaffPlanterController::class, 'scan'])->where('reference', '.+');
             Route::get('planters/{planter}', [StaffPlanterController::class, 'show']);
             Route::match(['put', 'patch'], 'planters/{planter}', [StaffPlanterController::class, 'update']);
             Route::delete('planters/{planter}', [StaffPlanterController::class, 'destroy']);

@@ -4,6 +4,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Show the Changelog page
+    |--------------------------------------------------------------------------
+    |
+    | Hidden by default. Set CHANGELOG_ENABLED=true in .env to show the
+    | sidebar link and open the page again.
+    */
+    'enabled' => (bool) env('CHANGELOG_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Release history
     |--------------------------------------------------------------------------
     |
@@ -14,6 +24,46 @@ return [
     */
 
     'releases' => [
+
+        [
+            'version' => '0.11.0',
+            'date' => '2026-11-24',
+            'title' => 'Colour-coded registration types, trilingual paper form, responsive fixes',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Each registration type has its own colour in the admin: Solo (sky blue), Group (amber), Company (violet). It shows as a badge and a left bar on the registry, lobby, audits, certificates, dashboard and application page.'],
+                ['type' => 'added', 'text' => 'Registry, Rejected and the Registration Lobby can be filtered by registration type, with a count for each type.'],
+                ['type' => 'changed', 'text' => 'Staff choose the registration type when adding an entry (web and mobile API: registration_category). It sets the nature of business automatically; older records without a type stay as they are.'],
+                ['type' => 'changed', 'text' => 'The printable paper registration form is now in Sinhala, English and Tamil, with a registration type section. It is built with correct Sinhala and Tamil letter shaping (php artisan sppnr:build-registration-form).'],
+                ['type' => 'fixed', 'text' => 'English text was missing from the downloadable paper form; it now prints correctly.'],
+                ['type' => 'fixed', 'text' => 'Page headers wrap on small phones, and the API documentation no longer scrolls sideways on narrow screens.'],
+                ['type' => 'fixed', 'text' => 'Editing a pending entry that has no SPPNR ID yet no longer leaves the page header half-built.'],
+            ],
+        ],
+
+        [
+            'version' => '0.10.0',
+            'date' => '2026-11-24',
+            'title' => 'Registration type chooser (sole proprietor, group, company)',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Before the application form, applicants choose Sole Proprietor, Group or Company registration. Labels are in English, Sinhala and Tamil.'],
+                ['type' => 'changed', 'text' => 'The registration type sets the nature of business automatically: sole proprietor = individual, group = society, company = company. Group and company need a name.'],
+                ['type' => 'added', 'text' => 'Registration type is saved on every application (online and paper) and shown on the admin registry page. The mobile API requires registration_category; reference/options lists the types.'],
+                ['type' => 'changed', 'text' => 'Tamil font added to the website.'],
+            ],
+        ],
+
+        [
+            'version' => '0.9.0',
+            'date' => '2026-11-24',
+            'title' => 'Two QR codes: tracking and certificate',
+            'changes' => [
+                ['type' => 'changed', 'text' => 'Every applicant now has one tracking QR code that encodes the reference number given at registration. It never changes, from registration to the end of the process.'],
+                ['type' => 'added', 'text' => 'Mobile app: officers and auditors scan the tracking QR (GET /api/v1/staff/scan/{reference}) to open the record, their audits and the actions their role allows. Each scan is logged.'],
+                ['type' => 'changed', 'text' => 'Each issued certificate has its own unique QR code that opens the public verification page, showing Valid, Revoked or not found.'],
+                ['type' => 'fixed', 'text' => 'A certificate QR image now always matches its own certificate, so an old or revoked certificate no longer shows the newer certificate link.'],
+                ['type' => 'changed', 'text' => 'The Changelog page is hidden for now (set CHANGELOG_ENABLED=true to show it again).'],
+            ],
+        ],
 
         [
             'version' => '0.8.0',

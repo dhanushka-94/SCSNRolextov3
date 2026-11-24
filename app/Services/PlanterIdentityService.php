@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
+use App\Models\Certificate;
 use App\Models\District;
 use App\Models\Planter;
 use App\Models\RdoDivision;
@@ -11,6 +12,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
+use Endroid\QrCode\Writer\WriterInterface;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -138,36 +140,64 @@ class PlanterIdentityService
         return $data;
     }
 
+    /**
+     * Tracking QR: the planter's reference number. It is assigned at registration and
+     * never changes, so the same printed code works from registration to the end.
+     * Staff scan it in the mobile app (GET /api/v1/staff/scan/{reference}).
+     */
     public function qrPayload(Planter $planter): string
     {
-        $certificate = $planter->relationLoaded('currentCertificate')
-            ? $planter->currentCertificate
-            : $planter->currentCertificate()->first();
+        return (string) ($planter->temporary_id ?: $planter->identification_number);
+    }
 
-        if ($certificate?->isIssued()) {
-            return $certificate->verifyUrl();
-        }
-
-        return $planter->identification_number ?: $planter->temporary_id;
+    /** Certificate QR: the public verification link of one specific certificate. */
+    public function certificateQrPayload(Certificate $certificate): string
+    {
+        return $certificate->verifyUrl();
     }
 
     public function png(Planter $planter, int $size = 480): string
     {
-        return (new Builder(
-            writer: new PngWriter,
-            data: $this->qrPayload($planter),
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: $size,
-            margin: 16,
-        ))->build()->getString();
+        return $this->render(new PngWriter, $this->qrPayload($planter), $size);
     }
 
     public function svg(Planter $planter, int $size = 1200): string
     {
+        return $this->render(new SvgWriter, $this->qrPayload($planter), $size);
+    }
+
+    public function certificatePng(Certificate $certificate, int $size = 480): string
+    {
+        return $this->render(new PngWriter, $this->certificateQrPayload($certificate), $size);
+    }
+
+    public function certificateSvg(Certificate $certificate, int $size = 1200): string
+    {
+        return $this->render(new SvgWriter, $this->certificateQrPayload($certificate), $size);
+    }
+
+    /** Finds a planter from a scanned or typed reference (registration reference or SPPNR ID). */
+    public function findByReference(string $reference): ?Planter
+    {
+        $reference = trim($reference);
+
+        if ($reference === '') {
+            return null;
+        }
+
+        $normalized = strtoupper((string) preg_replace('/\s+/', '', $reference));
+
+        return Planter::query()
+            ->where('temporary_id', $normalized)
+            ->orWhereRaw('UPPER(REPLACE(identification_number, " ", "")) = ?', [$normalized])
+            ->first();
+    }
+
+    private function render(WriterInterface $writer, string $data, int $size): string
+    {
         return (new Builder(
-            writer: new SvgWriter,
-            data: $this->qrPayload($planter),
+            writer: $writer,
+            data: $data,
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
             size: $size,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CertificateService;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -52,6 +53,12 @@ class Planter extends Authenticatable
 
     public const BUSINESS_OTHER = 'other';
 
+    public const CATEGORY_SOLO = 'solo';
+
+    public const CATEGORY_GROUP = 'group';
+
+    public const CATEGORY_COMPANY = 'company';
+
     public const PROCESS_PLAN_YES = 'yes';
 
     public const PROCESS_PLAN_NO = 'no';
@@ -79,6 +86,7 @@ class Planter extends Authenticatable
         'latitude',
         'longitude',
         'business_type',
+        'registration_category',
         'already_certified',
         'certification_standard',
         'prior_certificate_document',
@@ -239,6 +247,96 @@ class Planter extends Authenticatable
         return filled($this->prior_certificate_document);
     }
 
+    /**
+     * Registration categories shown before the form. Each one sets the nature of business.
+     *
+     * @return array<string, array{en: string, si: string, ta: string, description_en: string, description_si: string, description_ta: string, business_type: string}>
+     */
+    public static function registrationCategories(): array
+    {
+        return [
+            self::CATEGORY_SOLO => [
+                'en' => 'Sole Proprietor Registration',
+                'si' => 'තනි හිමිකරු ලියාපදිංචිය',
+                'ta' => 'தனி உரிமையாளர் பதிவு',
+                'description_en' => 'For an individual who owns and runs the farm.',
+                'description_si' => 'ගොවිපළ තනිව හිමිකම් කරන සහ පවත්වාගෙන යන පුද්ගලයෙකු සඳහා.',
+                'description_ta' => 'பண்ணையைச் சொந்தமாக வைத்து நடத்தும் தனிநபருக்கு.',
+                'business_type' => self::BUSINESS_INDIVIDUAL,
+            ],
+            self::CATEGORY_GROUP => [
+                'en' => 'Group Registration',
+                'si' => 'කණ්ඩායම් ලියාපදිංචිය',
+                'ta' => 'குழு பதிவு',
+                'description_en' => 'For a society, cooperative or group of planters.',
+                'description_si' => 'සමිතියක්, සහකාරිත්වයක් හෝ වැවිලිකරුවන්ගේ කණ්ඩායමක් සඳහා.',
+                'description_ta' => 'சங்கம், கூட்டுறவு அல்லது விவசாயிகள் குழுவுக்கு.',
+                'business_type' => self::BUSINESS_SOCIETY,
+            ],
+            self::CATEGORY_COMPANY => [
+                'en' => 'Company Registration',
+                'si' => 'සමාගම් ලියාපදිංචිය',
+                'ta' => 'நிறுவனப் பதிவு',
+                'description_en' => 'For a registered plantation company.',
+                'description_si' => 'ලියාපදිංචි වැවිලි සමාගමක් සඳහා.',
+                'description_ta' => 'பதிவுசெய்யப்பட்ட தோட்ட நிறுவனத்துக்கு.',
+                'business_type' => self::BUSINESS_COMPANY,
+            ],
+        ];
+    }
+
+    public static function businessTypeForCategory(?string $category): ?string
+    {
+        return self::registrationCategories()[$category]['business_type'] ?? null;
+    }
+
+    /**
+     * Back-office colours so staff can tell the three registration types apart at a glance.
+     * Solo = blue, Group = amber, Company = violet.
+     *
+     * @return array<string, array{label: string, badge: string, dot: string, bar: string, chip: string}>
+     */
+    public static function categoryStyles(): array
+    {
+        return [
+            self::CATEGORY_SOLO => [
+                'label' => 'Solo',
+                'badge' => 'bg-sky-100 text-sky-800 ring-sky-300',
+                'dot' => 'bg-sky-500',
+                'bar' => 'border-l-sky-500',
+                'chip' => 'border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100',
+            ],
+            self::CATEGORY_GROUP => [
+                'label' => 'Group',
+                'badge' => 'bg-amber-100 text-amber-900 ring-amber-300',
+                'dot' => 'bg-amber-500',
+                'bar' => 'border-l-amber-500',
+                'chip' => 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100',
+            ],
+            self::CATEGORY_COMPANY => [
+                'label' => 'Company',
+                'badge' => 'bg-violet-100 text-violet-800 ring-violet-300',
+                'dot' => 'bg-violet-500',
+                'bar' => 'border-l-violet-500',
+                'chip' => 'border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100',
+            ],
+        ];
+    }
+
+    /**
+     * @return array{label: string, badge: string, dot: string, bar: string, chip: string}
+     */
+    public function categoryStyle(): array
+    {
+        return self::categoryStyles()[$this->registration_category] ?? [
+            'label' => 'Not set',
+            'badge' => 'bg-stone-100 text-stone-600 ring-stone-300',
+            'dot' => 'bg-stone-400',
+            'bar' => 'border-l-stone-300',
+            'chip' => 'border-stone-300 bg-stone-50 text-stone-600 hover:bg-stone-100',
+        ];
+    }
+
     public static function registrationTypes(): array
     {
         return [
@@ -327,7 +425,7 @@ class Planter extends Authenticatable
 
     public function qrDownloadName(string $extension): string
     {
-        $id = str_replace('/', '-', $this->identification_number ?: $this->temporary_id);
+        $id = str_replace('/', '-', $this->temporary_id ?: $this->identification_number);
 
         return $id.'.'.$extension;
     }
@@ -525,7 +623,7 @@ class Planter extends Authenticatable
 
     public function canIssueCertificate(): bool
     {
-        return app(\App\Services\CertificateService::class)->canIssue($this);
+        return app(CertificateService::class)->canIssue($this);
     }
 
     public function hasActiveCertificate(): bool

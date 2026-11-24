@@ -117,6 +117,11 @@ class Certificate extends Model
         return url('/verify/'.$this->public_token);
     }
 
+    public function qrDownloadName(string $extension): string
+    {
+        return 'certificate-'.str_replace('/', '-', $this->certificate_number).'.'.$extension;
+    }
+
     public function publicVerificationLabel(): string
     {
         if ($this->isRevoked()) {

@@ -38,6 +38,7 @@ class PlanterResource extends JsonResource
             'has_map_pin' => $this->hasMapPin(),
             'business_type' => $this->business_type,
             'business_type_label' => $this->businessTypeLabel(),
+            'registration_category' => $this->registration_category,
             'already_certified' => (bool) $this->already_certified,
             'certification_standard' => $this->certification_standard,
             'certification_rejected_or_suspended' => (bool) $this->certification_rejected_or_suspended,

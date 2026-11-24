@@ -7,6 +7,7 @@ use App\Http\Requests\Planters\RejectPlanterRequest;
 use App\Http\Requests\Planters\StorePlanterRequest;
 use App\Http\Requests\Planters\UpdatePlanterRequest;
 use App\Http\Resources\Api\PlanterResource;
+use App\Models\ActivityLog;
 use App\Models\Planter;
 use App\Models\User;
 use App\Services\NotifySmsService;
@@ -68,16 +69,58 @@ class PlanterController extends ApiController
     {
         abort_unless($request->user()->canViewRegistry(), 403);
 
+        return response()->json($this->detail($request->user(), $planter, $identity, $sms));
+    }
+
+    /**
+     * Mobile app: staff scan a planter's tracking QR (the reference number) and get the full
+     * record, the audits they may work on and the actions they are allowed to take.
+     */
+    public function scan(Request $request, string $reference, PlanterIdentityService $identity, NotifySmsService $sms): JsonResponse
+    {
+        abort_unless($request->user()->canViewRegistry(), 403);
+
+        $planter = $identity->findByReference($reference);
+
+        abort_unless($planter, 404, 'No planter found for that QR code.');
+
+        ActivityLog::record('planter.scanned', $planter, ['reference' => $planter->temporary_id]);
+
+        $payload = $this->detail($request->user(), $planter, $identity, $sms);
+
+        $payload['audits'] = collect([$planter->firstAudit, $planter->finalAudit])
+            ->filter()
+            ->map(fn ($audit) => [
+                'id' => $audit->id,
+                'round' => $audit->round,
+                'status' => $audit->status,
+                'is_current' => (bool) $audit->is_current,
+                'can_work' => $request->user()->canWorkAuditRound($audit->round),
+            ])
+            ->values()
+            ->all();
+
+        return response()->json($payload);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function detail(User $user, Planter $planter, PlanterIdentityService $identity, NotifySmsService $sms): array
+    {
         $planter = $identity->ensureIssued($planter)
             ->load(['approver', 'firstAudit', 'finalAudit', 'currentCertificate', 'latestCertificate']);
 
-        return response()->json([
+        return [
             'planter' => new PlanterResource($planter),
             'audit_timeline' => $planter->auditTimelineTree(),
             'qr_payload' => $identity->qrPayload($planter),
+            'certificate_qr_payload' => $planter->currentCertificate?->isIssued()
+                ? $identity->certificateQrPayload($planter->currentCertificate)
+                : null,
             'sms_resend_actions' => $sms->availableResendActions($planter),
-            'permissions' => $this->planterPermissions($request->user(), $planter),
-        ]);
+            'permissions' => $this->planterPermissions($user, $planter),
+        ];
     }
 
     public function update(Request $request, Planter $planter, PlanterRegistryService $registry): JsonResponse

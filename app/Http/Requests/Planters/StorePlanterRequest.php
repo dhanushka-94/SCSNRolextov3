@@ -37,7 +37,10 @@ class StorePlanterRequest extends FormRequest
             'status' => ['required', Rule::in(array_keys(Planter::statuses()))],
             'rejection_reason' => ['nullable', 'required_if:status,rejected', 'string', 'max:500'],
             'password' => ['nullable', 'confirmed', PasswordPolicy::rule()],
-        ], $this->applicationFieldRules(requireCoreApplication: false));
+        ], $this->applicationFieldRules(requireCoreApplication: false), [
+            // New entries always need a registration type; edits may leave older records as they are.
+            'registration_category' => ['required', Rule::in(array_keys(Planter::registrationCategories()))],
+        ]);
     }
 
     /**

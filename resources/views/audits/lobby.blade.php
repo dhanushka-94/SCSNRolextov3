@@ -76,10 +76,13 @@
     @else
         <div class="space-y-4">
             @foreach ($audits as $audit)
-                <article class="card overflow-hidden">
+                <article class="card overflow-hidden border-l-4 {{ $audit->planter->categoryStyle()['bar'] }}">
                     <div class="flex flex-col gap-3 border-b border-sand bg-cream px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div>
-                            <p class="font-mono text-xs font-semibold text-forest">{{ $audit->planter->identification_number ?: $audit->planter->temporary_id }}</p>
+                            <p class="flex flex-wrap items-center gap-2 font-mono text-xs font-semibold text-forest">
+                                {{ $audit->planter->identification_number ?: $audit->planter->temporary_id }}
+                                <x-category-badge :planter="$audit->planter" />
+                            </p>
                             <h2 class="mt-1 text-lg font-semibold text-forest-dark">{{ $audit->planter->name }}</h2>
                             <p class="mt-1 text-sm text-muted">{{ $audit->planter->district ?: '—' }} · {{ $audit->planter->rdd_division ?: '—' }}</p>
                         </div>

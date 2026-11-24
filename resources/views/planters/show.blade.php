@@ -32,19 +32,24 @@
                 @unless ($planter->identification_number)
                     <p class="mt-1 font-mono text-xs text-muted">Ref {{ $planter->temporary_id }}</p>
                 @endunless
-                <h2 class="mt-1 text-xl font-semibold text-forest-dark">{{ $planter->name }}</h2>
+                <h2 class="mt-1 flex flex-wrap items-center gap-2 text-xl font-semibold text-forest-dark">
+                    {{ $planter->name }}
+                    <x-category-badge :planter="$planter" />
+                </h2>
                 <p class="text-sm text-muted">{{ \App\Models\Planter::statuses()[$planter->status] }}</p>
             </div>
-            @if ($planter->isPending() && auth('web')->user()->canReviewRegistrations())
-                <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap items-center gap-3">
+                @if ($planter->isPending() && auth('web')->user()->canReviewRegistrations())
                     <form method="POST" action="{{ route('admin.planters.approve', $planter) }}">
                         @csrf
                         <button type="submit" class="btn-primary">Approve</button>
                     </form>
+                @endif
+                <div class="text-center">
+                    <img src="{{ route('admin.planters.qr', $planter) }}" alt="Tracking QR code" class="h-28 w-28 rounded-xl bg-white p-2 shadow-sm">
+                    <p class="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Tracking QR</p>
                 </div>
-            @elseif ($planter->isApproved() && $planter->identification_number)
-                <img src="{{ route('admin.planters.qr', $planter) }}" alt="Registry QR code" class="h-28 w-28 rounded-xl bg-white p-2 shadow-sm">
-            @endif
+            </div>
         </div>
 
         <div class="space-y-8 p-5 sm:p-8">
@@ -54,6 +59,10 @@
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Registration number</dt>
                         <dd class="mt-1 font-mono text-sm">{{ $planter->identification_number ?: 'Issued on approve / reject' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Registration type</dt>
+                        <dd class="mt-1 text-sm">{{ \App\Models\Planter::registrationCategories()[$planter->registration_category]['en'] ?? 'Not recorded' }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Submission reference</dt>

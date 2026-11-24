@@ -26,7 +26,10 @@
 @endsection
 
 @section('content')
-    <form method="GET" action="{{ route($listFormRoute) }}" class="card mb-5 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+    <form method="GET" action="{{ route($listFormRoute) }}" class="card mb-3 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+        @if (filled($filters['category'] ?? null))
+            <input type="hidden" name="category" value="{{ $filters['category'] }}">
+        @endif
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search ID, name, NIC, or email" class="input-field sm:col-span-2">
         <div class="flex gap-2">
             <select name="district" class="input-field">
@@ -38,6 +41,8 @@
             <button type="submit" class="btn-secondary shrink-0">Filter</button>
         </div>
     </form>
+
+    <x-category-filter :route="$listFormRoute" :current="$filters['category'] ?? null" :counts="$categoryCounts ?? []" />
 
     <section class="card overflow-hidden">
         <div class="hidden overflow-x-auto md:block">
@@ -58,14 +63,17 @@
                 <tbody>
                     @forelse ($planters as $planter)
                         <tr class="border-t border-sand">
-                            <td class="px-5 py-4 font-mono text-xs font-semibold text-forest">
+                            <td class="border-l-4 px-5 py-4 font-mono text-xs font-semibold text-forest {{ $planter->categoryStyle()['bar'] }}">
                                 {{ $planter->identification_number ?: '—' }}
                                 @unless ($planter->identification_number)
                                     <span class="mt-1 block font-mono text-[11px] text-muted">{{ $planter->temporary_id }}</span>
                                 @endunless
                             </td>
                             <td class="px-5 py-4">
-                                <p class="font-semibold text-ink">{{ $planter->name }}</p>
+                                <p class="flex flex-wrap items-center gap-2 font-semibold text-ink">
+                                    {{ $planter->name }}
+                                    <x-category-badge :planter="$planter" />
+                                </p>
                                 <p class="text-xs text-muted">{{ $planter->nic }} · {{ $planter->email ?: 'No email' }} · {{ \App\Models\Planter::registrationTypes()[$planter->registration_type] ?? 'Online' }}</p>
                             </td>
                             <td class="px-5 py-4 text-muted">{{ $planter->district }}</td>
@@ -107,8 +115,11 @@
 
         <div class="space-y-3 p-4 md:hidden">
             @forelse ($planters as $planter)
-                <article class="rounded-2xl border border-sand bg-cream p-4">
-                    <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number ?: $planter->temporary_id }}</p>
+                <article class="rounded-2xl border border-l-4 border-sand bg-cream p-4 {{ $planter->categoryStyle()['bar'] }}">
+                    <div class="flex items-start justify-between gap-2">
+                        <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number ?: $planter->temporary_id }}</p>
+                        <x-category-badge :planter="$planter" />
+                    </div>
                     <p class="mt-1 font-semibold">{{ $planter->name }}</p>
                     <p class="text-sm text-muted">{{ $planter->district }}</p>
                     @if ($isRejectedList)

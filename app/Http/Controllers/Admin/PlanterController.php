@@ -9,6 +9,7 @@ use App\Http\Requests\Planters\UpdatePlanterRequest;
 use App\Models\Planter;
 use App\Services\NotifySmsService;
 use App\Services\PlanterIdentityService;
+use App\Support\PlanterLocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -47,13 +48,15 @@ class PlanterController extends Controller
             })
             ->when($request->filled('district'), fn ($query) => $query->where('district', $request->string('district')))
             ->when($request->filled('registration_type'), fn ($query) => $query->where('registration_type', $request->string('registration_type')))
+            ->when($this->validCategory($request), fn ($query) => $query->where('registration_category', $request->string('category')))
             ->oldest()
             ->paginate(10)
             ->withQueryString();
 
         return view('planters.registration-lobby', [
             'planters' => $planters,
-            'filters' => $request->only(['q', 'district', 'registration_type']),
+            'filters' => $request->only(['q', 'district', 'registration_type', 'category']),
+            'categoryCounts' => $this->categoryCounts(Planter::STATUS_PENDING),
             'stats' => [
                 'total' => (clone $pendingQuery)->count(),
                 'online' => (clone $pendingQuery)->where('registration_type', Planter::TYPE_ONLINE)->count(),
@@ -73,7 +76,7 @@ class PlanterController extends Controller
     {
         $planter = DB::transaction(function () use ($request, $identity) {
             $data = $request->validated();
-            $data = \App\Support\PlanterLocation::hydrateNames($data);
+            $data = PlanterLocation::hydrateNames($data);
             $data['registration_type'] = Planter::TYPE_ONLINE;
 
             if (blank($data['password'] ?? null)) {
@@ -148,7 +151,7 @@ class PlanterController extends Controller
     public function update(UpdatePlanterRequest $request, Planter $planter): RedirectResponse
     {
         $data = $request->validated();
-        $data = \App\Support\PlanterLocation::hydrateNames($data);
+        $data = PlanterLocation::hydrateNames($data);
 
         if (blank($data['password'] ?? null)) {
             unset($data['password']);
@@ -215,9 +218,6 @@ class PlanterController extends Controller
 
     public function qr(Planter $planter, PlanterIdentityService $identity): Response
     {
-        $planter = $identity->ensureIssued($planter)->load('currentCertificate');
-        abort_unless($planter->isApproved() && filled($planter->identification_number), 404);
-
         return response($identity->png($planter, 480), 200, [
             'Content-Type' => 'image/png',
             'Cache-Control' => 'private, max-age=300',
@@ -278,16 +278,40 @@ class PlanterController extends Controller
                 });
             })
             ->when($request->filled('district'), fn ($query) => $query->where('district', $request->string('district')))
+            ->when($this->validCategory($request), fn ($query) => $query->where('registration_category', $request->string('category')))
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
         return view('planters.index', [
             'planters' => $planters,
-            'filters' => $request->only(['q', 'district']),
+            'filters' => $request->only(['q', 'district', 'category']),
+            'categoryCounts' => $this->categoryCounts($status),
             'listStatus' => $status,
             'listRoute' => $routeName,
         ]);
+    }
+
+    private function validCategory(Request $request): bool
+    {
+        return array_key_exists($request->string('category')->toString(), Planter::registrationCategories());
+    }
+
+    /**
+     * Number of planters per registration type for a status, so the filter chips can show counts.
+     *
+     * @return array<string, int>
+     */
+    private function categoryCounts(string $status): array
+    {
+        return Planter::query()
+            ->where('status', $status)
+            ->whereNotNull('registration_category')
+            ->selectRaw('registration_category, count(*) as total')
+            ->groupBy('registration_category')
+            ->pluck('total', 'registration_category')
+            ->map(fn ($total) => (int) $total)
+            ->all();
     }
 
     private function listRouteFor(Planter $planter): string

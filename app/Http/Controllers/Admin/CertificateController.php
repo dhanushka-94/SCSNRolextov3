@@ -99,9 +99,7 @@ class CertificateController extends Controller
 
     public function qr(Certificate $certificate, PlanterIdentityService $identity): Response
     {
-        $certificate->loadMissing('planter.currentCertificate');
-
-        return response($identity->png($certificate->planter), 200, [
+        return response($identity->certificatePng($certificate), 200, [
             'Content-Type' => 'image/png',
             'Cache-Control' => 'private, max-age=300',
         ]);

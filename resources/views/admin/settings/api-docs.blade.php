@@ -93,7 +93,7 @@
                     </div>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-2">
+                <div class="grid grid-cols-1 gap-4 break-words md:grid-cols-2">
                     <div class="rounded-xl border border-sand bg-cream p-4">
                         <h3 class="text-sm font-semibold text-forest-dark">Date and time</h3>
                         <p class="mt-1 text-sm text-bark">{{ $overview['dates'] }}</p>

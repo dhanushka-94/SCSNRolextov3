@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Planters;
 
 use App\Http\Requests\Concerns\ProtectsRegistrationFromSpam;
+use App\Models\Planter;
 use App\Support\PlanterLocation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class OfflineRegisterPlanterRequest extends FormRequest
 {
@@ -31,6 +33,7 @@ class OfflineRegisterPlanterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'registration_category' => ['required', Rule::in(array_keys(Planter::registrationCategories()))],
             'name' => ['required', 'string', 'max:120'],
             'nic' => ['required', 'string', 'max:20', 'unique:planters,nic'],
             'email' => ['nullable', 'string', 'email', 'max:190', 'unique:planters,email'],

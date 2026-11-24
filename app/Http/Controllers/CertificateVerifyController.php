@@ -71,11 +71,10 @@ class CertificateVerifyController extends Controller
     public function qr(string $token, PlanterIdentityService $identity): Response
     {
         $certificate = Certificate::query()
-            ->with(['planter.currentCertificate'])
             ->where('public_token', $token)
             ->firstOrFail();
 
-        return response($identity->png($certificate->planter), 200, [
+        return response($identity->certificatePng($certificate), 200, [
             'Content-Type' => 'image/png',
             'Cache-Control' => 'public, max-age=300',
         ]);

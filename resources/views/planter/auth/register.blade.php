@@ -13,6 +13,11 @@
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-tan">Planter Portal</p>
                             <h1 class="mt-1 text-xl font-semibold sm:text-2xl">ස්වභාවික රබර් සඳහා තිරසාර සහතිකරණය අයදුම්පත</h1>
                             <p class="mt-1 text-sm text-sand/85">{{ config('app.full_name') }}</p>
+                            <p class="mt-3 inline-flex flex-wrap items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
+                                <span class="text-tan">{{ $categoryLabel['en'] }}</span>
+                                <span class="text-sand/80">· {{ $categoryLabel['si'] }} · {{ $categoryLabel['ta'] }}</span>
+                                <a href="{{ route('planter.register') }}" class="underline decoration-tan/60 underline-offset-2 hover:text-tan">Change</a>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -25,6 +30,7 @@
                     data-certification-form
                 >
                     @csrf
+                    <input type="hidden" name="registration_category" value="{{ $category }}">
                     <x-registration-honeypot />
 
                     @if ($errors->has('registration'))
@@ -100,27 +106,15 @@
                             </div>
                         </div>
 
+                        @php
+                            $businessType = \App\Models\Planter::businessTypes()[\App\Models\Planter::businessTypeForCategory($category)];
+                        @endphp
                         <div>
                             <x-bilingual-label si="ව්‍යාපාරයේ ස්වභාවය" en="Nature of business" />
-                            <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                @foreach (\App\Models\Planter::businessTypes() as $value => $label)
-                                    <label class="flex cursor-pointer items-start gap-2 rounded-xl border border-line bg-cream/60 px-3 py-2.5 text-sm">
-                                        <input
-                                            type="radio"
-                                            name="business_type"
-                                            value="{{ $value }}"
-                                            class="mt-1"
-                                            @checked(old('business_type') === $value)
-                                            required
-                                        >
-                                        <span>
-                                            <span class="block font-medium text-bark-dark">{{ $label['si'] }}</span>
-                                            <span class="block text-xs text-muted">{{ $label['en'] }}</span>
-                                        </span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('business_type')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                            <p class="mt-2 rounded-xl border border-line bg-cream/60 px-4 py-3 text-sm font-medium text-bark-dark">
+                                {{ $businessType['si'] }} / {{ $businessType['en'] }}
+                                <span class="mt-0.5 block text-xs font-normal text-muted">Set automatically from your registration type.</span>
+                            </p>
                         </div>
                     </section>
 
@@ -254,23 +248,33 @@
                         </div>
                     </section>
 
-                    <section class="space-y-5">
-                        <h2 class="border-b border-sand pb-2 text-base font-semibold text-forest-dark">
-                            වැවිලි සමාගම / කාණ්ඩය / Plantation company or group
-                        </h2>
-                        <div class="grid gap-5 sm:grid-cols-2">
-                            <div class="sm:col-span-2">
-                                <x-bilingual-label si="වැවිලි සමාගම / වැවිලිකරුවන්ගේ / වැවිලි කාණ්ඩායමේ නම" en="Plantation company / planters / group name" for="group_name" />
-                                <input id="group_name" name="group_name" type="text" value="{{ old('group_name') }}" class="input-field">
-                                @error('group_name')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                    @if ($category !== \App\Models\Planter::CATEGORY_SOLO)
+                        <section class="space-y-5">
+                            <h2 class="border-b border-sand pb-2 text-base font-semibold text-forest-dark">
+                                @if ($category === \App\Models\Planter::CATEGORY_COMPANY)
+                                    සමාගම / Company details
+                                @else
+                                    කණ්ඩායම / Group details
+                                @endif
+                            </h2>
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    @if ($category === \App\Models\Planter::CATEGORY_COMPANY)
+                                        <x-bilingual-label si="සමාගමේ නම" en="Company name" for="group_name" />
+                                    @else
+                                        <x-bilingual-label si="කණ්ඩායමේ / සමිතියේ නම" en="Group or society name" for="group_name" />
+                                    @endif
+                                    <input id="group_name" name="group_name" type="text" value="{{ old('group_name') }}" required class="input-field">
+                                    @error('group_name')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <x-bilingual-label si="ලිපිනය" en="Address" for="group_address" />
+                                    <textarea id="group_address" name="group_address" rows="2" class="input-field">{{ old('group_address') }}</textarea>
+                                    @error('group_address')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                                </div>
                             </div>
-                            <div class="sm:col-span-2">
-                                <x-bilingual-label si="ලිපිනය" en="Address" for="group_address" />
-                                <textarea id="group_address" name="group_address" rows="2" class="input-field">{{ old('group_address') }}</textarea>
-                                @error('group_address')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                    </section>
+                        </section>
+                    @endif
 
                     <x-registration-recaptcha :site-key="$recaptchaSiteKey ?? null" />
 
@@ -293,6 +297,7 @@
 
                     <form method="POST" action="{{ route('planter.register.offline') }}" enctype="multipart/form-data" class="relative space-y-5">
                         @csrf
+                        <input type="hidden" name="registration_category" value="{{ $category }}">
                         <x-registration-honeypot />
 
                         @if ($errors->has('registration'))

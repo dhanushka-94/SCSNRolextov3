@@ -27,6 +27,9 @@ class PortalController extends ApiController
                 ? new CertificateResource($planter->currentCertificate)
                 : null,
             'qr_payload' => $identity->qrPayload($planter),
+            'certificate_qr_payload' => $planter->currentCertificate?->isIssued()
+                ? $identity->certificateQrPayload($planter->currentCertificate)
+                : null,
         ]);
     }
 

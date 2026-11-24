@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Planter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Planters\UpdatePlanterProfileRequest;
 use App\Services\PlanterIdentityService;
+use App\Support\PlanterLocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
@@ -21,7 +22,7 @@ class ProfileController extends Controller
     public function update(UpdatePlanterProfileRequest $request): RedirectResponse
     {
         $request->user('planter')->update(
-            \App\Support\PlanterLocation::hydrateNames($request->validated())
+            PlanterLocation::hydrateNames($request->validated())
         );
 
         return back()->with('success', 'Your profile has been updated.');
@@ -29,8 +30,7 @@ class ProfileController extends Controller
 
     public function qrPng(PlanterIdentityService $identity): Response
     {
-        $planter = $identity->ensureIssued(auth('planter')->user())->load('currentCertificate');
-        abort_unless($planter->isApproved() && filled($planter->identification_number), 404);
+        $planter = auth('planter')->user();
 
         return response($identity->png($planter, 480), 200, [
             'Content-Type' => 'image/png',
@@ -40,8 +40,7 @@ class ProfileController extends Controller
 
     public function downloadQr(PlanterIdentityService $identity, string $format): Response
     {
-        $planter = $identity->ensureIssued(auth('planter')->user())->load('currentCertificate');
-        abort_unless($planter->isApproved() && filled($planter->identification_number), 404);
+        $planter = auth('planter')->user();
         abort_unless(in_array($format, ['png', 'svg'], true), 404);
 
         if ($format === 'svg') {

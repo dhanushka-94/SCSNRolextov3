@@ -126,6 +126,7 @@ class ApiDocumentation
                     ['district_id, district, rdo_division_id, rdd_division', 'integer|string', 'Location ids and names.'],
                     ['farm_name, address', 'string', 'Farm details.'],
                     ['latitude, longitude, has_map_pin', 'string|bool', 'Farm map pin (Sri Lanka bounds).'],
+                    ['registration_category', 'string|null', 'solo, group or company (colour-coded in the admin: sky, amber, violet).'],
                     ['business_type, business_type_label', 'string', 'Nature of business.'],
                     ['already_certified, certification_standard', 'bool|string|null', 'Existing certification.'],
                     ['certification_rejected_or_suspended, certification_issue_reason', 'bool|string|null', 'Past rejection or suspension.'],
@@ -284,6 +285,7 @@ class ApiDocumentation
                         'business_types' => [['value' => 'individual', 'label' => 'Individual', 'label_si' => 'තනි පුද්ගල']],
                         'process_plan_options' => [['value' => 'yes', 'label' => 'Yes', 'label_si' => 'ඔව්']],
                         'registration_types' => [['value' => 'online', 'label' => 'Online']],
+                        'registration_categories' => [['value' => 'solo', 'label' => 'Sole Proprietor Registration', 'label_si' => 'තනි හිමිකරු ලියාපදිංචිය', 'label_ta' => 'தனி உரிமையாளர் பதிவு', 'description' => 'For an individual who owns and runs the farm.', 'business_type' => 'individual']],
                         'planter_statuses' => [['value' => 'pending', 'label' => 'Pending approval']],
                         'audit_result_outcomes' => [['value' => 'certified', 'label' => 'Certified']],
                         'checklist_results' => [['value' => 'pass', 'label' => 'Pass']],
@@ -372,8 +374,9 @@ class ApiDocumentation
             'endpoints' => [
                 self::ep('POST', 'registrations', 'Register online', 'public', [
                     'throttle' => '10 requests / minute per IP',
-                    'description' => 'Submits an online application. Send JSON, or multipart/form-data when attaching prior_certificate_document. The planter receives an SMS and waits for approval.',
+                    'description' => 'Submits an online application. Send JSON, or multipart/form-data when attaching prior_certificate_document. The planter receives an SMS and waits for approval. First, the app shows the registration type choice (solo, group, company); the choice is sent as registration_category and sets business_type on the server (solo → individual, group → society, company → company).',
                     'body' => [
+                        self::p('registration_category', 'enum', true, 'solo (sole proprietor), group or company. Sets business_type automatically. Use reference/options → registration_categories.'),
                         self::p('name', 'string', true, 'Applicant name (max 120).'),
                         self::p('nic', 'string', true, 'National ID, unique (max 20).'),
                         self::p('email', 'string', true, 'Unique email.'),
@@ -397,10 +400,11 @@ class ApiDocumentation
                         self::p('has_certification_leaflet', 'boolean', true, ''),
                         self::p('processes_rubber_on_farm', 'boolean', true, ''),
                         self::p('has_process_plan', 'enum', false, 'yes, no or na. Required when processes_rubber_on_farm is true.'),
-                        self::p('group_name', 'string', false, 'Plantation company / group.'),
+                        self::p('group_name', 'string', false, 'Required for group and company. Company name or group/society name.'),
                         self::p('group_address', 'string', false, ''),
                     ],
                     'request' => [
+                        'registration_category' => 'solo',
                         'name' => 'Asanka Alwis', 'nic' => '900000180V', 'email' => 'asanka@example.lk', 'phone' => '0773000180',
                         'district_id' => 1, 'rdo_division_id' => 29, 'farm_name' => 'Alwis Rubber Estate', 'address' => 'Estate Junction, Kegalle',
                         'latitude' => 7.2513, 'longitude' => 80.3464, 'business_type' => 'individual',
@@ -414,9 +418,10 @@ class ApiDocumentation
                 ]),
                 self::ep('POST', 'registrations/offline', 'Register from a paper form', 'public', [
                     'throttle' => '10 requests / minute per IP',
-                    'description' => 'For planters who filled the paper registration form. Upload a photo or PDF of the form. Staff complete the remaining details later.',
+                    'description' => 'For planters who filled the paper registration form. Choose the registration type first (solo, group or company) and send it as registration_category. Upload a photo or PDF of the form. Staff complete the remaining details later.',
                     'body_type' => 'multipart',
                     'body' => [
+                        self::p('registration_category', 'enum', true, 'solo, group or company.'),
                         self::p('name', 'string', true, ''),
                         self::p('nic', 'string', true, 'Unique.'),
                         self::p('email', 'string', false, 'Unique when given.'),
@@ -467,7 +472,7 @@ class ApiDocumentation
             'description' => 'For signed-in planters. Planter tokens cannot call /staff/* or /admin/* endpoints.',
             'endpoints' => [
                 self::ep('GET', 'planter/dashboard', 'Dashboard', 'planter', [
-                    'description' => 'Everything the home screen needs: profile summary, the audit timeline, the current certificate and the QR payload (verification URL once certified, otherwise the SPPNR ID).',
+                    'description' => 'Everything the home screen needs: profile summary, the audit timeline, the current certificate and two QR payloads: qr_payload is the planter\'s tracking QR (the reference number, fixed from registration to the end) and certificate_qr_payload is the public verification URL of the current certificate (null until a certificate is issued).',
                     'response' => [
                         'planter' => self::planter(),
                         'audit_timeline' => [
@@ -477,7 +482,8 @@ class ApiDocumentation
                             ['key' => 'audit_result', 'label' => 'Audit result', 'description' => '...', 'state' => 'upcoming', 'children' => []],
                         ],
                         'certificate' => null,
-                        'qr_payload' => 'RUB/SUS/KEGA/REDE/00001',
+                        'qr_payload' => 'TMP-2026-000001',
+                        'certificate_qr_payload' => null,
                     ],
                     'response_note' => 'Timeline state is completed, current or upcoming. certificate is a Certificate object once issued.',
                 ]),
@@ -566,12 +572,26 @@ class ApiDocumentation
                     'response' => ['planter' => self::planter()],
                     'errors' => [[403, 'Role cannot manage planter records.'], [422, 'Validation errors.']],
                 ]),
-                self::ep('GET', 'staff/planters/{planter}', 'Planter detail', 'staff', [
-                    'description' => 'Full record, audit timeline, QR payload, the SMS steps that can be resent and what the current user may do.',
+                self::ep('GET', 'staff/scan/{reference}', 'Scan a planter tracking QR', 'staff', [
+                    'description' => 'Call this with the text read from a planter\'s tracking QR code (the reference number, for example TMP-2026-000001). The SPPNR ID is accepted too. Returns the same data as Planter detail plus the planter\'s audits, each with can_work for the signed-in user. Every scan is written to the audit log. The tracking QR never changes, so the same code works at every stage. This is not the certificate QR: certificate QR codes are public verify links (/verify/{token}) and are checked on the website, not here.',
                     'response' => [
                         'planter' => self::planter(),
                         'audit_timeline' => [['key' => 'registration_approved', 'label' => 'Registration approved', 'description' => '...', 'state' => 'completed', 'children' => []]],
-                        'qr_payload' => 'RUB/SUS/KEGA/REDE/00001',
+                        'qr_payload' => 'TMP-2026-000001',
+                        'certificate_qr_payload' => null,
+                        'sms_resend_actions' => [['key' => 'registration_submitted', 'label' => 'Registration submitted']],
+                        'permissions' => ['can_edit' => true, 'can_delete' => false, 'can_approve' => false, 'can_reject' => false, 'can_dispatch_first_audit' => true, 'can_dispatch_second_audit' => false, 'can_issue_certificate' => false, 'can_resend_sms' => true],
+                        'audits' => [['id' => 12, 'round' => 'first', 'status' => 'in_progress', 'is_current' => true, 'can_work' => true]],
+                    ],
+                    'errors' => [[404, 'No planter found for that QR code.']],
+                ]),
+                self::ep('GET', 'staff/planters/{planter}', 'Planter detail', 'staff', [
+                    'description' => 'Full record, audit timeline, tracking QR payload (qr_payload), certificate QR payload (certificate_qr_payload, null until a certificate is issued), the SMS steps that can be resent and what the current user may do.',
+                    'response' => [
+                        'planter' => self::planter(),
+                        'audit_timeline' => [['key' => 'registration_approved', 'label' => 'Registration approved', 'description' => '...', 'state' => 'completed', 'children' => []]],
+                        'qr_payload' => 'TMP-2026-000001',
+                        'certificate_qr_payload' => null,
                         'sms_resend_actions' => [['key' => 'registration_submitted', 'label' => 'Registration submitted'], ['key' => 'registration_approved', 'label' => 'Registration approved']],
                         'permissions' => ['can_edit' => true, 'can_delete' => true, 'can_approve' => false, 'can_reject' => false, 'can_dispatch_first_audit' => true, 'can_dispatch_second_audit' => false, 'can_issue_certificate' => false, 'can_resend_sms' => true],
                     ],
@@ -941,7 +961,8 @@ class ApiDocumentation
             self::p('farm_name', 'string', false, ''),
             self::p('whatsapp', 'string', false, ''),
             self::p('fax', 'string', false, ''),
-            self::p('business_type', 'enum', false, 'See reference/options.'),
+            self::p('registration_category', 'enum', true, 'solo, group or company. Required when creating; optional when updating (older records may not have one). Sets business_type automatically.'),
+            self::p('business_type', 'enum', false, 'See reference/options. Ignored when registration_category is sent.'),
             self::p('already_certified', 'boolean', false, ''),
             self::p('certification_standard', 'string', false, 'Required when already_certified is true.'),
             self::p('certification_rejected_or_suspended', 'boolean', false, ''),

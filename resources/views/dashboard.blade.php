@@ -140,8 +140,13 @@
                 <tbody>
                     @forelse ($recentPlanters as $planter)
                         <tr class="border-t border-sand">
-                            <td class="px-5 py-3 font-mono text-xs font-semibold text-forest">{{ $planter->identification_number }}</td>
-                            <td class="px-5 py-3 font-medium">{{ $planter->name }}</td>
+                            <td class="border-l-4 px-5 py-3 font-mono text-xs font-semibold text-forest {{ $planter->categoryStyle()['bar'] }}">{{ $planter->identification_number }}</td>
+                            <td class="px-5 py-3 font-medium">
+                                <span class="flex flex-wrap items-center gap-2">
+                                    {{ $planter->name }}
+                                    <x-category-badge :planter="$planter" />
+                                </span>
+                            </td>
                             <td class="px-5 py-3 text-muted">{{ $planter->district ?: '—' }}</td>
                             <td class="px-5 py-3 text-muted">{{ \App\Models\Planter::registrationTypes()[$planter->registration_type] ?? 'Online' }}</td>
                             <td class="px-5 py-3">
@@ -163,8 +168,11 @@
 
         <div class="space-y-3 p-4 md:hidden">
             @forelse ($recentPlanters as $planter)
-                <article class="rounded-xl border border-sand bg-cream p-4">
-                    <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number }}</p>
+                <article class="rounded-xl border border-l-4 border-sand bg-cream p-4 {{ $planter->categoryStyle()['bar'] }}">
+                    <div class="flex items-start justify-between gap-2">
+                        <p class="font-mono text-xs font-semibold text-forest">{{ $planter->identification_number }}</p>
+                        <x-category-badge :planter="$planter" />
+                    </div>
                     <p class="font-semibold">{{ $planter->name }}</p>
                     <p class="mt-1 text-xs text-bark">{{ $planter->district ?: '—' }} · {{ \App\Models\Planter::statuses()[$planter->status] }}</p>
                     <a href="{{ route('admin.planters.show', $planter) }}" class="mt-3 inline-flex text-sm font-semibold text-leaf hover:text-forest">View application</a>
