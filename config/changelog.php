@@ -32,6 +32,21 @@ return [
     'releases' => [
 
         [
+            'version' => '1.0.0',
+            'date' => '2026-11-24',
+            'title' => 'First release',
+            'changes' => [
+                ['type' => 'added', 'text' => 'Mobile API documentation with every endpoint, request and response example, roles and enums, published as part of the system.'],
+                ['type' => 'changed', 'text' => 'The SMS template list is for the developer (Super Admin) only. Other staff roles receive 403.'],
+                ['type' => 'removed', 'text' => 'The sample-SMS endpoint was removed from the API. Sample SMS can still be sent from the web Settings page by the developer.'],
+                ['type' => 'security', 'text' => 'Cross-origin requests from other websites are blocked by default. Allowed origins are set with CORS_ALLOWED_ORIGINS.'],
+                ['type' => 'security', 'text' => 'Every response, including errors such as 401, 403, 404 and 500, carries the security headers. The PHP version header is removed.'],
+                ['type' => 'changed', 'text' => 'Short name is SPPNR, with the full name SUSTAINABLE PRODUCTION AND PROCESSING OF NATURAL RUBBER.'],
+                ['type' => 'changed', 'text' => 'Version numbers follow Semantic Versioning (MAJOR.MINOR.PATCH).'],
+            ],
+        ],
+
+        [
             'version' => '0.11.0',
             'date' => '2026-11-24',
             'title' => 'Colour-coded registration types, trilingual paper form, responsive fixes',

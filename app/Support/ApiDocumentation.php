@@ -267,7 +267,7 @@ class ApiDocumentation
                             'name' => 'SPPNR',
                             'short_name' => 'SPPNR',
                             'full_name' => 'SUSTAINABLE PRODUCTION AND PROCESSING OF NATURAL RUBBER',
-                            'version' => '0.11.0',
+                            'version' => '1.0.0',
                             'copyright' => '...',
                             'powered_by' => '...',
                         ],
