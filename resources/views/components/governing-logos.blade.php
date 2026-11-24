@@ -4,6 +4,7 @@
     'nameLayout' => 'below',
     'layout' => 'row',
     'withSystem' => false,
+    'names' => 'short',
 ])
 
 @php
@@ -14,6 +15,7 @@
             'short' => config('app.short_name'),
             'logo' => 'SPPNR-logo.png',
             'round' => true,
+            'lines' => [config('app.full_name'), config('app.short_name')],
         ];
     }
     $logoClass = match ($size) {
@@ -31,7 +33,8 @@
         @php
             $itemClass = match (true) {
                 $showNames && $nameLayout === 'inline' => 'flex max-w-[16rem] items-center gap-2 text-left',
-                $showNames => 'flex max-w-[11rem] flex-col items-center gap-2 text-center',
+                $showNames && ! empty($body['lines']) => 'flex max-w-[16rem] flex-col items-center gap-2 text-center',
+                $showNames => 'flex max-w-[12rem] flex-col items-center gap-2 text-center',
                 default => '',
             };
         @endphp
@@ -43,8 +46,20 @@
                 class="{{ $logoClass }} shrink-0 {{ ($body['round'] ?? false) ? 'rounded-full' : 'rounded-lg' }} bg-white object-contain p-0.5 shadow-sm ring-1 ring-sand/80"
             >
             @if ($showNames)
+                @php
+                    $caption = $names === 'full' ? $body['name'] : ($body['short'] ?? $body['name']);
+                    if ($names === 'full' && ($body['logo'] ?? '') === 'logo-rrisl.png') {
+                        $caption = $body['short'] ?? $body['name'];
+                    }
+                @endphp
                 <span class="text-[11px] font-medium leading-snug text-bark sm:text-xs">
-                    {{ $body['short'] ?? $body['name'] }}
+                    @if (! empty($body['lines']))
+                        @foreach ($body['lines'] as $line)
+                            <span class="block">{{ $line }}</span>
+                        @endforeach
+                    @else
+                        {{ $caption }}
+                    @endif
                 </span>
             @endif
         </div>

@@ -40,6 +40,7 @@ return [
         'user_id' => env('NOTIFY_USER_ID'),
         'api_key' => env('NOTIFY_API_KEY'),
         'sender_id' => env('NOTIFY_SENDER_ID', 'NotifyDEMO'),
+        'base_url' => env('NOTIFY_BASE_URL', 'https://app.notify.lk/api/v1'),
     ],
 
 ];

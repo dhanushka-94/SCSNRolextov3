@@ -7,11 +7,21 @@
 @section('actions')
     <a href="{{ route($certificate->isRevoked() ? 'admin.certificates.revoked' : 'admin.certificates.issued') }}" class="btn-secondary">Back to list</a>
     <a href="{{ route('admin.planters.show', $certificate->planter) }}" class="btn-secondary">Registry details</a>
-    <a href="{{ route('admin.certificates.print', $certificate) }}" class="btn-primary" target="_blank">Print</a>
+    <a href="{{ route('admin.certificates.print', $certificate) }}" class="btn-secondary" target="_blank">Print</a>
+    <a href="{{ route('admin.certificates.pdf', $certificate) }}" class="btn-primary">Download PDF</a>
 @endsection
 
 @section('content')
-    <div class="mx-auto max-w-4xl space-y-6">
+    <style>
+        .app-footer-sticky { position: static; }
+    </style>
+    <div class="mx-auto max-w-[230mm] space-y-8">
+        <div class="overflow-x-auto pb-2">
+            @include('certificates.partials.document', [
+                'qrUrl' => route('admin.certificates.qr', $certificate),
+            ])
+        </div>
+
         @error('certificate')
             <p class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ $message }}</p>
         @enderror

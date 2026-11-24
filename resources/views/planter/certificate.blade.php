@@ -16,7 +16,8 @@
                 <p class="text-sm text-muted">This QR code belongs only to this certificate. Anyone can scan it to check that the certificate is genuine and still valid.</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('planter.certificate.print') }}" class="btn-primary" target="_blank">Print certificate</a>
+                <a href="{{ route('planter.certificate.print') }}" class="btn-secondary" target="_blank">Print certificate</a>
+                <a href="{{ route('planter.certificate.pdf') }}" class="btn-primary">Download PDF</a>
                 <a href="{{ $certificate->verifyUrl() }}" class="btn-secondary" target="_blank" rel="noopener">Open public verify page</a>
                 <a href="{{ route('planter.certificate.qr.download', 'png') }}" class="btn-secondary">Download certificate QR (PNG)</a>
                 <a href="{{ route('planter.certificate.qr.download', 'svg') }}" class="btn-secondary">Download certificate QR (SVG)</a>

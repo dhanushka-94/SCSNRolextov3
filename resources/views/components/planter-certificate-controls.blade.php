@@ -30,7 +30,8 @@
             <p class="mt-2 font-semibold text-forest-dark">{{ $certificate->statusLabel() }} · {{ $certificate->outcomeLabel() }}</p>
             <div class="mt-3 flex flex-wrap gap-2">
                 <a href="{{ route('admin.certificates.show', $certificate) }}" class="btn-secondary">Open</a>
-                <a href="{{ route('admin.certificates.print', $certificate) }}" class="btn-primary" target="_blank">Print</a>
+                <a href="{{ route('admin.certificates.print', $certificate) }}" class="btn-secondary" target="_blank">Print</a>
+                <a href="{{ route('admin.certificates.pdf', $certificate) }}" class="btn-primary">Download PDF</a>
             </div>
         </div>
     @elseif ($latest?->isRevoked())

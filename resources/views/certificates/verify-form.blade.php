@@ -6,8 +6,8 @@
     <title>Verify certificate · {{ config('app.short_name') }}</title>
     @vite(['resources/css/app.css'])
 </head>
-<body class="min-h-screen bg-cream text-ink">
-    <main class="mx-auto max-w-lg px-4 py-10">
+<body class="flex min-h-screen flex-col bg-cream text-ink">
+    <main class="mx-auto w-full max-w-lg flex-1 px-4 py-10">
         <div class="text-center">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-tan">{{ config('app.short_name') }}</p>
             <h1 class="mt-2 text-2xl font-semibold text-forest-dark">Verify a certificate</h1>
@@ -34,5 +34,7 @@
             <a href="{{ route('partner.home') }}" class="font-semibold text-leaf hover:text-forest">Back to portal</a>
         </p>
     </main>
+
+    <x-app-footer class="px-4 py-8" />
 </body>
 </html>

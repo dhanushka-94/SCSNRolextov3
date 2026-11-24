@@ -7,6 +7,7 @@ use App\Http\Requests\Certificates\IssueCertificateRequest;
 use App\Http\Requests\Certificates\RevokeCertificateRequest;
 use App\Models\Certificate;
 use App\Models\Planter;
+use App\Services\CertificatePdf;
 use App\Services\CertificateService;
 use App\Services\PlanterIdentityService;
 use Illuminate\Http\RedirectResponse;
@@ -77,7 +78,7 @@ class CertificateController extends Controller
     {
         abort_unless($request->user('web')->canManageCertificates(), 403);
 
-        $certificate->load(['planter', 'issuer', 'revoker']);
+        $certificate->load(['planter.rdoDivision', 'issuer', 'revoker']);
 
         return view('certificates.show', [
             'certificate' => $certificate,
@@ -89,12 +90,23 @@ class CertificateController extends Controller
     {
         abort_unless($request->user('web')->canManageCertificates(), 403);
 
-        $certificate->load(['planter', 'issuer']);
+        $certificate->load(['planter.rdoDivision', 'issuer']);
 
         return view('certificates.print', [
             'certificate' => $certificate,
             'qrUrl' => route('admin.certificates.qr', $certificate),
+            'downloadUrl' => route('admin.certificates.pdf', $certificate),
+            'forEmbed' => $request->boolean('embed'),
         ]);
+    }
+
+    public function pdf(Request $request, Certificate $certificate, CertificatePdf $pdf, PlanterIdentityService $identity)
+    {
+        abort_unless($request->user('web')->canManageCertificates(), 403);
+
+        $certificate->load(['planter.rdoDivision']);
+
+        return $pdf->download($certificate, $identity->certificatePng($certificate, 600));
     }
 
     public function qr(Certificate $certificate, PlanterIdentityService $identity): Response

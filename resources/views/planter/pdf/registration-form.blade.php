@@ -313,6 +313,7 @@
             </tr>
         </table>
         <p class="powered-text">{{ config('app.powered_by') }}</p>
+        <p class="powered-text">&copy; {{ now()->year }} {{ config('app.copyright') }}. All rights reserved.</p>
     </div>
 </body>
 </html>

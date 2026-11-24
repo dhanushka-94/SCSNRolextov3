@@ -1,0 +1,1 @@
+@include('errors.page', ['code' => 503, 'title' => 'Unavailable', 'message' => 'The site is temporarily unavailable. Please try again later.'])

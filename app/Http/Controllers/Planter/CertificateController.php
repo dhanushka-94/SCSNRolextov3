@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Planter;
 
 use App\Http\Controllers\Controller;
+use App\Services\CertificatePdf;
 use App\Services\PlanterIdentityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -58,13 +59,23 @@ class CertificateController extends Controller
     public function print(Request $request): View
     {
         $planter = $request->user('planter');
-        $certificate = $planter->currentCertificate()->with(['issuer', 'planter'])->first();
+        $certificate = $planter->currentCertificate()->with(['issuer', 'planter.rdoDivision'])->first();
 
         abort_unless($certificate, 404);
 
         return view('certificates.print', [
             'certificate' => $certificate,
             'qrUrl' => route('verify.qr', $certificate->public_token),
+            'downloadUrl' => route('planter.certificate.pdf'),
         ]);
+    }
+
+    public function pdf(Request $request, CertificatePdf $pdf, PlanterIdentityService $identity)
+    {
+        $certificate = $request->user('planter')->currentCertificate()->with(['planter.rdoDivision'])->first();
+
+        abort_unless($certificate, 404);
+
+        return $pdf->download($certificate, $identity->certificatePng($certificate, 600));
     }
 }

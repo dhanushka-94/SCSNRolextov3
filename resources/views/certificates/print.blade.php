@@ -1,78 +1,55 @@
+@php
+    $forPdf = $forPdf ?? false;
+    $forEmbed = $forEmbed ?? false;
+    $downloadUrl = $downloadUrl ?? null;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $certificate->certificate_number }} · {{ config('app.short_name') }}</title>
+    <x-app-fonts :display="true" />
     @vite(['resources/css/app.css'])
     <style>
+        @page { size: A4 portrait; margin: 0; }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            background: #efe8dc;
+            color: #2a2118;
+            font-family: "Plus Jakarta Sans", "Noto Sans Sinhala", "Noto Sans Tamil", sans-serif;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            width: 210mm;
+            margin: 8mm auto 0;
+        }
+        .print-stage .cert-inline.sheet { margin: 6mm auto 10mm; }
+        body.embed { background: #efe8dc; }
+        body.embed .cert-inline.sheet { margin: 0 auto; }
         @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            .certificate-sheet { box-shadow: none !important; border: 1px solid #ccc !important; }
+            .toolbar { display: none !important; }
+            body { background: white; }
+            .print-stage .cert-inline.sheet { margin: 0; box-shadow: none; }
         }
     </style>
 </head>
-<body class="bg-cream text-ink">
-    <div class="no-print mx-auto flex max-w-4xl justify-end gap-2 px-4 py-4">
-        <button type="button" onclick="window.print()" class="btn-primary">Print</button>
-        <button type="button" onclick="window.close()" class="btn-secondary">Close</button>
-    </div>
-
-    <article class="certificate-sheet mx-auto my-4 max-w-4xl rounded-2xl border border-sand bg-paper p-8 shadow-sm sm:p-12">
-        <header class="border-b border-sand pb-6 text-center">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-tan">{{ config('app.short_name') }}</p>
-            <h1 class="mt-2 text-2xl font-semibold text-forest-dark sm:text-3xl">Sustainability Certificate</h1>
-            <p class="mt-2 text-sm text-muted">{{ config('app.full_name') }}</p>
-        </header>
-
-        <div class="mt-8 grid gap-8 sm:grid-cols-[1fr_auto]">
-            <div class="space-y-4">
-                <p class="text-sm text-muted">This certifies that</p>
-                <p class="text-2xl font-semibold text-forest-dark">{{ $certificate->planter->name }}</p>
-                <dl class="grid gap-3 text-sm sm:grid-cols-2">
-                    <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">SPPNR ID</dt>
-                        <dd class="mt-1 font-mono">{{ $certificate->planter->identification_number }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Certificate No.</dt>
-                        <dd class="mt-1 font-mono">{{ $certificate->certificate_number }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">District</dt>
-                        <dd class="mt-1">{{ $certificate->planter->district ?: '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Farm</dt>
-                        <dd class="mt-1">{{ $certificate->planter->farm_name ?: '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Outcome</dt>
-                        <dd class="mt-1 font-semibold">{{ $certificate->outcomeLabel() }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Issued</dt>
-                        <dd class="mt-1">{{ sl_date($certificate->issued_at) }}</dd>
-                    </div>
-                </dl>
-                @if ($certificate->isRevoked())
-                    <p class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
-                        REVOKED — {{ sl_date($certificate->revoked_at) }}
-                    </p>
-                @endif
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <img src="{{ $qrUrl }}" alt="Verification QR" class="h-36 w-36 rounded-xl bg-white p-2 ring-1 ring-sand">
-                <p class="max-w-[9rem] text-center text-[10px] text-muted">Scan to verify</p>
-            </div>
+<body class="{{ $forEmbed ? 'embed' : '' }}">
+    @unless ($forPdf || $forEmbed)
+        <div class="toolbar">
+            @if ($downloadUrl)
+                <a href="{{ $downloadUrl }}" class="btn-primary">Download PDF</a>
+            @endif
+            <button type="button" onclick="window.print()" class="btn-secondary">Print</button>
+            <button type="button" onclick="window.close()" class="btn-secondary">Close</button>
         </div>
+    @endunless
 
-        <footer class="mt-10 border-t border-sand pt-6 text-center text-xs text-muted">
-            <p>{{ config('app.powered_by') }}</p>
-            <p class="mt-2">{{ config('app.short_name') }} v{{ config('app.version') }}</p>
-            <p class="mt-2">Verify at {{ $certificate->verifyUrl() }}</p>
-        </footer>
-    </article>
+    <div class="print-stage">
+        @include('certificates.partials.document')
+    </div>
 </body>
 </html>

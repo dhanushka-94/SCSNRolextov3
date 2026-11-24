@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Certificate;
 use App\Models\Planter;
 use App\Models\PlanterAudit;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use NotifyLk\Api\SmsApi;
 use Throwable;
@@ -37,10 +38,13 @@ class NotifySmsService
         return $this->templates()[$key] ?? null;
     }
 
+    /** Languages every template is written in, in display order. */
+    public const LANGUAGES = ['en', 'si', 'ta'];
+
     /**
      * @param  array<string, string|int|null>  $replacements
      */
-    public function render(string $key, array $replacements = []): ?string
+    public function render(string $key, array $replacements = [], string $lang = 'en'): ?string
     {
         $template = $this->template($key);
 
@@ -48,7 +52,7 @@ class NotifySmsService
             return null;
         }
 
-        $body = (string) ($template['body'] ?? '');
+        $body = (string) ($this->localised($template, 'body', $lang) ?? '');
         $defaults = [
             'brand' => (string) config('app.short_name', 'SPPNR'),
         ];
@@ -60,7 +64,7 @@ class NotifySmsService
         return $body;
     }
 
-    public function renderSample(string $key): ?string
+    public function renderSample(string $key, string $lang = 'en'): ?string
     {
         $template = $this->template($key);
 
@@ -69,9 +73,38 @@ class NotifySmsService
         }
 
         /** @var array<string, string|int|null> $sample */
-        $sample = $template['sample'] ?? [];
+        $sample = array_merge(
+            $template['sample'] ?? [],
+            $lang === 'en' ? [] : ($template['sample_'.$lang] ?? []),
+        );
 
-        return $this->render($key, $sample);
+        return $this->render($key, $sample, $lang);
+    }
+
+    /**
+     * The template text in one language, or null when that language is missing.
+     * English is never missing for a template that exists.
+     *
+     * @param  array<string, mixed>  $template
+     */
+    public function localised(array $template, string $field, string $lang): ?string
+    {
+        $suffix = $lang === 'en' ? '' : '_'.$lang;
+        $value = $template[$field.$suffix] ?? null;
+
+        if (blank($value) && $lang !== 'en') {
+            $value = $template[$field] ?? null;
+        }
+
+        return blank($value) ? null : (string) $value;
+    }
+
+    /** The template name in one language (falls back to English). */
+    public function templateName(string $key, string $lang = 'en'): string
+    {
+        $template = $this->template($key) ?? [];
+
+        return $this->localised($template, 'name', $lang) ?? $key;
     }
 
     public function normalizePhone(?string $phone): ?string
@@ -127,6 +160,10 @@ class NotifySmsService
             return false;
         }
 
+        if ($this->needsUnicode($message)) {
+            return $this->sendUnicode($normalized, $message);
+        }
+
         try {
             $api = new SmsApi;
             $config = config('services.notify');
@@ -143,6 +180,63 @@ class NotifySmsService
         } catch (Throwable $e) {
             Log::error('Notify SMS failed.', [
                 'phone' => $normalized,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Sinhala and Tamil text only reaches the handset when the gateway is told
+     * the message is Unicode (type=unicode). Without it, the gateway turns every
+     * non-Latin character into "?". The bundled SmsApi client cannot send that
+     * flag, so Unicode messages are posted to the same endpoint directly.
+     */
+    public function needsUnicode(string $message): bool
+    {
+        return preg_match('/[^\x00-\x7F]/', $message) === 1;
+    }
+
+    private function sendUnicode(string $normalizedPhone, string $message): bool
+    {
+        // Notify.lk limits Unicode messages to 268 characters in total.
+        if (mb_strlen($message) > 268) {
+            Log::warning('Notify Unicode SMS skipped: over 268 characters.', [
+                'length' => mb_strlen($message),
+            ]);
+
+            return false;
+        }
+
+        $config = config('services.notify');
+
+        try {
+            $response = Http::asForm()
+                ->timeout(30)
+                ->post(rtrim((string) $config['base_url'], '/').'/send', [
+                    'user_id' => (string) $config['user_id'],
+                    'api_key' => (string) $config['api_key'],
+                    'sender_id' => (string) $config['sender_id'],
+                    'to' => $normalizedPhone,
+                    'message' => $message,
+                    'type' => 'unicode',
+                ]);
+
+            if ($response->successful() && $response->json('status') === 'success') {
+                return true;
+            }
+
+            Log::error('Notify Unicode SMS rejected.', [
+                'phone' => $normalizedPhone,
+                'http_status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return false;
+        } catch (Throwable $e) {
+            Log::error('Notify Unicode SMS failed.', [
+                'phone' => $normalizedPhone,
                 'error' => $e->getMessage(),
             ]);
 
@@ -170,15 +264,15 @@ class NotifySmsService
         return $this->send($to, $message);
     }
 
-    public function sendSample(string $key, string $to): bool
+    public function sendSample(string $key, string $to, string $lang = 'en'): bool
     {
-        $message = $this->renderSample($key);
+        $message = $this->renderSample($key, $lang);
 
         if ($message === null) {
             return false;
         }
 
-        $label = $this->template($key)['name'] ?? $key;
+        $label = $this->templateName($key, $lang);
         $prefixed = '[SAMPLE '.$label.'] '.$message;
 
         if (mb_strlen($prefixed) > 320) {
@@ -189,18 +283,24 @@ class NotifySmsService
     }
 
     /**
+     * @param  list<string>|null  $languages  defaults to English only
      * @return array{sent: list<string>, failed: list<string>}
      */
-    public function sendAllSamples(string $to): array
+    public function sendAllSamples(string $to, ?array $languages = null): array
     {
         $sent = [];
         $failed = [];
 
-        foreach (array_keys($this->templates()) as $key) {
-            if ($this->sendSample($key, $to)) {
-                $sent[] = $key;
-            } else {
-                $failed[] = $key;
+        foreach ($languages ?? ['en'] as $lang) {
+            foreach (array_keys($this->templates()) as $key) {
+                // English keeps the plain template key, so existing API clients see the same values.
+                $id = $lang === 'en' ? $key : $lang.':'.$key;
+
+                if ($this->sendSample($key, $to, $lang)) {
+                    $sent[] = $id;
+                } else {
+                    $failed[] = $id;
+                }
             }
         }
 

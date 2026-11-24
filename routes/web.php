@@ -11,7 +11,6 @@ use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\PlanterController;
 use App\Http\Controllers\Admin\RdoDivisionController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\PartnerHomeController;
@@ -24,6 +23,7 @@ use App\Http\Controllers\Planter\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', PartnerHomeController::class)->name('partner.home');
+Route::view('copyright', 'legal.copyright')->name('legal.copyright');
 
 Route::get('verify', [CertificateVerifyController::class, 'form'])->name('verify.form');
 Route::post('verify', [CertificateVerifyController::class, 'lookup'])->name('verify.lookup');
@@ -57,6 +57,7 @@ Route::middleware('auth:planter')->group(function () {
         ->name('planter.profile.qr.download');
     Route::get('certificate', [PlanterCertificateController::class, 'show'])->name('planter.certificate');
     Route::get('certificate/print', [PlanterCertificateController::class, 'print'])->name('planter.certificate.print');
+    Route::get('certificate/pdf', [PlanterCertificateController::class, 'pdf'])->name('planter.certificate.pdf');
     Route::get('certificate/qr.png', [PlanterCertificateController::class, 'qr'])->name('planter.certificate.qr');
     Route::get('certificate/qr/download.{format}', [PlanterCertificateController::class, 'downloadQr'])
         ->whereIn('format', ['png', 'svg'])
@@ -76,8 +77,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         if (config('changelog.enabled')) {
             Route::get('changelog', ChangelogController::class)->name('changelog');
         }
-        Route::get('sms-templates', [SmsTemplateController::class, 'index'])->name('sms-templates.index');
-        Route::post('sms-templates/send-samples', [SmsTemplateController::class, 'sendSamples'])->name('sms-templates.send-samples');
+        Route::redirect('sms-templates', '/admin/settings');
         Route::redirect('planters/approval-lobby', '/admin/planters/registration-lobby');
         Route::get('planters/registration-lobby', [PlanterController::class, 'approvalLobby'])->name('planters.registration-lobby');
         Route::get('planters/rejected', [PlanterController::class, 'rejected'])->name('planters.rejected');
@@ -107,6 +107,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('certificates/revoked', [AdminCertificateController::class, 'revoked'])->name('certificates.revoked');
         Route::get('certificates/{certificate}', [AdminCertificateController::class, 'show'])->name('certificates.show');
         Route::get('certificates/{certificate}/print', [AdminCertificateController::class, 'print'])->name('certificates.print');
+        Route::get('certificates/{certificate}/pdf', [AdminCertificateController::class, 'pdf'])->name('certificates.pdf');
         Route::get('certificates/{certificate}/qr.png', [AdminCertificateController::class, 'qr'])->name('certificates.qr');
         Route::post('certificates/{certificate}/revoke', [AdminCertificateController::class, 'revoke'])->name('certificates.revoke');
 
@@ -114,6 +115,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::middleware('developer')->group(function () {
             Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
             Route::put('settings/maintenance', [SettingsController::class, 'updateMaintenance'])->name('settings.maintenance');
+            Route::post('settings/sms-samples', [SettingsController::class, 'sendSmsSamples'])->name('settings.sms-samples');
             Route::get('settings/api-docs', ApiDocsController::class)->name('settings.api-docs');
         });
 
