@@ -21,6 +21,12 @@ return [
     | everywhere (footer, sidebar, changelog “current”, etc.).
     | Bump the top entry to update the whole system — no APP_VERSION needed.
     |
+    | Numbering follows Semantic Versioning: MAJOR.MINOR.PATCH.
+    | MAJOR: a change that breaks existing use (for example a changed API).
+    | MINOR: new features that stay compatible with what already works.
+    | PATCH: bug fixes with no new features.
+    | When a number goes up, the numbers to its right reset to 0.
+    |
     */
 
     'releases' => [

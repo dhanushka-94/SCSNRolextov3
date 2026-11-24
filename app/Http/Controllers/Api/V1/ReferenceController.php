@@ -19,7 +19,7 @@ class ReferenceController extends ApiController
                 'name' => config('app.name'),
                 'short_name' => config('app.short_name'),
                 'full_name' => config('app.full_name'),
-                'version' => config('changelog.releases.0.version'),
+                'version' => config('app.version'),
                 'copyright' => config('app.copyright'),
                 'powered_by' => config('app.powered_by'),
             ],
