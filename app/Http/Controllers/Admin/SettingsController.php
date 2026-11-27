@@ -18,9 +18,12 @@ class SettingsController extends Controller
 
         $smsTemplates = collect($sms->templates())->map(function (array $template, string $key) use ($sms) {
             $bodies = [];
+            $previews = [];
             foreach (NotifySmsService::LANGUAGES as $lang) {
                 $body = $sms->localised($template, 'body', $lang) ?? '';
+                $preview = $sms->renderSample($key, $lang) ?? '';
                 $bodies[$lang] = ['text' => $body, 'length' => mb_strlen($body)];
+                $previews[$lang] = ['text' => $preview, 'length' => mb_strlen($preview)];
             }
 
             return [
@@ -34,6 +37,7 @@ class SettingsController extends Controller
                 'status' => $template['status'] ?? 'planned',
                 'placeholders' => $template['placeholders'] ?? [],
                 'bodies' => $bodies,
+                'previews' => $previews,
             ];
         })->values();
 

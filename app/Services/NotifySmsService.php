@@ -309,7 +309,24 @@ class NotifySmsService
 
     public function notifyPlanter(Planter $planter, string $templateKey, array $replacements = []): bool
     {
-        return $this->sendTemplate($templateKey, (string) $planter->phone, $replacements);
+        return $this->sendTemplate($templateKey, (string) $planter->phone, array_merge(
+            $this->planterIdentity($planter),
+            $replacements,
+        ));
+    }
+
+    /**
+     * Name and SPPNR ID included on every planter SMS.
+     * Before approval the SPPNR ID line reads "Pending".
+     *
+     * @return array{name: string, registration_number: string}
+     */
+    private function planterIdentity(Planter $planter): array
+    {
+        return [
+            'name' => $planter->name ?: 'N/A',
+            'registration_number' => $planter->identification_number ?: 'Pending',
+        ];
     }
 
     public function sendRegistrationSubmitted(Planter $planter): bool
@@ -322,6 +339,7 @@ class NotifySmsService
     public function sendRegistrationApproved(Planter $planter): bool
     {
         return $this->notifyPlanter($planter, 'registration_approved', [
+            'name' => $planter->name ?: 'N/A',
             'registration_number' => $planter->identification_number ?: 'N/A',
         ]);
     }

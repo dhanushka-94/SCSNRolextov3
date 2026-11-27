@@ -69,8 +69,8 @@
                 <div class="min-w-0">
                     <h2 id="sms-templates-heading" class="font-semibold text-forest-dark">SMS message templates</h2>
                     <p class="mt-1 text-sm text-muted">
-                        Every message the system can send, in English, Sinhala and Tamil. Placeholders such as
-                        <code class="break-words">{reference}</code> are filled in automatically.
+                        Every message the system can send, in English, Sinhala and Tamil. The preview uses sample
+                        details so you can see the name, SPPNR ID and line breaks as they appear on a phone.
                     </p>
                     <p class="mt-2 text-xs text-muted">
                         Gateway:
@@ -120,13 +120,14 @@
                         </p>
 
                         <dl class="grid gap-2">
-                            @foreach ([['en', 'English'], ['si', 'Sinhala · සිංහල'], ['ta', 'Tamil · தமிழ்']] as [$lang, $langLabel])
+                            @foreach ([['en', 'English', 320], ['si', 'Sinhala · සිංහල', 268], ['ta', 'Tamil · தமிழ்', 268]] as [$lang, $langLabel, $limit])
                                 <div class="rounded-xl border border-sand bg-paper px-4 py-3">
                                     <dt class="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-forest-dark">
-                                        <span>{{ $langLabel }} <span class="font-normal text-muted">· {{ $template['name'][$lang] }}</span></span>
-                                        <span class="font-normal text-muted">{{ $template['bodies'][$lang]['length'] }} / 320</span>
+                                        <span>{{ $langLabel }} <span class="font-normal text-muted">· {{ $template['name'][$lang] }} · Preview</span></span>
+                                        <span class="font-normal {{ $template['previews'][$lang]['length'] > $limit ? 'text-rose-700' : 'text-muted' }}">{{ $template['previews'][$lang]['length'] }} / {{ $limit }}</span>
                                     </dt>
-                                    <dd class="mt-1 break-words text-sm text-bark" lang="{{ $lang }}">{{ $template['bodies'][$lang]['text'] }}</dd>
+                                    <dd class="mt-2 rounded-lg border border-sand bg-white px-3 py-2 font-mono text-sm leading-5 text-ink" style="white-space: pre-line" lang="{{ $lang }}">{{ $template['previews'][$lang]['text'] }}</dd>
+                                    <dd class="mt-2 text-xs text-muted" style="white-space: pre-line" lang="{{ $lang }}">{{ $template['bodies'][$lang]['text'] }}</dd>
                                 </div>
                             @endforeach
                         </dl>
